@@ -6,9 +6,10 @@ clone:
 
 steps:
 - name: deploy
-  image: google/drone-firebase
+  image: node
   environment:
     FIREBASE_TOKEN:
       from_secret: FIREBASE_TOKEN
   commands:
+  - npm install -g firebase-tools
   - firebase deploy --token "$${FIREBASE_TOKEN}" --project "onionfruit-connect"
