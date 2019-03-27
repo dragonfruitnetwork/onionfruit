@@ -9,7 +9,7 @@ steps:
   image: google/drone-firebase
   environment:
     FIREBASE_TOKEN:
-      from_secret: token
+      from_secret: FIREBASE_TOKEN
   commands:
   - echo "$${FIREBASE_TOKEN}"
   - firebase deploy --token "$${FIREBASE_TOKEN}" --project "onionfruit-connect"
