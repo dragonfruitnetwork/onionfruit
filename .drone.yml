@@ -1,6 +1,8 @@
 kind: pipeline
 name: default
 
+clone:
+  ssl_verfiy: false
 steps:
 - name: deploy
   image: google/drone-firebase
