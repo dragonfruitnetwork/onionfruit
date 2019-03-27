@@ -11,5 +11,4 @@ steps:
     FIREBASE_TOKEN:
       from_secret: FIREBASE_TOKEN
   commands:
-  - echo "$${FIREBASE_TOKEN}"
   - firebase deploy --token "$${FIREBASE_TOKEN}" --project "onionfruit-connect"
