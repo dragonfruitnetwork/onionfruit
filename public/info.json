@@ -1,5 +1,4 @@
 {
-  "version": 3.6,
-  "uninstallerlink": "https://github.com/dragonfruitnetwork/onionfruit/releases/download/V3.5/Uninstaller.exe",
-  "installerlink": "https://github.com/dragonfruitnetwork/onionfruit/releases/download/3.6/OnionFruit.msi"
+  "version": "2019.0329.18",
+  "installerlink": "https://github.com/dragonfruitnetwork/onionfruit/releases/download/2019.0329.18/OnionFruit.msi"
 }
