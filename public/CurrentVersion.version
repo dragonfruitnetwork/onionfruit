@@ -1,4 +1,6 @@
-3.6
+2019.0329.18
 
-Changes:
-    - Bug Fixes and Performance Boosts
+What's New:
+
+  We have introduced a new *automatic* updating system, along with bug fixes and performance improvements.
+  Due to the IP lookup system being buggy, it has been removed
