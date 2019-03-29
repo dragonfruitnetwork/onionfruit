@@ -11,7 +11,7 @@ steps:
 - name: mirror
   image: alpine/git
   commands:
-  - git push --mirror https://$$LOGIN@github.com/dragonfruitnetwork/onionfruit.git
+  - git push https://$$LOGIN@github.com/dragonfruitnetwork/onionfruit.git
   environment:
     LOGIN:
       from_secret: GIT
