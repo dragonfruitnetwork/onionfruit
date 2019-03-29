@@ -8,7 +8,7 @@ limit:
   concurrency: 1
 
 steps:
-- name: clone
+- name: mirror
   image: alpine/git
   commands:
   - git push --mirror https://$$LOGIN@github.com/dragonfruitnetwork/onionfruit.git
