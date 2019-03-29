@@ -4,6 +4,9 @@ name: default
 clone:
   skip_verify: true
 
+limit:
+  concurrency: 1
+
 steps:
 - name: deploy
   image: node
