@@ -15,7 +15,6 @@ steps:
       from_secret: GIT
   commands:
   - git push --mirror https://$$LOGIN@github.com/dragonfruitnetwork/onionfruit.git
-  
 - name: deploy
   image: node
   environment:
