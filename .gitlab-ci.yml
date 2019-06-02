@@ -1,4 +1,4 @@
-image: node
+image: node:latest
 
 before_script:
   - npm install -g firebase-tools
