@@ -1,0 +1,9 @@
+image: node
+
+before_script:
+  - npm install -g firebase-tools
+
+publish:
+  script:
+    - TOKEN="$(echo -n $B64_FIREBASE_TOKEN | base64 -d)"
+    - firebase deploy --token $TOKEN --project "onionfruit-connect"
