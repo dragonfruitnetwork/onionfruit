@@ -7,3 +7,5 @@ publish:
   script:
     - TOKEN="$(echo -n $B64_FIREBASE_TOKEN | base64 -d)"
     - firebase deploy --token $TOKEN --project "onionfruit-connect"
+  only:
+    - "master"
