@@ -19,4 +19,4 @@ For more info check the `LICENCE` file in this repo.
 
 ## Bugs & Issues
 Bug reporting is by default ON - in the event of a crash, we'll get a report. If you do not want this, you can turn it off in the settings.
-To report an issue, email inbox@dragonfruit.network with your issue or use our [GitLab Server](https://gitlab.dragonfruit.network/dragonfruit/onionfruit/issues)
+To report an issue, email inbox@dragonfruit.network with your issue or use the issues tab above
