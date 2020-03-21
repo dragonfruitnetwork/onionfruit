@@ -1,6 +1,6 @@
-# OnionFruit Connect
+# OnionFruit™ Connect
 
-OnionFruit Connect is a lightweight, streamlined Tor connector tool that allows the user to connect their computer to the Tor network in seconds. It works as a proxy, meaning any application using it will be routed through the network.
+OnionFruit™ Connect is a lightweight, streamlined Tor connector tool that allows the user to connect their computer to the Tor network in seconds. It works as a proxy, meaning any application using it will be routed through the network.
 
 ## What can it do?
 
