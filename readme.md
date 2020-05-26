@@ -1,7 +1,3 @@
-<p align="center">
-  <img width="250px" src="src/logo.png">
-</p>
-
 # OnionFruit™ Connect
 
 [![DragonFruit Site](https://img.shields.io/website/https/dragonfruit.network.svg)](https://dragonfruit.network/onionfruit)
