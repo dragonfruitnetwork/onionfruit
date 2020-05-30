@@ -8,7 +8,7 @@
 
 ## Overview
 
-OnionFruit™ Connect is a free utility that allows users to connect to the Tor Network with minimal effort. Taking a similar form to a VPN program, it's easy to use and gives the user maximum control
+OnionFruit™ Connect is a free utility that allows users to connect to the Tor network with minimal effort. Taking a similar form to a VPN program, it's easy to use and gives the user maximum control.
 Acting as a system proxy, the majority of programs will also be able to connect without much further configuration (including web browsers!).
 
 Changelogs are published on [the DragonFruit Site](https://dragonfruit.network/changelog/onionfruit)
