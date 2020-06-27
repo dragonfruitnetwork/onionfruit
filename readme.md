@@ -1,6 +1,5 @@
 # OnionFruit™ Connect
 
-[![DragonFruit Site](https://img.shields.io/website/https/dragonfruit.network.svg)](https://dragonfruit.network/onionfruit)
 [![Latest Release](https://img.shields.io/github/v/release/dragonfruitnetwork/OnionFruit)](https://github.com/dragonfruitnetwork/OnionFruit/releases)
 ![Total Downloads](https://img.shields.io/github/downloads/dragonfruitnetwork/OnionFruit/total)
 [![Crowdin](https://badges.crowdin.net/onionfruit/localized.svg)](https://crowdin.com/project/onionfruit)
