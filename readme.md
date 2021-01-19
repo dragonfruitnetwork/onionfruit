@@ -14,7 +14,8 @@ Changelogs are published on [the DragonFruit Site](https://dragonfruit.network/c
 
 ## Features
 
-- Connect to the Tor Network with an on/off switch
+- Connect to the Tor Network
+- [Experimental] Resolve DNS through Tor (including `.onion` sites)
 - Select the input/output Country (US, GB, ES, etc.)
 - Auto-connect at login
 - Set custom landing pages (on connect/disconnect)
