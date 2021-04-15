@@ -14,18 +14,19 @@ Changelogs are published on [the DragonFruit Site](https://dragonfruit.network/c
 
 ## Features
 
-- Connect to the Tor Network
-- [Experimental] Resolve DNS through Tor (including `.onion` sites)
-- Select the input/output Country (US, GB, ES, etc.)
-- Auto-connect at login
-- Set custom landing pages (on connect/disconnect)
-- Register in Discord RPC
-- (Some) Bridge Support
+- Simple design
+- No admin elevation needed for most features
+- [Experimental] DNS-over-Tor (including `.onion` sites)
+- Custom traffic entry/exit country (US, GB, ES, etc.)
+- Auto start on Windows login
+- Custom launch pages
+- Discord Game Status
+- Standard, `obfs4` and `meek` Bridge Support
 - Regular updates with bug fixes, performance improvements and new features
 
 ## Getting Started
 
-We've written a wiki article [here](https://github.com/dragonfruitnetwork/OnionFruit/wiki/Getting-Started) if you're unsure how to get started.
+Refer to the [quickstart wiki article](https://github.com/dragonfruitnetwork/OnionFruit/wiki/Getting-Started) if you're unsure how to get up and running.
 
 Releases can be found under the [releases tab on this repo](https://github.com/dragonfruitnetwork/OnionFruit/releases)
 
@@ -34,11 +35,9 @@ Releases can be found under the [releases tab on this repo](https://github.com/d
 In the event the program fails to operate normally (and crashes) we **should** receive a report (with nothing identifiable inside) allowing us to fix the issue.
 If you keep experiencing issues (or want to ask a question/request a feature), feel free to create an issue and we'll get back to you ASAP.
 
-> If you want to turn off bug reporting, you can do so in the settings page
-
 ## Licenses
 
-OnionFruit™ Connect is a closed-source program. One of the reasons for this is because we use proprietary assembles to create our UI (mainly Telerik).
+OnionFruit™ Connect is a closed-source program. One of the reasons for this is because we use proprietary assembles to create our UI (Telerik/PostSharp).
 We can't share these so there is not much point in disclosing the majority of the source with the aim to allow people to improve the app (we also don't want similar versions of the app flooding the market).
 Because of this, people are free to open issues with feature requests (as stated above) and they can be discussed and planned if there is a high enough demand for them.
 
