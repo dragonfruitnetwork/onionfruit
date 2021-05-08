@@ -41,4 +41,4 @@ OnionFruit™ Connect is a closed-source program. One of the reasons for this is
 We can't share these so there is not much point in disclosing the majority of the source with the aim to allow people to improve the app (we also don't want similar versions of the app flooding the market).
 Because of this, people are free to open issues with feature requests (as stated above) and they can be discussed and planned if there is a high enough demand for them.
 
-You can find the license for the main OnionFruit Program in this repo (we assume that if you are using the app you agree to the terms laid out in the license file)
+You can find the license for the main OnionFruit™ Program in this repo (we assume that if you are using the app you agree to the terms laid out in the license file)
