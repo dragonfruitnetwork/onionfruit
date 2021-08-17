@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-**Please read (this wiki entry)[https://github.com/dragonfruitnetwork/onionfruit/wiki/Reporting-Issues]** and remove this line.
+**Please read [this wiki entry](https://github.com/dragonfruitnetwork/onionfruit/wiki/Reporting-Issues)** and remove this line.
 
 **Describe the bug**
 A clear and concise description of what the bug is.
