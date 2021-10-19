@@ -16,12 +16,12 @@ Changelogs are published on [the DragonFruit Site](https://dragonfruit.network/c
 
 - Simple design
 - No admin elevation needed for most features
-- [Experimental] DNS-over-Tor (including `.onion` sites)
+- [Experimental with compatibility warnings] DNS-over-Tor (including `.onion` sites)
 - Custom traffic entry/exit country (US, GB, ES, etc.)
 - Auto start on Windows login
 - Custom launch pages
 - Discord Game Status
-- Standard, `obfs4` and `meek` Bridge Support
+- Standard, `obfs4`, `meek` and `snowflake` Bridge Support
 - Regular updates with bug fixes, performance improvements and new features
 
 ## Getting Started
