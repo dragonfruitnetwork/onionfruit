@@ -8,20 +8,52 @@
 
 /* Begin PBXBuildFile section */
 		211301272A893A4A004686FE /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 211301262A893A4A004686FE /* ServiceManagement.framework */; };
-		215669502A88B71A00DDDBC1 /* interop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2156694F2A88B71A00DDDBC1 /* interop.swift */; };
 		215669532A88B81300DDDBC1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 215669522A88B81300DDDBC1 /* Foundation.framework */; };
-		215669552A88B90400DDDBC1 /* manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 215669542A88B90400DDDBC1 /* manager.swift */; };
+		21AEA4312A894C81005FE1CA /* manager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AEA42F2A894C81005FE1CA /* manager.swift */; };
+		21AEA4322A894C81005FE1CA /* interop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AEA4302A894C81005FE1CA /* interop.swift */; };
+		21AEA4482A894CA2005FE1CA /* authorization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AEA4412A894CA2005FE1CA /* authorization.swift */; };
+		21AEA4492A894CA2005FE1CA /* rpcProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AEA4422A894CA2005FE1CA /* rpcProtocol.swift */; };
+		21AEA44A2A894CA2005FE1CA /* rpcServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AEA4432A894CA2005FE1CA /* rpcServer.swift */; };
+		21AEA44B2A894CA2005FE1CA /* networkInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AEA4442A894CA2005FE1CA /* networkInterface.swift */; };
+		21AEA44C2A894CA2005FE1CA /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21AEA4452A894CA2005FE1CA /* main.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2113012A2A8949A3004686FE /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		211301262A893A4A004686FE /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
+		2113012C2A8949A3004686FE /* proxyd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = proxyd; sourceTree = BUILT_PRODUCTS_DIR; };
 		215669472A88B6C500DDDBC1 /* libonionfruit.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libonionfruit.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		2156694F2A88B71A00DDDBC1 /* interop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = interop.swift; sourceTree = "<group>"; };
 		215669522A88B81300DDDBC1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		215669542A88B90400DDDBC1 /* manager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = manager.swift; sourceTree = "<group>"; };
+		21AEA42F2A894C81005FE1CA /* manager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = manager.swift; sourceTree = "<group>"; };
+		21AEA4302A894C81005FE1CA /* interop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = interop.swift; sourceTree = "<group>"; };
+		21AEA4412A894CA2005FE1CA /* authorization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = authorization.swift; sourceTree = "<group>"; };
+		21AEA4422A894CA2005FE1CA /* rpcProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rpcProtocol.swift; sourceTree = "<group>"; };
+		21AEA4432A894CA2005FE1CA /* rpcServer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = rpcServer.swift; sourceTree = "<group>"; };
+		21AEA4442A894CA2005FE1CA /* networkInterface.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = networkInterface.swift; sourceTree = "<group>"; };
+		21AEA4452A894CA2005FE1CA /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		21AEA4462A894CA2005FE1CA /* launchd.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = launchd.plist; sourceTree = "<group>"; };
+		21AEA4472A894CA2005FE1CA /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		211301292A8949A3004686FE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		215669452A88B6C500DDDBC1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -37,7 +69,8 @@
 		2156693E2A88B6C500DDDBC1 = {
 			isa = PBXGroup;
 			children = (
-				2156694E2A88B6F700DDDBC1 /* onionfruit-native-macos */,
+				21AEA4402A894CA2005FE1CA /* proxyd */,
+				21AEA42E2A894C81005FE1CA /* onionfruit-native */,
 				215669482A88B6C500DDDBC1 /* Products */,
 				215669512A88B81300DDDBC1 /* Frameworks */,
 			);
@@ -47,17 +80,9 @@
 			isa = PBXGroup;
 			children = (
 				215669472A88B6C500DDDBC1 /* libonionfruit.dylib */,
+				2113012C2A8949A3004686FE /* proxyd */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		2156694E2A88B6F700DDDBC1 /* onionfruit-native-macos */ = {
-			isa = PBXGroup;
-			children = (
-				2156694F2A88B71A00DDDBC1 /* interop.swift */,
-				215669542A88B90400DDDBC1 /* manager.swift */,
-			);
-			path = "onionfruit-native-macos";
 			sourceTree = "<group>";
 		};
 		215669512A88B81300DDDBC1 /* Frameworks */ = {
@@ -67,6 +92,29 @@
 				215669522A88B81300DDDBC1 /* Foundation.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		21AEA42E2A894C81005FE1CA /* onionfruit-native */ = {
+			isa = PBXGroup;
+			children = (
+				21AEA42F2A894C81005FE1CA /* manager.swift */,
+				21AEA4302A894C81005FE1CA /* interop.swift */,
+			);
+			path = "onionfruit-native";
+			sourceTree = "<group>";
+		};
+		21AEA4402A894CA2005FE1CA /* proxyd */ = {
+			isa = PBXGroup;
+			children = (
+				21AEA4412A894CA2005FE1CA /* authorization.swift */,
+				21AEA4422A894CA2005FE1CA /* rpcProtocol.swift */,
+				21AEA4432A894CA2005FE1CA /* rpcServer.swift */,
+				21AEA4442A894CA2005FE1CA /* networkInterface.swift */,
+				21AEA4452A894CA2005FE1CA /* main.swift */,
+				21AEA4462A894CA2005FE1CA /* launchd.plist */,
+				21AEA4472A894CA2005FE1CA /* Info.plist */,
+			);
+			path = proxyd;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -82,6 +130,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2113012B2A8949A3004686FE /* proxyd */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 211301302A8949A3004686FE /* Build configuration list for PBXNativeTarget "proxyd" */;
+			buildPhases = (
+				211301282A8949A3004686FE /* Sources */,
+				211301292A8949A3004686FE /* Frameworks */,
+				2113012A2A8949A3004686FE /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = proxyd;
+			productName = proxyd;
+			productReference = 2113012C2A8949A3004686FE /* proxyd */;
+			productType = "com.apple.product-type.tool";
+		};
 		215669462A88B6C500DDDBC1 /* onionfruit */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2156694B2A88B6C500DDDBC1 /* Build configuration list for PBXNativeTarget "onionfruit" */;
@@ -106,15 +171,20 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1430;
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
+					2113012B2A8949A3004686FE = {
+						CreatedOnToolsVersion = 14.3.1;
+						LastSwiftMigration = 1430;
+					};
 					215669462A88B6C500DDDBC1 = {
 						CreatedOnToolsVersion = 14.3.1;
 						LastSwiftMigration = 1430;
 					};
 				};
 			};
-			buildConfigurationList = 215669422A88B6C500DDDBC1 /* Build configuration list for PBXProject "onionfruit-native-macos" */;
+			buildConfigurationList = 215669422A88B6C500DDDBC1 /* Build configuration list for PBXProject "onionfruit-native" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -128,23 +198,64 @@
 			projectRoot = "";
 			targets = (
 				215669462A88B6C500DDDBC1 /* onionfruit */,
+				2113012B2A8949A3004686FE /* proxyd */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		211301282A8949A3004686FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21AEA44B2A894CA2005FE1CA /* networkInterface.swift in Sources */,
+				21AEA44C2A894CA2005FE1CA /* main.swift in Sources */,
+				21AEA4482A894CA2005FE1CA /* authorization.swift in Sources */,
+				21AEA4492A894CA2005FE1CA /* rpcProtocol.swift in Sources */,
+				21AEA44A2A894CA2005FE1CA /* rpcServer.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		215669442A88B6C500DDDBC1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				215669502A88B71A00DDDBC1 /* interop.swift in Sources */,
-				215669552A88B90400DDDBC1 /* manager.swift in Sources */,
+				21AEA4312A894C81005FE1CA /* manager.swift in Sources */,
+				21AEA4322A894C81005FE1CA /* interop.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		211301312A8949A3004686FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q824VHAT9S;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		211301322A8949A3004686FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = Q824VHAT9S;
+				ENABLE_HARDENED_RUNTIME = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		215669492A88B6C500DDDBC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -288,7 +399,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		215669422A88B6C500DDDBC1 /* Build configuration list for PBXProject "onionfruit-native-macos" */ = {
+		211301302A8949A3004686FE /* Build configuration list for PBXNativeTarget "proxyd" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				211301312A8949A3004686FE /* Debug */,
+				211301322A8949A3004686FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		215669422A88B6C500DDDBC1 /* Build configuration list for PBXProject "onionfruit-native" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				215669492A88B6C500DDDBC1 /* Debug */,

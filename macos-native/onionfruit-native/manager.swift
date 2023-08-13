@@ -1,6 +1,6 @@
 //
 //  manager.swift
-//  onionfruit-native-macos
+//  onionfruit-native
 //
 //  Created by Albie Spriddell on 13/08/2023.
 //
