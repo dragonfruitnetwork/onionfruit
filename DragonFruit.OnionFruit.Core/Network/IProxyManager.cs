@@ -1,3 +1,6 @@
+// OnionFruit Copyright DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under LGPL-3.0. Refer to the LICENCE file for more info
+
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,7 +12,7 @@ namespace DragonFruit.OnionFruit.Core.Network
         /// Gets the current access state of the proxy settings
         /// </summary>
         ProxyAccessState GetState();
-        
+
         /// <summary>
         /// Gets the current proxy settings for the device
         /// </summary>

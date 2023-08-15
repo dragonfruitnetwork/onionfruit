@@ -7,11 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DragonFruit.OnionFruit.Core\DragonFruit.OnionFruit.Core.csproj" />
+        <ProjectReference Include="..\DragonFruit.OnionFruit.Core\DragonFruit.OnionFruit.Core.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="DragonFruit.OnionFruit.Native.osx" Version="12.5.2.1" />
+        <PackageReference Include="DragonFruit.OnionFruit.Native.osx" Version="12.5.2.1"/>
     </ItemGroup>
 
 </Project>

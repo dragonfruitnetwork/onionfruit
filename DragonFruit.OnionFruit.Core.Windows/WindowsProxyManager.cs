@@ -1,4 +1,7 @@
-﻿using System;
+﻿// OnionFruit Copyright DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under LGPL-3.0. Refer to the LICENCE file for more info
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -16,13 +19,13 @@ namespace DragonFruit.OnionFruit.Core.Windows
     {
         private const string ProxyEnabledKey = "ProxyEnable";
         private const string ProxyServerKey = "ProxyServer";
-        
+
         private const int InternetOptionSettingsChanged = 0x27;
         private const int InternetOptionRefresh = 0x25;
-        
+
         private const string RegistryKeyName = @"Software\Microsoft\Windows\CurrentVersion\Internet Settings";
         private const RegistryRights RequiredRights = RegistryRights.ReadKey | RegistryRights.ReadPermissions | RegistryRights.WriteKey | RegistryRights.SetValue | RegistryRights.Delete;
-        
+
         private readonly RegistryKey _registry;
 
         public WindowsProxyManager()
@@ -35,6 +38,11 @@ namespace DragonFruit.OnionFruit.Core.Windows
             {
                 // the user doesn't have the required access level to edit the proxy.
             }
+        }
+
+        public void Dispose()
+        {
+            _registry?.Dispose();
         }
 
         public ProxyAccessState GetState()
@@ -82,7 +90,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
 
                 return ValueTask.FromResult(SignalSettingsChanged());
             }
-            
+
             bool? globalState = null;
             var proxyUrlBuilder = new StringBuilder();
 
@@ -110,16 +118,11 @@ namespace DragonFruit.OnionFruit.Core.Windows
             {
                 throw new ArgumentException("At least one proxy is required to change settings");
             }
-            
+
             _registry.SetValue(ProxyEnabledKey, globalState.Value ? 1 : 0);
             _registry.SetValue(ProxyServerKey, proxyUrlBuilder.ToString().TrimEnd(';'));
 
             return ValueTask.FromResult(SignalSettingsChanged());
-        }
-        
-        public void Dispose()
-        {
-            _registry?.Dispose();
         }
 
         private bool SignalSettingsChanged()

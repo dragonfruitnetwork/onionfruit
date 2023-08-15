@@ -1,3 +1,6 @@
+// OnionFruit Copyright DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under LGPL-3.0. Refer to the LICENCE file for more info
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +29,19 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
             // create install manager
             _serviceManagerHandle = NativeLibrary.CreateServiceManager();
+        }
+
+        public void Dispose()
+        {
+            _xpcConnection?.Invalidate();
+
+            _xpcConnection?.Dispose();
+            _xpcServiceVersion?.Dispose();
+
+            if (_serviceManagerHandle.HasValue)
+            {
+                NativeLibrary.CleanupServiceManager(_serviceManagerHandle.Value);
+            }
         }
 
         public void OpenUserInteractionComponent()
@@ -139,19 +155,6 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             }
 
             return _xpcConnection.CreateRemoteObjectProxy<IXpcProtocol>();
-        }
-
-        public void Dispose()
-        {
-            _xpcConnection?.Invalidate();
-
-            _xpcConnection?.Dispose();
-            _xpcServiceVersion?.Dispose();
-
-            if (_serviceManagerHandle.HasValue)
-            {
-                NativeLibrary.CleanupServiceManager(_serviceManagerHandle.Value);
-            }
         }
     }
 }
