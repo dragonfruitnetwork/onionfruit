@@ -1,7 +1,14 @@
+using System.Threading.Tasks;
+
 namespace DragonFruit.OnionFruit.Core.Network
 {
     public interface IProxyManager
     {
+        /// <summary>
+        /// Gets the current access state of the proxy settings
+        /// </summary>
+        ProxyAccessState GetState();
+        
         /// <summary>
         /// Gets the current proxy settings for the interface
         /// </summary>
@@ -10,12 +17,12 @@ namespace DragonFruit.OnionFruit.Core.Network
         /// <summary>
         /// Clears the proxy settings for the interface
         /// </summary>
-        void ClearProxy();
+        ValueTask ClearProxy();
         
         /// <summary>
         /// Sets the proxy settings for the interface
         /// </summary>
         /// <param name="proxy">The proxy to use</param>
-        void SetProxy(NetworkProxy proxy);
+        ValueTask SetProxy(NetworkProxy proxy);
     }
 }
