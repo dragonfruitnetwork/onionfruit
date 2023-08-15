@@ -9,7 +9,7 @@ import Foundation
 import SystemConfiguration
 
 class NetworkInterface {
-    private static var proxyStringPattern = /(socks|http|https)=([\da-f:.]{3,128}):(\d{1,4})/.ignoresCase()
+    private static var proxyStringPattern = /(socks|http|https)=([\da-f:.]{3,128}):(\d{1,5})/.ignoresCase()
 
     /// Parses a windows-style proxy url and sets the corresponding settings in the provided configuration dictionary.
     /// Currently supports socks, http and https

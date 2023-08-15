@@ -8,8 +8,8 @@
 import Foundation
 
 @objc(RpcProtocol) protocol RpcProtocol {
-    func setProxy(_ url: String, withReply reply: @escaping (Bool) -> Void)
-    func clearProxies(withReply reply: @escaping (Bool) -> Void)
-    func getVersion(withReply reply: @escaping (UInt16) -> Void)
-    func getUid(withReply reply: @escaping (String) -> Void)
+    func setProxy(_ url: String, enabled: Bool, reply: @escaping (Bool) -> Void)
+    func clearProxies(reply: @escaping (Bool) -> Void)
+    func getVersion(reply: @escaping (UInt16) -> Void)
+    func getUid(reply: @escaping (String) -> Void)
 }

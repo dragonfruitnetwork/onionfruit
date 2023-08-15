@@ -16,7 +16,7 @@ func getApiVersion() -> UInt16 {
 @_cdecl("createManager")
 /// Creates a new Daemon Manager
 /// - Returns: A pointer to the created resource
-public func createDaemonManager(_ forceLegacy: Bool) -> OpaquePointer {
+public func createDaemonManager() -> OpaquePointer {
     let type = DaemonManager()
     let retained = Unmanaged.passRetained(type).toOpaque()
 
@@ -26,7 +26,7 @@ public func createDaemonManager(_ forceLegacy: Bool) -> OpaquePointer {
 @_cdecl("closeManager")
 /// Disposes the manager at the provided address
 /// - Parameter handle: The handle of the manager to dispose
-public func disposeDaemonManager(_ handle: OpaquePointer) {
+public func disposeDaemonManager(_ handle: OpaquePointer) -> Void {
     _ = getDaemonFromPointer(handle).takeRetainedValue()
 }
 

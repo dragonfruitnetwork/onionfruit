@@ -12,15 +12,15 @@ let helperProcessName = "OnionFruit Native Services" as CFString
 
 @objc class RpcServer: NSObject, RpcProtocol {
     
-    func getVersion(withReply reply: @escaping (UInt16) -> Void) {
+    func getVersion(reply: @escaping (UInt16) -> Void) {
         reply(1)
     }
     
-    func getUid(withReply reply: @escaping (String) -> Void) {
+    func getUid(reply: @escaping (String) -> Void) {
         reply(NSUserName())
     }
     
-    func setProxy(_ url: String, withReply reply: @escaping (Bool) -> Void) {
+    func setProxy(_ url: String, reply: @escaping (Bool) -> Void) {
         // load in config
         let systemPreferences = SCPreferencesCreate(kCFAllocatorDefault, helperProcessName, nil)!
         var proxyCollection: Dictionary<NSObject, AnyObject> = [
@@ -35,7 +35,7 @@ let helperProcessName = "OnionFruit Native Services" as CFString
         reply(true)
     }
     
-    func clearProxies(withReply reply: @escaping (Bool) -> Void) {
+    func clearProxies(reply: @escaping (Bool) -> Void) {
         let systemPreferences = SCPreferencesCreate(kCFAllocatorDefault, helperProcessName, nil)!
         var proxyCollection = Dictionary<NSObject, AnyObject>();
         
