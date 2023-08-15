@@ -5,6 +5,8 @@ namespace DragonFruit.OnionFruit.Core.Network
         Accessible,
         BlockedByUser,
         BlockedBySystem,
-        PendingApproval
+        PendingApproval,
+        ServiceInvalid,
+        ServiceFailure
     }
 }

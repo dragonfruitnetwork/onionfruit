@@ -2,5 +2,5 @@ using System;
 
 namespace DragonFruit.OnionFruit.Core.Network
 {
-    public record NetworkProxy(string ProxyType, Uri Address);
+    public record NetworkProxy(bool Enabled, Uri Address);
 }

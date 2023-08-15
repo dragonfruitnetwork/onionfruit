@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DragonFruit.OnionFruit.Core.Network
@@ -10,19 +11,14 @@ namespace DragonFruit.OnionFruit.Core.Network
         ProxyAccessState GetState();
         
         /// <summary>
-        /// Gets the current proxy settings for the interface
+        /// Gets the current proxy settings for the device
         /// </summary>
-        NetworkProxy GetProxy();
+        ValueTask<IEnumerable<NetworkProxy>> GetProxy();
 
         /// <summary>
-        /// Clears the proxy settings for the interface
+        /// Sets the proxy settings for the device.
+        /// Passing an empty array causes the settings to be cleared.
         /// </summary>
-        ValueTask ClearProxy();
-        
-        /// <summary>
-        /// Sets the proxy settings for the interface
-        /// </summary>
-        /// <param name="proxy">The proxy to use</param>
-        ValueTask SetProxy(NetworkProxy proxy);
+        ValueTask<bool> SetProxy(params NetworkProxy[] proxies);
     }
 }
