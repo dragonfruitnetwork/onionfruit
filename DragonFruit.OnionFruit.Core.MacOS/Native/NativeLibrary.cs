@@ -9,7 +9,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS.Native
     internal static class NativeLibrary
     {
         internal const int CurrentNativeApiVersion = 1;
-        private const string NativeApiLibraryName = "libonionfruit.dylib";
+        private const string NativeApiLibraryName = "libonionfruit";
 
         [DllImport(NativeApiLibraryName, EntryPoint = "getApiVersion")]
         public static extern ushort GetApiVersion();
