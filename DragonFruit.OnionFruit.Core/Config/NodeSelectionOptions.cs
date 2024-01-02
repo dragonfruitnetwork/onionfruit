@@ -148,7 +148,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Filters a single node based on its fingerprint
     /// </summary>
-    /// <param name="Fingerprint"></param>
+    /// <param name="Fingerprint">The 40-character hexadecimal node fingerprint</param>
     public partial record NodeFingerprintFilter(string Fingerprint) : INodeFilter
     {
         string INodeFilter.TorrcIdentifier => Fingerprint;
@@ -172,6 +172,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Filters nodes based on their <see cref="IPAddress"/>
     /// </summary>
+    /// <param name="AddressRange">The <see cref="IPNetwork"/> to filter by</param>
     public record NodeAddressRangeFilter(IPNetwork AddressRange) : INodeFilter
     {
         // todo this doesn't print ipv6 addresses with square brackets (check if needed)
