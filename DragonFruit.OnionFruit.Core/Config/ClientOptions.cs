@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace DragonFruit.OnionFruit.Core.Config
 {
     /// <summary>
-    /// Exposes options commonly used by clients including endpoints, automapping hosts and dns settings
+    /// Exposes options commonly used by clients including endpoints, automapping hosts, dns settings and firewall settings.
     /// </summary>
     public class ClientOptions : TorrcConfigEntry
     {
