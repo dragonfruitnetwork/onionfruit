@@ -163,7 +163,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Filters nodes based on their country code
     /// </summary>
-    /// <param name="CountryCode"></param>
+    /// <param name="CountryCode">ISO3166 country code (case insensitive)</param>
     public record NodeCountryFilter(string CountryCode) : INodeFilter
     {
         string INodeFilter.TorrcIdentifier => $"{{{CountryCode.ToLowerInvariant()}}}";
