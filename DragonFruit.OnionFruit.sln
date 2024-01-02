@@ -4,8 +4,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonFruit.OnionFruit.Core
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonFruit.OnionFruit.Core.Windows", "DragonFruit.OnionFruit.Core.Windows\DragonFruit.OnionFruit.Core.Windows.csproj", "{917DADED-930C-41CC-8FBC-6F4AB484CAC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonFruit.OnionFruit.Core.MacOS", "DragonFruit.OnionFruit.Core.MacOS\DragonFruit.OnionFruit.Core.MacOS.csproj", "{09203FEF-A26A-4641-90EE-9481F73C61AB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,9 +18,5 @@ Global
 		{917DADED-930C-41CC-8FBC-6F4AB484CAC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{917DADED-930C-41CC-8FBC-6F4AB484CAC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{917DADED-930C-41CC-8FBC-6F4AB484CAC1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{09203FEF-A26A-4641-90EE-9481F73C61AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{09203FEF-A26A-4641-90EE-9481F73C61AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{09203FEF-A26A-4641-90EE-9481F73C61AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{09203FEF-A26A-4641-90EE-9481F73C61AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
