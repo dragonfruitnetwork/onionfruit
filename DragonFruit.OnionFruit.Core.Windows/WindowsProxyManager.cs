@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.AccessControl;
@@ -83,7 +82,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
 
         public ValueTask<bool> SetProxy(params NetworkProxy[] proxies)
         {
-            if (!proxies.Any())
+            if (proxies.Length == 0)
             {
                 _registry.SetValue(ProxyEnabledKey, 0);
                 _registry.DeleteValue(ProxyServerKey);
