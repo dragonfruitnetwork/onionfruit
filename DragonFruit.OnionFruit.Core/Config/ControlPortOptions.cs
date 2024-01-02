@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace DragonFruit.OnionFruit.Core.Config
 {
     /// <summary>
-    /// Exposes options to configure the control port (`ControlPort` and `HashedControlPassword`)
+    /// Exposes options to configure the control server
     /// </summary>
     /// <remarks>
     /// By setting this option, you can use a TCP client to interact with the Tor process while it's running.

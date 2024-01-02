@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DragonFruit.OnionFruit.Core.Config
 {
     /// <summary>
-    /// Exposes filesystem options for tor (cache dir, data dir)
+    /// Exposes filesystem options (cache dir, data dir)
     /// </summary>
     public class FilesystemOptions(string dataDirectory) : TorrcConfigEntry
     {
