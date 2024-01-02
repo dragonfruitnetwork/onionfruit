@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace DragonFruit.OnionFruit.Core.Config
 {
     /// <summary>
-    /// Exposes options commonly used by clients
+    /// Exposes options commonly used by clients including endpoints, automapping hosts and dns settings
     /// </summary>
     public class ClientOptions : TorrcConfigEntry
     {
@@ -85,7 +85,7 @@ namespace DragonFruit.OnionFruit.Core.Config
         /// <summary>
         /// Gets or sets a list of suffixes to automatically map to a local address for the purpose of resolving them over Tor.
         /// </summary>
-        public IEnumerable<string> AutomappedSuffixes { get; set; } = null;
+        public ICollection<string> AutomappedSuffixes { get; set; } = null;
 
         public override async Task WriteAsync(StreamWriter writer)
         {
