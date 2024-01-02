@@ -78,6 +78,19 @@ namespace DragonFruit.OnionFruit.Core.Config
         /// </remarks>
         public ICollection<INodeFilter> ExcludedExitNodes { get; set; }
 
+        public override IEnumerable<ConfigEntryValidationResult> PerformValidation()
+        {
+            if (!string.IsNullOrWhiteSpace(GeoIPv4File) && !File.Exists(GeoIPv4File))
+            {
+                yield return new ConfigEntryValidationResult(true, "GeoIPv4 file does not exist.");
+            }
+
+            if (!string.IsNullOrWhiteSpace(GeoIPv6File) && !File.Exists(GeoIPv6File))
+            {
+                yield return new ConfigEntryValidationResult(true, "GeoIPv6 file does not exist.");
+            }
+        }
+
         public override async Task WriteAsync(StreamWriter writer)
         {
             await writer.WriteLineAsync($"StrictNodes {(StrictNodes ? 1 : 0)}").ConfigureAwait(false);
