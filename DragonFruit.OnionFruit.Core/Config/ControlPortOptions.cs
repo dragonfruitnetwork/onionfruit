@@ -52,7 +52,7 @@ namespace DragonFruit.OnionFruit.Core.Config
         /// <summary>
         /// Gets or sets a list of endpoints to use for the control port
         /// </summary>
-        public IList<IPEndPoint> Endpoints { get; set; }
+        public ICollection<IPEndPoint> Endpoints { get; set; }
 
         /// <summary>
         /// Gets or sets the password to use for the control port.
