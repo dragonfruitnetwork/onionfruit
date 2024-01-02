@@ -111,8 +111,6 @@ namespace DragonFruit.OnionFruit.Core.Config
 
             // generate random salt value
             var saltData = RandomNumberGenerator.GetBytes(8);
-
-            // generate an even number that can be divided nicely below
             var count = (16 + (indicator & 15)) << ((indicator >> 4) + expbias);
 
             var hashCandidates = new List<byte>(count);
@@ -133,7 +131,12 @@ namespace DragonFruit.OnionFruit.Core.Config
                 }
             }
 
-            var hash = SHA1.HashData(hashCandidates.ToArray());
+            Span<byte> data = stackalloc byte[hashCandidates.Count];
+            Span<byte> hash = stackalloc byte[20];
+
+            hashCandidates.CopyTo(data);
+            SHA1.HashData(data, hash);
+
             return $"{prefix}{Convert.ToHexString(saltData)}{indicator:X}{Convert.ToHexString(hash)}";
         }
     }
