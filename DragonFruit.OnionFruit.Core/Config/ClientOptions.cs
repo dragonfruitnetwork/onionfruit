@@ -19,6 +19,10 @@ namespace DragonFruit.OnionFruit.Core.Config
         private bool _enableV4 = Socket.OSSupportsIPv4;
         private bool _enableV6 = Socket.OSSupportsIPv6;
 
+        public ClientOptions()
+        {
+        }
+
         public ClientOptions(int port)
         {
             Endpoints = new List<IPEndPoint>(2);
@@ -86,7 +90,12 @@ namespace DragonFruit.OnionFruit.Core.Config
         /// <summary>
         /// How often padding messages should be sent over the connection to prevent firewalls from closing the connection
         /// </summary>
-        public TimeSpan? KeepAlive { get; set; }
+        public TimeSpan? ExternalConnectionKeepAlive { get; set; }
+
+        /// <summary>
+        /// How long a circuit should be retained with no activity before being destroyed.
+        /// </summary>
+        public TimeSpan? CircuitIdleTimeout { get; set; }
 
         /// <summary>
         /// Whether the client is behind a firewall that only allows traffic on specific ports.
@@ -123,26 +132,31 @@ namespace DragonFruit.OnionFruit.Core.Config
             await writer.WriteLineAsync($"ClientUseIPv4 {(EnableIPv4 ? 1 : 0)}").ConfigureAwait(false);
             await writer.WriteLineAsync($"ClientUseIPv6 {(EnableIPv6 ? 1 : 0)}").ConfigureAwait(false);
 
-            if (Endpoints?.Any() == true)
+            if (Endpoints?.Count > 0)
             {
                 await WriteEndpointsAsync(writer, "SocksPort", Endpoints).ConfigureAwait(false);
             }
 
-            if (DnsEndpoints?.Any() == true)
+            if (DnsEndpoints?.Count > 0)
             {
                 await WriteEndpointsAsync(writer, "DNSPort", DnsEndpoints).ConfigureAwait(false);
             }
 
             await writer.WriteLineAsync($"AutomapHostsOnResolve {(AutomapHostsOnResolve ? 1 : 0)}").ConfigureAwait(false);
 
-            if (AutomappedSuffixes?.Any() == true)
+            if (AutomappedSuffixes?.Count > 0)
             {
                 await writer.WriteLineAsync($"AutomapHostsSuffixes {string.Join(',', AutomappedSuffixes)}").ConfigureAwait(false);
             }
 
-            if (KeepAlive > TimeSpan.Zero)
+            if (ExternalConnectionKeepAlive > TimeSpan.Zero)
             {
-                await writer.WriteLineAsync($"KeepAlivePeriod {KeepAlive.Value.TotalSeconds}").ConfigureAwait(false);
+                await writer.WriteLineAsync($"KeepAlivePeriod {(int)ExternalConnectionKeepAlive.Value.TotalSeconds}").ConfigureAwait(false);
+            }
+
+            if (CircuitIdleTimeout > TimeSpan.Zero)
+            {
+                await writer.WriteLineAsync($"MaxCircuitDirtiness {(int)CircuitIdleTimeout.Value.TotalSeconds}").ConfigureAwait(false);
             }
 
             if (FacistFirewall)
