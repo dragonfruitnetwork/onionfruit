@@ -67,6 +67,12 @@ namespace DragonFruit.OnionFruit.Core.Config
         }
 
         /// <summary>
+        /// Whether to automatically map hostnames with a tld specified in <see cref="AutomappedSuffixes"/> to a local address for the purpose of resolving them over Tor.
+        /// This is useful for proxying .onion hostnames on apps that don't know how to resolve them.
+        /// </summary>
+        public bool AutomapHostsOnResolve { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets a list of endpoints to expose as a proxy server.
         /// </summary>
         public ICollection<IPEndPoint> Endpoints { get; set; }
@@ -76,11 +82,18 @@ namespace DragonFruit.OnionFruit.Core.Config
         /// </summary>
         public ICollection<IPEndPoint> DnsEndpoints { get; set; }
 
+        /// <summary>
+        /// Gets or sets a list of suffixes to automatically map to a local address for the purpose of resolving them over Tor.
+        /// </summary>
+        public IEnumerable<string> AutomappedSuffixes { get; set; } = null;
+
         public override async Task WriteAsync(StreamWriter writer)
         {
             await writer.WriteLineAsync($"ClientOnly {(ClientOnly ? 1 : 0)}").ConfigureAwait(false);
             await writer.WriteLineAsync($"ClientUseIPv4 {(EnableIPv4 ? 1 : 0)}").ConfigureAwait(false);
             await writer.WriteLineAsync($"ClientUseIPv6 {(EnableIPv6 ? 1 : 0)}").ConfigureAwait(false);
+
+            await writer.WriteLineAsync($"AutomapHostsOnResolve {(AutomapHostsOnResolve ? 1 : 0)}").ConfigureAwait(false);
 
             if (Endpoints?.Any() == true)
             {
@@ -90,6 +103,11 @@ namespace DragonFruit.OnionFruit.Core.Config
             if (DnsEndpoints?.Any() == true)
             {
                 await WriteEndpointsAsync(writer, "DNSPort", DnsEndpoints).ConfigureAwait(false);
+            }
+
+            if (AutomappedSuffixes?.Any() == true)
+            {
+                await writer.WriteLineAsync($"AutomapHostsSuffixes {string.Join(',', AutomappedSuffixes)}").ConfigureAwait(false);
             }
         }
 
