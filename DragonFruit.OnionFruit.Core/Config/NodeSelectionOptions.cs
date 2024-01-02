@@ -117,14 +117,16 @@ namespace DragonFruit.OnionFruit.Core.Config
             }
         }
 
-        private async Task WriteNodeFiltersAsync(StreamWriter writer, string identifier, ICollection<INodeFilter> filters)
+        private static async Task WriteNodeFiltersAsync(StreamWriter writer, string identifier, ICollection<INodeFilter> filters)
         {
             if (filters == null || filters.Count == 0)
             {
                 return;
             }
 
-            var identifierBuilder = new StringBuilder($"{identifier} ");
+            var identifierBuilder = new StringBuilder(identifier);
+
+            identifierBuilder.Append(' ');
 
             foreach (var filter in filters)
             {
