@@ -109,34 +109,28 @@ namespace DragonFruit.OnionFruit.Core.Config
             const byte indicator = 0x60; // the iteration count (repeat the salt+password upto this count)
             const int expbias = 6;
 
+            const int count = (16 + (indicator & 15)) << ((indicator >> 4) + expbias);
+
             // generate random salt value
             var saltData = RandomNumberGenerator.GetBytes(8);
-            var count = (16 + (indicator & 15)) << ((indicator >> 4) + expbias);
+            var saltedPassword = saltData.Concat(Encoding.ASCII.GetBytes(Password)).ToArray();
 
-            var hashCandidates = new List<byte>(count);
-            var tmp = saltData.Concat(Encoding.ASCII.GetBytes(Password)).ToArray();
-
-            var length = tmp.Length;
-            while (count != 0)
-            {
-                if (count > length)
-                {
-                    hashCandidates.AddRange(tmp);
-                    count -= length;
-                }
-                else
-                {
-                    hashCandidates.AddRange(tmp.Take(count));
-                    count = 0;
-                }
-            }
-
-            Span<byte> data = stackalloc byte[hashCandidates.Count];
+            Span<byte> data = stackalloc byte[count];
             Span<byte> hash = stackalloc byte[20];
 
-            hashCandidates.CopyTo(data);
-            SHA1.HashData(data, hash);
+            var offset = 0;
 
+            while (offset < count)
+            {
+                var remaining = count - offset;
+                var copyLength = Math.Min(remaining, saltedPassword.Length);
+
+                saltedPassword.AsSpan()[..copyLength].CopyTo(data[offset..]);
+
+                offset += copyLength;
+            }
+
+            SHA1.HashData(data, hash);
             return $"{prefix}{Convert.ToHexString(saltData)}{indicator:X}{Convert.ToHexString(hash)}";
         }
     }
