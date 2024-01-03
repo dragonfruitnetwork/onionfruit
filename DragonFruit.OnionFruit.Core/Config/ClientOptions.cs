@@ -54,6 +54,11 @@ namespace DragonFruit.OnionFruit.Core.Config
         public bool ClientOnly { get; set; } = true;
 
         /// <summary>
+        /// Whether to enable scrubbing of log files. Also known as <c>ShowPII</c> in other libraries.
+        /// </summary>
+        public bool EnableLogScrubbing { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets whether to enable IPv4 for connections to nodes.
         /// </summary>
         public bool EnableIPv4
@@ -147,6 +152,9 @@ namespace DragonFruit.OnionFruit.Core.Config
             await writer.WriteLineAsync($"ClientOnly {(ClientOnly ? 1 : 0)}").ConfigureAwait(false);
             await writer.WriteLineAsync($"ClientUseIPv4 {(EnableIPv4 ? 1 : 0)}").ConfigureAwait(false);
             await writer.WriteLineAsync($"ClientUseIPv6 {(EnableIPv6 ? 1 : 0)}").ConfigureAwait(false);
+
+            // we expose the option the other way around to make more sense to consumers (i.e. show pii)
+            await writer.WriteLineAsync($"SafeLogging {(EnableLogScrubbing ? 0 : 1)}").ConfigureAwait(false);
 
             if (Endpoints?.Count > 0)
             {
