@@ -201,12 +201,11 @@ namespace DragonFruit.OnionFruit.Core.Config
             }
         }
 
-        private static async Task WriteEndpointsAsync(TextWriter writer, string keyword, IEnumerable<IPEndPoint> endpoints)
+        private static async Task WriteEndpointsAsync(StreamWriter writer, string keyword, IEnumerable<IPEndPoint> endpoints)
         {
             foreach (var endpoint in endpoints ?? Enumerable.Empty<IPEndPoint>())
             {
-                var address = endpoint.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{endpoint.Address}]" : endpoint.Address.ToString();
-                await writer.WriteLineAsync($"{keyword} {address}:{endpoint.Port}").ConfigureAwait(false);
+                await writer.WriteLineAsync($"{keyword} {endpoint}").ConfigureAwait(false);
             }
         }
 
