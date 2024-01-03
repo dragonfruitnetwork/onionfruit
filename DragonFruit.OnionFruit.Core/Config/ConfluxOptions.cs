@@ -11,18 +11,18 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Represents the `ConfluxEnabled` and `ConfluxClientUX` options in the torrc file
     /// </summary>
-    public class ConfluxOptions(bool? enabled, ConfluxOptions.ClientUx? experienceType) : TorrcConfigEntry
+    public class ConfluxOptions : TorrcConfigEntry
     {
         /// <summary>
         /// Gets or sets whether the conflux traffic splitting.
         /// If <c>null</c>, the conflux will be automatically enabled based on the consensus.
         /// </summary>
-        public bool? Enabled { get; set; } = enabled;
+        public bool? Enabled { get; set; }
 
         /// <summary>
         /// The mode the conflux should operate in.
         /// </summary>
-        public ClientUx? ExperienceType { get; set; } = experienceType;
+        public ClientUx? ExperienceType { get; set; } = ClientUx.Throughput;
 
         public override IEnumerable<ConfigEntryValidationResult> PerformValidation()
         {
