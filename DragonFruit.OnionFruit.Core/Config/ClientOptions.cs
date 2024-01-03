@@ -83,9 +83,9 @@ namespace DragonFruit.OnionFruit.Core.Config
 
         /// <summary>
         /// Whether to automatically map hostnames with a tld specified in <see cref="AutomappedSuffixes"/> to a local address for the purpose of resolving them over Tor.
-        /// This is useful for proxying .onion hostnames on apps that don't know how to resolve them.
+        /// This is useful for proxying .onion hostnames through apps that don't know how to handle them.
         /// </summary>
-        public bool AutomapHostsOnResolve { get; set; } = true;
+        public bool AutomapHostsOnResolve { get; set; }
 
         /// <summary>
         /// How often padding messages should be sent over the connection to prevent firewalls from closing the connection
