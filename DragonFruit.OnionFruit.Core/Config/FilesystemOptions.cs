@@ -29,12 +29,12 @@ namespace DragonFruit.OnionFruit.Core.Config
 
         public override IEnumerable<ConfigEntryValidationResult> PerformValidation()
         {
-            if (!Directory.Exists(DataDirectory))
+            if (!string.IsNullOrEmpty(DataDirectory) && !Directory.Exists(DataDirectory))
             {
                 yield return new ConfigEntryValidationResult(true, "Data directory does not exist.");
             }
 
-            if (!Directory.Exists(CacheDirectory))
+            if (!string.IsNullOrEmpty(CacheDirectory) && !Directory.Exists(CacheDirectory))
             {
                 yield return new ConfigEntryValidationResult(true, "Cached data directory does not exist.");
             }
