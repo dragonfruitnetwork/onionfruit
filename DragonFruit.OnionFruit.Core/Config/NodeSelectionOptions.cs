@@ -113,7 +113,7 @@ namespace DragonFruit.OnionFruit.Core.Config
 
             if (ExcludeUnknownNodes.HasValue)
             {
-                await writer.WriteLineAsync($"ExcludeUnknownNodes {(ExcludeUnknownNodes.Value ? 1 : 0)}").ConfigureAwait(false);
+                await writer.WriteLineAsync($"GeoIPExcludeUnknown {(ExcludeUnknownNodes.Value ? 1 : 0)}").ConfigureAwait(false);
             }
         }
 
