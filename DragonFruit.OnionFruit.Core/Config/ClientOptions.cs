@@ -98,6 +98,17 @@ namespace DragonFruit.OnionFruit.Core.Config
         public TimeSpan? CircuitIdleTimeout { get; set; }
 
         /// <summary>
+        /// Whether Tor should reject connections that are using unsafe variants of the socks protocol
+        /// (ones that only provide an IP address, indicating a DNS lookup occured beforehand)
+        /// </summary>
+        public bool RejectUnsafeSocksConnections { get; set; }
+
+        /// <summary>
+        /// Gets or sets a list of ports that should not be used for plaintext connections. Tor will refuse to connect to these ports.
+        /// </summary>
+        public ICollection<int> RejectPlaintextPorts { get; set; } = null;
+
+        /// <summary>
         /// Whether the client is behind a firewall that only allows traffic on specific ports.
         /// By setting this to <c>true</c>, the client will select nodes that are available on ports specified by <see cref="FirewallPorts"/>
         /// </summary>
@@ -122,7 +133,12 @@ namespace DragonFruit.OnionFruit.Core.Config
 
             if (FirewallPorts?.Any(x => x is < 0 or > 65535) == true)
             {
-                yield return new ConfigEntryValidationResult(false, $"{nameof(FirewallPorts)} contains one or more invalid ports");
+                yield return new ConfigEntryValidationResult(true, $"{nameof(FirewallPorts)} contains one or more invalid ports");
+            }
+
+            if (RejectPlaintextPorts?.Any(x => x is < 0 or > 65535) == true)
+            {
+                yield return new ConfigEntryValidationResult(true, $"{nameof(RejectPlaintextPorts)} contains one or more invalid ports");
             }
         }
 
@@ -159,15 +175,20 @@ namespace DragonFruit.OnionFruit.Core.Config
                 await writer.WriteLineAsync($"MaxCircuitDirtiness {(int)CircuitIdleTimeout.Value.TotalSeconds}").ConfigureAwait(false);
             }
 
+            await writer.WriteLineAsync($"SafeSocks {(RejectUnsafeSocksConnections ? 1 : 0)}").ConfigureAwait(false);
+
+            if (RejectPlaintextPorts?.Count > 0)
+            {
+                await writer.WriteLineAsync($"RejectPlaintextPorts {string.Join(',', RejectPlaintextPorts)}").ConfigureAwait(false);
+            }
+
             if (FacistFirewall)
             {
                 await writer.WriteLineAsync("FacistFirewall 1").ConfigureAwait(false);
 
-                // filter out invalid ports
-                var validPorts = FirewallPorts?.Where(x => x is > 0 and < 65536).ToList();
-                if (validPorts?.Count > 0)
+                if (FirewallPorts?.Count > 0)
                 {
-                    await writer.WriteLineAsync($"FirewallPorts {string.Join(',', validPorts)}").ConfigureAwait(false);
+                    await writer.WriteLineAsync($"FirewallPorts {string.Join(',', FirewallPorts)}").ConfigureAwait(false);
                 }
             }
         }
