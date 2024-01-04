@@ -52,14 +52,14 @@ namespace DragonFruit.OnionFruit.Core
         }
 
         /// <summary>
-        /// Event raised when the bootstrap progress changes
-        /// </summary>
-        public event EventHandler<int> BootstrapProgressChanged;
-
-        /// <summary>
         /// Event raised when the process state changes
         /// </summary>
         public event EventHandler<State> ProcessStateChanged;
+
+        /// <summary>
+        /// Event raised when the bootstrap progress changes
+        /// </summary>
+        public event EventHandler<int> BootstrapProgressChanged;
 
         /// <summary>
         /// Starts the Tor process asynchronously using the given config entries
@@ -170,6 +170,7 @@ namespace DragonFruit.OnionFruit.Core
             _process = null;
             _tempConfigFile = null;
 
+            Version = null;
             ProcessState = State.Stopped;
         }
 
@@ -178,6 +179,18 @@ namespace DragonFruit.OnionFruit.Core
             if (string.IsNullOrEmpty(e.Data))
             {
                 return;
+            }
+
+            // check for version (should be first line of output when starting)
+            if (string.IsNullOrEmpty(Version))
+            {
+                var versionMatch = TorProcessOutputRegex.VersionOutput().Match(e.Data);
+
+                if (versionMatch.Success)
+                {
+                    Version = versionMatch.Groups["version"].Value;
+                    return;
+                }
             }
 
             // check if it's a bootstrap message
