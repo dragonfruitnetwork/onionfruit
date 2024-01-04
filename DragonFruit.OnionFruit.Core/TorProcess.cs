@@ -71,6 +71,11 @@ namespace DragonFruit.OnionFruit.Core
         /// <param name="configEntries">The <see cref="TorrcConfigEntry"/> items to use when building the torrc file</param>
         public async Task StartProcessAsync(IEnumerable<TorrcConfigEntry> configEntries)
         {
+            if (_process != null || _tempConfigFile != null)
+            {
+                throw new InvalidOperationException("Tor process is already running. It must be stopped before starting again");
+            }
+
             _tempConfigFile = new FileStream(Path.GetTempFileName(), FileMode.Create, FileAccess.Write, FileShare.Read, 4096, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
 
             await using (var writer = new StreamWriter(_tempConfigFile, leaveOpen: true))
@@ -118,10 +123,11 @@ namespace DragonFruit.OnionFruit.Core
 
             _process.Start();
 
+            ProcessState = State.Started;
+
+            // start stdout and stderr events
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
-
-            ProcessState = State.Started;
         }
 
         private async Task StopProcessAsync()
