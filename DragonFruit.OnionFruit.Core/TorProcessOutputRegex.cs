@@ -3,7 +3,7 @@
 
 using System.Text.RegularExpressions;
 
-namespace DragonFruit.OnionFruit.Core.Process
+namespace DragonFruit.OnionFruit.Core
 {
     /// <summary>
     /// Provides regex patterns for matching against Tor process outputs

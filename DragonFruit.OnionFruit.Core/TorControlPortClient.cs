@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DragonFruit.OnionFruit.Core.Process
+namespace DragonFruit.OnionFruit.Core
 {
     /// <summary>
     /// Represents a message received from the Tor control port, in response to a command initiated by the client
