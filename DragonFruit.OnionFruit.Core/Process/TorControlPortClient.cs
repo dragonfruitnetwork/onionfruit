@@ -34,15 +34,16 @@ namespace DragonFruit.OnionFruit.Core.Process
             try
             {
                 var networkStream = _client.GetStream();
-                await using var writer = new StreamWriter(networkStream, Encoding.UTF8, leaveOpen: true);
 
-                await writer.WriteLineAsync(message).ConfigureAwait(false);
-                await writer.FlushAsync(cancellation).ConfigureAwait(false);
+                await using (var writer = new StreamWriter(networkStream, leaveOpen: true))
+                {
+                    await writer.WriteLineAsync(message).ConfigureAwait(false);
+                }
 
                 var replyLines = new StringBuilder();
                 var dataLines = new StringBuilder();
 
-                using var reader = new StreamReader(networkStream, Encoding.UTF8, leaveOpen: true);
+                using var reader = new StreamReader(networkStream, leaveOpen: true);
 
                 while (true)
                 {
@@ -63,8 +64,8 @@ namespace DragonFruit.OnionFruit.Core.Process
                             replyLines.AppendLine(responseLine[4..]);
                             break;
 
-                        case '+': // statusCode followed by a plus indicates the lines preceeding this one are data lines
-                            replyLines.Append(responseLine[4..]);
+                        case '+': // statusCode followed by a plus indicates the lines preceding this one are data lines
+                            replyLines.AppendLine(responseLine[4..]);
 
                             while (true)
                             {
