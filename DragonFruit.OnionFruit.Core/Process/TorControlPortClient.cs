@@ -11,7 +11,12 @@ using System.Threading.Tasks;
 
 namespace DragonFruit.OnionFruit.Core.Process
 {
-    public record TorControlServerMessage(int Status, string StatusMessage, string Reply, string Data);
+    /// <summary>
+    /// Represents a message received from the Tor control port, in response to a command initiated by the client
+    /// </summary>
+    /// <param name="Status">The status code</param>
+    /// <param name="StatusMessage">Description of <see cref="Status"/></param>
+    /// <param name="ReplyData">Any data sent with the response. In the case of multiline responses, lines are separated by a newline character</param>
     public record TorControlServerMessage(int Status, string StatusMessage, string ReplyData);
 
     /// <summary>
