@@ -30,12 +30,18 @@ namespace DragonFruit.OnionFruit.Core.Process
         /// <summary>
         /// Connects to the control port as an asynchronous operation
         /// </summary>
-        public Task ConnectAsync() => _client.ConnectAsync(endpoint);
+        public Task ConnectAsync()
+        {
+            return _client.ConnectAsync(endpoint);
+        }
 
         /// <summary>
         /// Disconnects from the control port
         /// </summary>
-        public void Disconnect() => _client.Close();
+        public void Disconnect()
+        {
+            _client.Close();
+        }
 
         /// <summary>
         /// Authenticates the control port with the given password as an asynchronous operation
