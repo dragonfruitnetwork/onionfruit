@@ -44,7 +44,7 @@ namespace DragonFruit.OnionFruit.Core
         public int BootstrapProgress
         {
             get => _bootstrapProgress;
-            set
+            private set
             {
                 _bootstrapProgress = value;
                 BootstrapProgressChanged?.Invoke(this, value);
