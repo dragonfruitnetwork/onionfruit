@@ -98,15 +98,14 @@ namespace DragonFruit.OnionFruit.Core
 
             _process = new Process
             {
+                EnableRaisingEvents = true,
                 StartInfo = new ProcessStartInfo(torPath)
                 {
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
-                },
-                EnableRaisingEvents = true,
-                PriorityBoostEnabled = true,
+                }
             };
 
             if (!string.IsNullOrEmpty(configFile) && File.Exists(configFile))
