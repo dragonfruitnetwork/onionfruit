@@ -30,5 +30,37 @@ namespace DragonFruit.OnionFruit.Core.Network
 
             return ports;
         }
+
+        /// <summary>
+        /// Returns the closest open port to the provided <see cref="target"/>
+        /// </summary>
+        /// <param name="target">The preferred port to use</param>
+        /// <param name="range">The range to check for open ports (i.e. if range = 10, try 10 above and 10 below <see cref="target"/>)</param>
+        /// <returns>The closest port within an "acceptable" range, or null if none available</returns>
+        public static int? GetClosestFreePort(int target, int range = 20)
+        {
+            var ports = GetActiveTcpPorts();
+
+            for (int i = 0; i < range; i++)
+            {
+                var nextPort = target + i;
+
+                // try +1
+                if (!ports.Contains(nextPort))
+                {
+                    return nextPort;
+                }
+
+                nextPort = target - i;
+
+                // try -1
+                if (!ports.Contains(nextPort))
+                {
+                    return nextPort;
+                }
+            }
+
+            return null;
+        }
     }
 }
