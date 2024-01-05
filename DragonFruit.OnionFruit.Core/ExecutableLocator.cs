@@ -17,12 +17,12 @@ namespace DragonFruit.OnionFruit.Core
         /// <summary>
         /// Gets the suffix applied to the executable (i.e. ".exe" on Windows, <see cref="string.Empty"/> on macOS/Linux)
         /// </summary>
-        protected abstract string ExecutableSuffix { get; }
+        public abstract string ExecutableSuffix { get; }
 
         /// <summary>
         /// A list of platform identifiers that a runnable executable could be found under
         /// </summary>
-        protected abstract IEnumerable<string> SupportedPlatforms { get; }
+        public abstract IEnumerable<string> SupportedPlatforms { get; }
 
         public virtual IEnumerable<string> LocateExecutableInstancesOf(string executableName)
         {
@@ -39,10 +39,10 @@ namespace DragonFruit.OnionFruit.Core
                 // return base dir
                 yield return root;
 
-                // check native/win/osx/linux-* dirs
+                // check native win/osx/linux-* dirs
                 foreach (var rid in SupportedPlatforms)
                 {
-                    yield return Path.Combine(root, "native", rid);
+                    yield return Path.Combine(root, "runtimes", rid, "native");
                 }
             }
 
