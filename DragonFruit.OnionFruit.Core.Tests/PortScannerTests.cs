@@ -19,7 +19,7 @@ namespace DragonFruit.OnionFruit.Core.Tests
             using var server = new TcpListener(IPAddress.Loopback, port.Value);
             server.Start();
 
-            // try to find a new port
+            // next port should not be the same as the one we just occupied
             var newPort = PortScanner.GetClosestFreePort(target);
             Assert.NotEqual(port, newPort);
 
