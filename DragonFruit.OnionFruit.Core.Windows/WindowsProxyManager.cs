@@ -3,12 +3,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.AccessControl;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Windows.Win32;
 using DragonFruit.OnionFruit.Core.Network;
 using Microsoft.Win32;
 
@@ -124,17 +124,13 @@ namespace DragonFruit.OnionFruit.Core.Windows
             return ValueTask.FromResult(SignalSettingsChanged());
         }
 
-        private bool SignalSettingsChanged()
+        private unsafe bool SignalSettingsChanged()
         {
-            return InternetSetOption(IntPtr.Zero, InternetOptionSettingsChanged, IntPtr.Zero, 0) &&
-                   InternetSetOption(IntPtr.Zero, InternetOptionRefresh, IntPtr.Zero, 0);
+            return PInvoke.InternetSetOption(default, InternetOptionSettingsChanged, default, 0) &&
+                   PInvoke.InternetSetOption(default, InternetOptionRefresh, default, 0);
         }
 
         [GeneratedRegex(@"^(socks|http|https|ftp)=(.+):(\d{1,5})(/.+)?$", RegexOptions.IgnoreCase, "en-GB")]
         private static partial Regex ProxyUrlRegex();
-
-        // https://learn.microsoft.com/en-us/windows/win32/api/wininet/nf-wininet-internetsetoptionw
-        [LibraryImport("wininet.dll", EntryPoint = "InternetSetOptionW")]
-        private static partial bool InternetSetOption(IntPtr hInternet, int dwOption, IntPtr lpBuffer, int dwBufferLength);
     }
 }
