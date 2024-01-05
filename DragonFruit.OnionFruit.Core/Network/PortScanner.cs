@@ -2,6 +2,7 @@
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.NetworkInformation;
 
 namespace DragonFruit.OnionFruit.Core.Network
@@ -9,58 +10,36 @@ namespace DragonFruit.OnionFruit.Core.Network
     public static class PortScanner
     {
         /// <summary>
-        /// Produces a set of all active TCP ports on the local system
-        /// </summary>
-        public static IReadOnlySet<int> GetActiveTcpPorts()
-        {
-            var properties = IPGlobalProperties.GetIPGlobalProperties();
-            var connections = properties.GetActiveTcpConnections();
-
-            var ports = new HashSet<int>(connections.Length);
-
-            foreach (var connection in connections)
-            {
-                if (connection.State == TcpState.Closed)
-                {
-                    continue;
-                }
-
-                ports.Add(connection.LocalEndPoint.Port);
-            }
-
-            return ports;
-        }
-
-        /// <summary>
-        /// Returns the closest open port to the provided <see cref="target"/>
+        /// Returns the closest port available for listening on to the provided <see cref="target"/>
         /// </summary>
         /// <param name="target">The preferred port to use</param>
-        /// <param name="range">The range to check for open ports (i.e. if range = 10, try 10 above and 10 below <see cref="target"/>)</param>
+        /// <param name="range">The number of ports above and below the <see cref="target"/> to check</param>
+        /// <param name="excludedPorts">Optional list of ports to exclude from being selected.</param>
         /// <returns>The closest port within an "acceptable" range, or null if none available</returns>
-        public static int? GetClosestFreePort(int target, int range = 20)
+        public static int? GetClosestFreePort(int target, int range = 20, params int[] excludedPorts)
         {
-            var ports = GetActiveTcpPorts();
+            var ports = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners().Select(x => x.Port).ToHashSet();
 
-            for (int i = 0; i < range; i++)
+            foreach (var candidate in GenerateValueSequence(target, range))
             {
-                var nextPort = target + i;
-
-                // try +1
-                if (!ports.Contains(nextPort))
+                if (!ports.Contains(candidate) && !excludedPorts.Contains(candidate))
                 {
-                    return nextPort;
-                }
-
-                nextPort = target - i;
-
-                // try -1
-                if (!ports.Contains(nextPort))
-                {
-                    return nextPort;
+                    return candidate;
                 }
             }
 
             return null;
+        }
+
+        private static IEnumerable<int> GenerateValueSequence(int start, int iterations)
+        {
+            yield return start;
+
+            for (int i = 1; i <= iterations; i++)
+            {
+                yield return start + i;
+                yield return start - i;
+            }
         }
     }
 }
