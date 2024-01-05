@@ -18,17 +18,13 @@ namespace DragonFruit.OnionFruit.Core.Network
         /// <returns>The closest port within an "acceptable" range, or null if none available</returns>
         public static int? GetClosestFreePort(int target, int range = 20, params int[] excludedPorts)
         {
-            var ports = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners().Select(x => x.Port).ToHashSet();
+            var ports = IPGlobalProperties.GetIPGlobalProperties()
+                .GetActiveTcpListeners()
+                .Select(x => x.Port)
+                .Concat(excludedPorts)
+                .ToHashSet();
 
-            foreach (var candidate in GenerateValueSequence(target, range))
-            {
-                if (!ports.Contains(candidate) && !excludedPorts.Contains(candidate))
-                {
-                    return candidate;
-                }
-            }
-
-            return null;
+            return GenerateValueSequence(target, range).FirstOrDefault(x => !ports.Contains(x));
         }
 
         private static IEnumerable<int> GenerateValueSequence(int start, int iterations)
