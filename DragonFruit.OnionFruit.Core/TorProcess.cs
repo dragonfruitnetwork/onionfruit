@@ -232,12 +232,23 @@ namespace DragonFruit.OnionFruit.Core
 
             if (!logOutput.Success)
             {
-                logger?.Log(LogLevel.Debug, "[Tor]: {output}", e.Data);
+                logger?.Log(LogLevel.Debug, "[{procName}]: {output}", _process.ProcessName, e.Data);
                 return;
             }
 
-            // todo log message using it's own priority
-            logger?.Log(LogLevel.Information, "[Tor]: {output}", logOutput.Groups["message"].Value);
+            if (logger != null)
+            {
+                var priority = logOutput.Groups["priority"].Value switch
+                {
+                    "notice" or "info" => LogLevel.Information,
+                    "warn" => LogLevel.Warning,
+                    "err" => LogLevel.Error,
+
+                    _ => LogLevel.Debug
+                };
+
+                logger?.Log(priority, "[{procName}]: {output}", _process.ProcessName, logOutput.Groups["message"].Value);
+            }
 
             // check if it's a bootstrap message
             var bootstrapOutput = TorProcessOutputRegex.BootstrapLogOutput().Match(logOutput.Groups["message"].Value);
