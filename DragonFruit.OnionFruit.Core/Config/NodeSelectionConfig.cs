@@ -13,7 +13,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Provides options for selecting nodes to use in a circuit, along with the ability to specify the GeoIP database files to use
     /// </summary>
-    public class NodeSelectionOptions : TorrcConfigEntry
+    public class NodeSelectionConfig : TorrcConfigEntry
     {
         private string _geoIPv4File, _geoIPv6File;
 

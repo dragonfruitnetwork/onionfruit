@@ -90,7 +90,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Allows configuration of unlisted entry nodes and obfuscated, pluggable transports
     /// </summary>
-    public class BridgeOptions : TorrcConfigEntry
+    public class BridgeConfig : TorrcConfigEntry
     {
         /// <summary>
         /// <see cref="BridgeEntry"/> instances to use when connecting to the Tor network

@@ -10,7 +10,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Exposes filesystem options (cache dir, data dir)
     /// </summary>
-    public class FilesystemOptions(string dataDirectory) : TorrcConfigEntry
+    public class FilesystemConfig(string dataDirectory) : TorrcConfigEntry
     {
         /// <summary>
         /// Whether to avoid disk writes

@@ -14,16 +14,16 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Exposes options commonly used by clients including endpoints, automapping hosts, dns settings and firewall settings.
     /// </summary>
-    public class ClientOptions : TorrcConfigEntry
+    public class ClientConfig : TorrcConfigEntry
     {
         private bool _enableV4 = Socket.OSSupportsIPv4;
         private bool _enableV6 = Socket.OSSupportsIPv6;
 
-        public ClientOptions()
+        public ClientConfig()
         {
         }
 
-        public ClientOptions(int port)
+        public ClientConfig(int port)
         {
             Endpoints = new List<IPEndPoint>(2);
 
@@ -38,12 +38,12 @@ namespace DragonFruit.OnionFruit.Core.Config
             }
         }
 
-        public ClientOptions(IPEndPoint endpoint)
+        public ClientConfig(IPEndPoint endpoint)
         {
             Endpoints = [endpoint];
         }
 
-        public ClientOptions(IEnumerable<IPEndPoint> endpoints)
+        public ClientConfig(IEnumerable<IPEndPoint> endpoints)
         {
             Endpoints = new List<IPEndPoint>(endpoints);
         }

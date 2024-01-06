@@ -11,7 +11,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Options for configuring dormant mode options
     /// </summary>
-    public class DormantModeOptions : TorrcConfigEntry
+    public class DormantModeConfig : TorrcConfigEntry
     {
         /// <summary>
         /// How long the process should go with no user activity before entering dormant mode.

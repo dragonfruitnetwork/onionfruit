@@ -11,7 +11,7 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <summary>
     /// Represents the `ConfluxEnabled` and `ConfluxClientUX` options in the torrc file
     /// </summary>
-    public class ConfluxOptions : TorrcConfigEntry
+    public class ConfluxConfig : TorrcConfigEntry
     {
         /// <summary>
         /// Gets or sets whether the conflux traffic splitting.

@@ -19,31 +19,31 @@ namespace DragonFruit.OnionFruit.Core.Config
     /// <remarks>
     /// By setting this option, you can use a TCP client to interact with the Tor process while it's running.
     /// </remarks>
-    public class ControlPortOptions : TorrcConfigEntry
+    public class ControlPortConfig : TorrcConfigEntry
     {
         /// <summary>
-        /// Creates a new <see cref="ControlPortOptions"/> using localhost and the given port
+        /// Creates a new <see cref="ControlPortConfig"/> using localhost and the given port
         /// </summary>
         /// <param name="port">The port to use</param>
         /// <param name="password">The password to use for authenticating with the control server</param>
-        public ControlPortOptions(int port, string password)
+        public ControlPortConfig(int port, string password)
             : this(new IPEndPoint(IPAddress.Loopback, port), password)
         {
         }
 
         /// <summary>
-        /// Creates a new <see cref="ControlPortOptions"/> using the given endpoint
+        /// Creates a new <see cref="ControlPortConfig"/> using the given endpoint
         /// </summary>
-        public ControlPortOptions(IPEndPoint endpoint, string password)
+        public ControlPortConfig(IPEndPoint endpoint, string password)
         {
             Endpoints = new List<IPEndPoint>([endpoint]);
             Password = password;
         }
 
         /// <summary>
-        /// Creates a new <see cref="ControlPortOptions"/> using the given endpoints
+        /// Creates a new <see cref="ControlPortConfig"/> using the given endpoints
         /// </summary>
-        public ControlPortOptions(IEnumerable<IPEndPoint> endpoints, string password)
+        public ControlPortConfig(IEnumerable<IPEndPoint> endpoints, string password)
         {
             Endpoints = new List<IPEndPoint>(endpoints);
             Password = password;
