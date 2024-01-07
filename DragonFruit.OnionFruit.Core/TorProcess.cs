@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DragonFruit.OnionFruit.Core.Config;
 using Microsoft.Extensions.Logging;
@@ -125,6 +124,7 @@ namespace DragonFruit.OnionFruit.Core
                 {
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
+                    RedirectStandardInput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true
                 }
@@ -157,28 +157,19 @@ namespace DragonFruit.OnionFruit.Core
             // unsubscribe before closing the window to prevent kill state from being set.
             _process.Exited -= ProcessExited;
 
-            switch (_process.HasExited)
+            if (!_process.HasExited)
             {
-                case false when _process.CloseMainWindow():
+                // write ETX (0x03) to stdin and flush to request shutdown
+                await _process.StandardInput.WriteLineAsync('\x3').ConfigureAwait(false);
+                await _process.StandardInput.FlushAsync().ConfigureAwait(false);
+
+                try
                 {
-                    try
-                    {
-                        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                        await _process.WaitForExitAsync(cts.Token).ConfigureAwait(false);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        // treat as "close main window" didn't happen
-                        goto case false;
-                    }
-
-                    break;
+                    await _process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
                 }
-
-                case false:
+                catch (OperationCanceledException)
                 {
                     _process.Kill();
-                    break;
                 }
             }
 
