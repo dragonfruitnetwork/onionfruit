@@ -52,10 +52,16 @@ namespace DragonFruit.OnionFruit.Core.Tests
             };
 
             await process.StartProcessWithConfig(client);
-            await processWaiter.Task.WaitAsync(TimeSpan.FromSeconds(60));
 
-            await Task.Delay(1000);
-            await process.StopProcessAsync();
+            try
+            {
+                await processWaiter.Task.WaitAsync(TimeSpan.FromSeconds(60));
+                await Task.Delay(1000);
+            }
+            finally
+            {
+                await process.StopProcessAsync();
+            }
         }
     }
 }
