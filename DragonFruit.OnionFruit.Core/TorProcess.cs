@@ -38,6 +38,8 @@ namespace DragonFruit.OnionFruit.Core
             get => _processState;
             private set
             {
+                if (_processState == value) return;
+
                 _processState = value;
                 ProcessStateChanged?.Invoke(this, value);
             }
@@ -51,6 +53,8 @@ namespace DragonFruit.OnionFruit.Core
             get => _bootstrapProgress;
             private set
             {
+                if (_bootstrapProgress == value) return;
+
                 _bootstrapProgress = value;
                 BootstrapProgressChanged?.Invoke(this, value);
             }
