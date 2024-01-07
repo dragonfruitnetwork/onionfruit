@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using DragonFruit.OnionFruit.Core.Config;
@@ -163,17 +164,18 @@ namespace DragonFruit.OnionFruit.Core
 
             if (!_process.HasExited)
             {
-                // write ETX (0x03) to stdin and flush to request shutdown
-                await _process.StandardInput.WriteLineAsync('\x3').ConfigureAwait(false);
-                await _process.StandardInput.FlushAsync().ConfigureAwait(false);
-
                 try
                 {
-                    await _process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
                     _process.Kill();
+                }
+                catch (ExternalException ext)
+                {
+                    logger?.Log(LogLevel.Error, ext, "Failed to kill tor process due to a system-level error: {message}", ext.Message);
+                }
+                catch (InvalidOperationException)
+                {
+                    // the process no longer exists so there's nothing to kill...
+                    logger?.Log(LogLevel.Information, "Could not kill tor process because it no longer exists");
                 }
             }
 
