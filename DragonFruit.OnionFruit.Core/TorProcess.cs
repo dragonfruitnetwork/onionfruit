@@ -14,7 +14,36 @@ using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Core
 {
-    public class TorProcess(string torPath, ILogger logger = null)
+    public interface ITorProcessInformation
+    {
+        /// <summary>
+        /// Gets the version of the running client.
+        /// This is set when the process is started and reports the version in the output
+        /// </summary>
+        string Version { get; }
+
+        /// <summary>
+        /// Gets the current state of the process, including if it's running, bootstrapping or stopped
+        /// </summary>
+        TorProcess.State ProcessState { get; }
+
+        /// <summary>
+        /// When <see cref="ProcessState"/> is bootstrapping, this is the current progress of the client
+        /// </summary>
+        int BootstrapProgress { get; }
+
+        /// <summary>
+        /// Event raised when the process state changes
+        /// </summary>
+        event EventHandler<TorProcess.State> ProcessStateChanged;
+
+        /// <summary>
+        /// Event raised when the bootstrap progress changes
+        /// </summary>
+        event EventHandler<int> BootstrapProgressChanged;
+    }
+
+    public class TorProcess(string torPath, ILogger logger = null) : ITorProcessInformation
     {
         private Process _process;
         private string _tempConfigFile;
