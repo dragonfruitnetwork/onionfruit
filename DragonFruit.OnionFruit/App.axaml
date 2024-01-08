@@ -1,0 +1,8 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="DragonFruit.OnionFruit.App"
+             xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia">
+    <Application.Styles>
+        <styling:FluentAvaloniaTheme PreferSystemTheme="True" UseSystemFontOnWindows="True" />
+    </Application.Styles>
+</Application>
