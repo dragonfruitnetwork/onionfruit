@@ -20,6 +20,9 @@ namespace DragonFruit.OnionFruit.Models
     /// </summary>
     public class TorSession : IDisposable
     {
+        private const int DefaultSocksPort = 9050;
+        private const int DefaultControlPort = 9051;
+
         private readonly TorProcess _process;
         private readonly IProxyManager _proxyManager;
 
@@ -28,7 +31,7 @@ namespace DragonFruit.OnionFruit.Models
         private TorSessionState _state;
         private Timer _connectionStallTimer;
 
-        private IList<TorrcConfigEntry> _sessionConfig;
+        private IReadOnlyList<TorrcConfigEntry> _sessionConfig;
 
         public TorSession(string executablePath, IProxyManager proxyManager, ILoggerFactory loggerFactory)
         {
@@ -76,7 +79,11 @@ namespace DragonFruit.OnionFruit.Models
                 throw new InvalidOperationException("Cannot start a process that is already running");
             }
 
-            _sessionConfig = GenerateSessionConfig();
+            if (!TryGenerateSessionConfig(out _sessionConfig))
+            {
+                return;
+            }
+
             _connectionStallTimer = new Timer(_ => State = TorSessionState.ConnectingStalled, null, TimeSpan.Zero, Timeout.InfiniteTimeSpan);
 
             await _process.StartProcessWithConfig(_sessionConfig);
@@ -88,8 +95,9 @@ namespace DragonFruit.OnionFruit.Models
         /// <summary>
         /// Builds a configuration for the current session using sane defaults and the user's preferences
         /// </summary>
-        private IList<TorrcConfigEntry> GenerateSessionConfig()
+        private bool TryGenerateSessionConfig(out IReadOnlyList<TorrcConfigEntry> sessionConfig)
         {
+            var consumedPorts = new List<int>(2);
             var basicConfig = new ClientConfig
             {
                 Endpoints = [],
@@ -99,8 +107,8 @@ namespace DragonFruit.OnionFruit.Models
 #endif
             };
 
-            // todo handle null with error
-            var targetPort = PortScanner.GetClosestFreePort(9050)!.Value;
+            // todo handle null with error/create special method
+            var targetPort = PortScanner.GetClosestFreePort(DefaultSocksPort, excludedPorts: consumedPorts)!.Value;
 
             if (Socket.OSSupportsIPv4)
             {
@@ -112,15 +120,25 @@ namespace DragonFruit.OnionFruit.Models
                 basicConfig.Endpoints.Add(new IPEndPoint(IPAddress.IPv6Loopback, targetPort));
             }
 
+            // don't reuse SOCKS port
+            consumedPorts.Add(targetPort);
+
+            var controlPort = PortScanner.GetClosestFreePort(DefaultControlPort, excludedPorts: consumedPorts)!.Value;
+            var controlPortConfig = new ControlPortConfig(basicConfig.Endpoints.Select(x => new IPEndPoint(x.Address, controlPort)), Guid.NewGuid().ToString("N"));
+
+            // don't reuse control port
+            consumedPorts.Add(controlPort);
+
             // todo add onionfruit -> torrc config converters, geoip handling + control port monitoring
 
-            return [basicConfig];
+            sessionConfig = [basicConfig, controlPortConfig];
+            return true;
         }
 
         /// <summary>
         /// Handles process state changes, setting the proxy if the process is running and clearing it if it's not
         /// </summary>
-        private void ProcessStateChanged(object sender, TorProcess.State e)
+        private async void ProcessStateChanged(object sender, TorProcess.State e)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
 
@@ -133,7 +151,7 @@ namespace DragonFruit.OnionFruit.Models
                 case TorProcess.State.Blocked:
                 case TorProcess.State.Stopped:
                 {
-                    _proxyManager.SetProxy();
+                    await _proxyManager.SetProxy();
 
                     State = TorSessionState.Disconnected;
                     break;
@@ -159,7 +177,7 @@ namespace DragonFruit.OnionFruit.Models
                         proxies[index++] = new NetworkProxy(true, new Uri(address));
                     }
 
-                    _proxyManager.SetProxy(proxies);
+                    await _proxyManager.SetProxy(proxies);
 
                     State = TorSessionState.Connected;
                     break;
