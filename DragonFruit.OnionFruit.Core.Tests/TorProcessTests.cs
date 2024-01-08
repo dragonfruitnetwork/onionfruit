@@ -60,7 +60,7 @@ namespace DragonFruit.OnionFruit.Core.Tests
             }
             finally
             {
-                await process.StopProcessAsync();
+                process.StopProcess();
             }
         }
     }

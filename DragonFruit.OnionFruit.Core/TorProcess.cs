@@ -152,7 +152,7 @@ namespace DragonFruit.OnionFruit.Core
             _process.BeginOutputReadLine();
         }
 
-        public async Task StopProcessAsync()
+        public void StopProcess()
         {
             if (_process == null)
             {
@@ -257,14 +257,14 @@ namespace DragonFruit.OnionFruit.Core
             }
         }
 
-        private async void ProcessExited(object sender, EventArgs e)
+        private void ProcessExited(object sender, EventArgs e)
         {
             // when we kill the process, we ensure this is unsubscribed from
             // this should only be called when the process exits unexpectedly.
             ProcessState = State.Killed;
 
             // as the process is dead might as well clean up now
-            await StopProcessAsync();
+            StopProcess();
         }
 
         public enum State
