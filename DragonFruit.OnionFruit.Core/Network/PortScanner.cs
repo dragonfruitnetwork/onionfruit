@@ -16,12 +16,12 @@ namespace DragonFruit.OnionFruit.Core.Network
         /// <param name="range">The number of ports above and below the <see cref="target"/> to check</param>
         /// <param name="excludedPorts">Optional list of ports to exclude from being selected.</param>
         /// <returns>The closest port within an "acceptable" range, or null if none available</returns>
-        public static int? GetClosestFreePort(int target, int range = 20, params int[] excludedPorts)
+        public static int? GetClosestFreePort(int target, int range = 20, IEnumerable<int> excludedPorts = null)
         {
             var ports = IPGlobalProperties.GetIPGlobalProperties()
                 .GetActiveTcpListeners()
                 .Select(x => x.Port)
-                .Concat(excludedPorts)
+                .Concat(excludedPorts ?? Enumerable.Empty<int>())
                 .ToHashSet();
 
             return GenerateValueSequence(target, range).FirstOrDefault(x => !ports.Contains(x));
