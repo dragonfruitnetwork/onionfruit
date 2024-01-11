@@ -45,7 +45,8 @@ namespace DragonFruit.OnionFruit.Core.Tests
                         processWaiter.TrySetResult();
                         break;
 
-                    case TorProcess.State.Stopped or TorProcess.State.Blocked or TorProcess.State.Killed:
+                    case TorProcess.State.Stopped:
+                    case TorProcess.State.Killed:
                         processWaiter.TrySetException(new Exception("Failed to start tor process"));
                         break;
                 }

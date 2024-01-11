@@ -310,12 +310,7 @@ namespace DragonFruit.OnionFruit.Core
             /// <summary>
             /// The process was killed by an external source. <see cref="StopProcess"/> will be called automatically.
             /// </summary>
-            Killed,
-
-            /// <summary>
-            /// Something is blocking the process from starting. The system is likely at fault here.
-            /// </summary>
-            Blocked
+            Killed
         }
     }
 }
