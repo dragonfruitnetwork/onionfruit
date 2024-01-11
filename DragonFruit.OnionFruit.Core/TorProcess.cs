@@ -54,15 +54,10 @@ namespace DragonFruit.OnionFruit.Core
         // why is this not a standard property?
         private static readonly Encoding UTF8NoBom = new UTF8Encoding(false);
 
-        /// <summary>
-        /// Gets the version of the running client.
-        /// This is set when the process is started and reports the version in the output
-        /// </summary>
+        /// <inheritdoc/>
         public string Version { get; private set; }
 
-        /// <summary>
-        /// Gets the current state of the process, including if it's running, bootstrapping or stopped
-        /// </summary>
+        /// <inheritdoc/>
         public State ProcessState
         {
             get => _processState;
@@ -75,9 +70,7 @@ namespace DragonFruit.OnionFruit.Core
             }
         }
 
-        /// <summary>
-        /// When <see cref="ProcessState"/> is bootstrapping, this is the current progress of the client
-        /// </summary>
+        /// <inheritdoc/>
         public int BootstrapProgress
         {
             get => _bootstrapProgress;
@@ -90,14 +83,10 @@ namespace DragonFruit.OnionFruit.Core
             }
         }
 
-        /// <summary>
-        /// Event raised when the process state changes
-        /// </summary>
+        /// <inheritdoc/>
         public event EventHandler<State> ProcessStateChanged;
 
-        /// <summary>
-        /// Event raised when the bootstrap progress changes
-        /// </summary>
+        /// <inheritdoc/>
         public event EventHandler<int> BootstrapProgressChanged;
 
         /// <summary>
@@ -208,8 +197,8 @@ namespace DragonFruit.OnionFruit.Core
                 }
             }
 
-            _process.Dispose();
             _process.OutputDataReceived -= ProcessOutput;
+            _process.Dispose();
 
             if (_tempConfigFile != null)
             {
@@ -319,7 +308,7 @@ namespace DragonFruit.OnionFruit.Core
             Stopped,
 
             /// <summary>
-            /// The process was killed by an external source
+            /// The process was killed by an external source. <see cref="StopProcess"/> will be called automatically.
             /// </summary>
             Killed,
 
