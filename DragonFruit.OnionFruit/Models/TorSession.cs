@@ -38,8 +38,8 @@ namespace DragonFruit.OnionFruit.Models
             _proxyManager = proxyManager;
             _process = new TorProcess(executablePath, loggerFactory.CreateLogger<TorProcess>());
 
-            Process.ProcessStateChanged += ProcessStateChanged;
-            Process.BootstrapProgressChanged += ProcessBootstrapProgress;
+            _process.ProcessStateChanged += ProcessStateChanged;
+            _process.BootstrapProgressChanged += ProcessBootstrapProgress;
         }
 
         /// <summary>
@@ -84,12 +84,47 @@ namespace DragonFruit.OnionFruit.Models
                 return;
             }
 
+            try
+            {
+                State = TorSessionState.Connecting;
+                await _process.StartProcessWithConfig(_sessionConfig);
+            }
+            catch
+            {
+                // todo log error
+                State = TorSessionState.BlockedProcess;
+                return;
+            }
+
+            // start stall timer
             _connectionStallTimer = new Timer(_ => State = TorSessionState.ConnectingStalled, null, TimeSpan.Zero, Timeout.InfiniteTimeSpan);
-
-            await _process.StartProcessWithConfig(_sessionConfig);
-
-            State = TorSessionState.Connecting;
             ProcessBootstrapProgress(this, 0);
+        }
+
+        /// <summary>
+        /// Stops the current tor session, cleaning up timers and configuration files.
+        /// </summary>
+        public void StopSession()
+        {
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
+            switch (Process.ProcessState)
+            {
+                case TorProcess.State.Killed:
+                    // stop process was already called by the underlying process handler, demote to "disconnected"
+                    State = TorSessionState.Disconnected;
+                    return;
+
+                case TorProcess.State.Stopped:
+                    throw new InvalidOperationException("Cannot stop a process that is not running");
+            }
+
+            State = TorSessionState.Disconnecting;
+
+            _connectionStallTimer?.Dispose();
+            _process.StopProcess();
+
+            // underlying process state change will cause the State to be set to Disconnected without manual intervention.
         }
 
         /// <summary>
@@ -144,16 +179,10 @@ namespace DragonFruit.OnionFruit.Models
 
             switch (e)
             {
-                // todo handle killed when killswitch option is enabled
-
-                // clear proxies
-                case TorProcess.State.Killed:
-                case TorProcess.State.Blocked:
-                case TorProcess.State.Stopped:
+                case TorProcess.State.Started:
+                case TorProcess.State.Bootstrapping:
                 {
-                    await _proxyManager.SetProxy();
-
-                    State = TorSessionState.Disconnected;
+                    State = TorSessionState.Connecting;
                     break;
                 }
 
@@ -182,6 +211,21 @@ namespace DragonFruit.OnionFruit.Models
                     State = TorSessionState.Connected;
                     break;
                 }
+
+                // todo handle killed when killswitch option is enabled
+                case TorProcess.State.Killed:
+                    goto case TorProcess.State.Stopped;
+
+                // clear proxies
+                case TorProcess.State.Stopped:
+                {
+                    await _proxyManager.SetProxy();
+                    State = TorSessionState.Disconnected;
+                    break;
+                }
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(e), e, null);
             }
         }
 
@@ -195,7 +239,7 @@ namespace DragonFruit.OnionFruit.Models
                 _connectionStallTimer?.Dispose();
                 _connectionStallTimer = null;
             }
-            else
+            else if (e >= Process.BootstrapProgress)
             {
                 _connectionStallTimer?.Change(TimeSpan.FromSeconds(30), Timeout.InfiniteTimeSpan);
             }
@@ -210,12 +254,12 @@ namespace DragonFruit.OnionFruit.Models
 
             if (Process.ProcessState < TorProcess.State.Stopped)
             {
-                // todo stop process
+                StopSession();
             }
 
             _disposed = true;
-            Process.ProcessStateChanged -= ProcessStateChanged;
-            Process.BootstrapProgressChanged -= ProcessBootstrapProgress;
+            _process.ProcessStateChanged -= ProcessStateChanged;
+            _process.BootstrapProgressChanged -= ProcessBootstrapProgress;
         }
 
         public enum TorSessionState
@@ -239,6 +283,11 @@ namespace DragonFruit.OnionFruit.Models
             /// The session is disconnected
             /// </summary>
             Disconnected,
+
+            /// <summary>
+            /// The process was killed, and the killswitch was triggered.
+            /// </summary>
+            KillSwitchTriggered,
 
             /// <summary>
             /// The session is connecting
