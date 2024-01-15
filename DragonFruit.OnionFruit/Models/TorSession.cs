@@ -66,12 +66,8 @@ namespace DragonFruit.OnionFruit.Models
                 _process.BootstrapProgressChanged -= ProcessBootstrapProgress;
             }
 
-            if (!TryGenerateSessionConfig(out _sessionConfig))
-            {
-                return;
-            }
-
-            if (!TryResetTorProcess(out _process))
+            // create session config and underlying process
+            if (!TryGenerateSessionConfig(out _sessionConfig) || !TryCreateUnderlyingTorProcess(out _process))
             {
                 return;
             }
@@ -237,7 +233,7 @@ namespace DragonFruit.OnionFruit.Models
             }
         }
 
-        private bool TryResetTorProcess(out TorProcess process)
+        private bool TryCreateUnderlyingTorProcess(out TorProcess process)
         {
             var torExecutable = executableLocator.LocateExecutableInstancesOf("tor").ToList();
 
