@@ -27,10 +27,8 @@ namespace DragonFruit.OnionFruit.Models
         private readonly IProxyManager _proxyManager;
 
         private bool _disposed;
-
         private TorSessionState _state;
         private Timer _connectionStallTimer;
-
         private IReadOnlyList<TorrcConfigEntry> _sessionConfig;
 
         public TorSession(string executablePath, IProxyManager proxyManager, ILoggerFactory loggerFactory)
@@ -130,7 +128,7 @@ namespace DragonFruit.OnionFruit.Models
         /// <summary>
         /// Builds a configuration for the current session using sane defaults and the user's preferences
         /// </summary>
-        private bool TryGenerateSessionConfig(out IReadOnlyList<TorrcConfigEntry> sessionConfig)
+        private static bool TryGenerateSessionConfig(out IReadOnlyList<TorrcConfigEntry> sessionConfig)
         {
             var consumedPorts = new List<int>(2);
             var basicConfig = new ClientConfig
@@ -245,7 +243,7 @@ namespace DragonFruit.OnionFruit.Models
             }
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             if (_disposed)
             {
