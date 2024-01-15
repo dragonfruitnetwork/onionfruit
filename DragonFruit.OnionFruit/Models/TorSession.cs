@@ -18,32 +18,16 @@ namespace DragonFruit.OnionFruit.Models
     /// <summary>
     /// Combines user configuration, control port access and the underlying tor process lifetime management into a single location
     /// </summary>
-    public class TorSession : IDisposable
+    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, ILoggerFactory loggerFactory)
     {
         private const int DefaultSocksPort = 9050;
         private const int DefaultControlPort = 9051;
 
-        private readonly TorProcess _process;
-        private readonly IProxyManager _proxyManager;
+        private TorProcess _process;
 
-        private bool _disposed;
         private TorSessionState _state;
         private Timer _connectionStallTimer;
         private IReadOnlyList<TorrcConfigEntry> _sessionConfig;
-
-        public TorSession(string executablePath, IProxyManager proxyManager, ILoggerFactory loggerFactory)
-        {
-            _proxyManager = proxyManager;
-            _process = new TorProcess(executablePath, loggerFactory.CreateLogger<TorProcess>());
-
-            _process.ProcessStateChanged += ProcessStateChanged;
-            _process.BootstrapProgressChanged += ProcessBootstrapProgress;
-        }
-
-        /// <summary>
-        /// The underlying Tor process
-        /// </summary>
-        public ITorProcessInformation Process => _process;
 
         /// <summary>
         /// The current session state
@@ -70,17 +54,31 @@ namespace DragonFruit.OnionFruit.Models
         /// </summary>
         public async Task StartSession()
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
-
-            if (Process.ProcessState is not TorProcess.State.Stopped and not TorProcess.State.Killed)
+            if (_process?.ProcessState is not TorProcess.State.Stopped and not TorProcess.State.Killed)
             {
                 throw new InvalidOperationException("Cannot start a process that is already running");
+            }
+
+            // cleanup process if not already done
+            if (_process != null)
+            {
+                _process.ProcessStateChanged -= ProcessStateChanged;
+                _process.BootstrapProgressChanged -= ProcessBootstrapProgress;
             }
 
             if (!TryGenerateSessionConfig(out _sessionConfig))
             {
                 return;
             }
+
+            if (!TryResetTorProcess(out _process))
+            {
+                return;
+            }
+
+            // subscribe to process events
+            _process.ProcessStateChanged += ProcessStateChanged;
+            _process.BootstrapProgressChanged += ProcessBootstrapProgress;
 
             try
             {
@@ -104,9 +102,7 @@ namespace DragonFruit.OnionFruit.Models
         /// </summary>
         public void StopSession()
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
-
-            switch (Process.ProcessState)
+            switch (_process.ProcessState)
             {
                 case TorProcess.State.Killed:
                     // stop process was already called by the underlying process handler, demote to "disconnected"
@@ -173,8 +169,6 @@ namespace DragonFruit.OnionFruit.Models
         /// </summary>
         private async void ProcessStateChanged(object sender, TorProcess.State e)
         {
-            ObjectDisposedException.ThrowIf(_disposed, this);
-
             switch (e)
             {
                 case TorProcess.State.Started:
@@ -185,7 +179,7 @@ namespace DragonFruit.OnionFruit.Models
                 }
 
                 // set blocked proxy state
-                case TorProcess.State.Running when _proxyManager.GetState() != ProxyAccessState.Accessible:
+                case TorProcess.State.Running when proxyManager.GetState() != ProxyAccessState.Accessible:
                 {
                     State = TorSessionState.BlockedProxy;
                     break;
@@ -204,7 +198,7 @@ namespace DragonFruit.OnionFruit.Models
                         proxies[index++] = new NetworkProxy(true, new Uri(address));
                     }
 
-                    await _proxyManager.SetProxy(proxies);
+                    await proxyManager.SetProxy(proxies);
 
                     State = TorSessionState.Connected;
                     break;
@@ -217,7 +211,7 @@ namespace DragonFruit.OnionFruit.Models
                 // clear proxies
                 case TorProcess.State.Stopped:
                 {
-                    await _proxyManager.SetProxy();
+                    await proxyManager.SetProxy();
                     State = TorSessionState.Disconnected;
                     break;
                 }
@@ -237,27 +231,24 @@ namespace DragonFruit.OnionFruit.Models
                 _connectionStallTimer?.Dispose();
                 _connectionStallTimer = null;
             }
-            else if (e >= Process.BootstrapProgress)
+            else if (e >= _process.BootstrapProgress)
             {
                 _connectionStallTimer?.Change(TimeSpan.FromSeconds(30), Timeout.InfiniteTimeSpan);
             }
         }
 
-        void IDisposable.Dispose()
+        private bool TryResetTorProcess(out TorProcess process)
         {
-            if (_disposed)
+            var torExecutable = executableLocator.LocateExecutableInstancesOf("tor").ToList();
+
+            if (torExecutable.Count == 0)
             {
-                return;
+                process = null;
+                return false;
             }
 
-            if (Process.ProcessState < TorProcess.State.Stopped)
-            {
-                StopSession();
-            }
-
-            _disposed = true;
-            _process.ProcessStateChanged -= ProcessStateChanged;
-            _process.BootstrapProgressChanged -= ProcessBootstrapProgress;
+            process = new TorProcess(torExecutable.First(), loggerFactory.CreateLogger<TorProcess>());
+            return true;
         }
 
         public enum TorSessionState
