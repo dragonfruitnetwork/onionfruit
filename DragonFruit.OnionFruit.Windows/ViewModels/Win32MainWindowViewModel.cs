@@ -4,12 +4,13 @@
 using System;
 using Avalonia;
 using Avalonia.Platform;
+using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.ViewModels.Interfaces;
 
 namespace DragonFruit.OnionFruit.Windows.ViewModels
 {
-    public class Win32MainWindowViewModel : MainWindowViewModel, IHasCustomStartupPosition
+    public class Win32MainWindowViewModel(TorSession session) : MainWindowViewModel(session), IHasCustomStartupPosition
     {
         PixelPoint IHasCustomStartupPosition.GetInitialPosition(Screen screen, Size clientSize)
         {
