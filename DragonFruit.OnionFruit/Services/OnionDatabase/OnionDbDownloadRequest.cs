@@ -5,7 +5,7 @@ using System;
 using DragonFruit.Data;
 using DragonFruit.Data.Requests;
 
-namespace DragonFruit.OnionFruit.Services.OnionDb
+namespace DragonFruit.OnionFruit.Services.OnionDatabase
 {
     /// <summary>
     /// Represents a request to download the latest onion.db file
