@@ -13,18 +13,28 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
     public interface IOnionDatabase
     {
         /// <summary>
+        /// The current state of the database
+        /// </summary>
+        DatabaseState State { get; }
+
+        /// <summary>
         /// List of countries with Tor nodes
         /// </summary>
-        IReadOnlyCollection<TorNodeCountry> Countries { get; set; }
+        IReadOnlyCollection<TorNodeCountry> Countries { get; }
 
         /// <summary>
         /// Collection of GeoIP files. If the files don't currently exist, the task will be completed once they are available
         /// </summary>
-        Task<IReadOnlyDictionary<AddressFamily, FileInfo>> GeoIpFiles { get; }
+        Task<IReadOnlyDictionary<AddressFamily, FileInfo>> GeoIPFiles { get; }
+
+        /// <summary>
+        /// Event invoked when the database state changes
+        /// </summary>
+        event EventHandler<DatabaseState> StateChanged;
 
         /// <summary>
         /// Event invoked when the countries list is updated
         /// </summary>
-        event EventHandler CountriesUpdated;
+        event EventHandler<IReadOnlyCollection<TorNodeCountry>> CountriesChanged;
     }
 }

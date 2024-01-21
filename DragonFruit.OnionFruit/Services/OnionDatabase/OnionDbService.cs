@@ -11,14 +11,17 @@ using System.Threading.Tasks;
 using DragonFruit.Data;
 using DragonFruit.OnionFruit.Models;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Services.OnionDatabase
 {
     /// <summary>
     /// Hosted service responsible for managing the onion.db and geoip files
     /// </summary>
-    public class OnionDbService(ApiClient client) : IHostedService, IOnionDatabase
+    public class OnionDbService(ApiClient client, ILogger<OnionDbService> logger) : IOnionDatabase, IHostedService
     {
+        #region Static Values
+
         // this will need to be moved to a central location when adding in settings, etc.
         private static string DatabasePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit", "onion.db");
 
@@ -27,28 +30,41 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
             Directory.CreateDirectory(Path.GetDirectoryName(DatabasePath));
         }
 
+        #endregion
+
         private Timer _checkTimer;
         private Task _currentCheckTask;
         private CancellationTokenSource _cancellation;
 
+        private DatabaseState _state;
         private IReadOnlyCollection<TorNodeCountry> _countries;
 
-        /// <inheritdoc/>
-        public event EventHandler CountriesUpdated;
-
-        /// <inheritdoc/>
-        public IReadOnlyCollection<TorNodeCountry> Countries
+        public DatabaseState State
         {
-            get => _countries;
-            set
+            get => _state;
+            private set
             {
-                _countries = value;
-                CountriesUpdated?.Invoke(this, EventArgs.Empty);
+                if (_state == value) return;
+
+                _state = value;
+                StateChanged?.Invoke(this, value);
             }
         }
 
-        /// <inheritdoc/>
-        public Task<IReadOnlyDictionary<AddressFamily, FileInfo>> GeoIpFiles { get; private set; }
+        public IReadOnlyCollection<TorNodeCountry> Countries
+        {
+            get => _countries;
+            private set
+            {
+                _countries = value;
+                CountriesChanged?.Invoke(this, value);
+            }
+        }
+
+        public Task<IReadOnlyDictionary<AddressFamily, FileInfo>> GeoIPFiles { get; private set; }
+
+        public event EventHandler<DatabaseState> StateChanged;
+        public event EventHandler<IReadOnlyCollection<TorNodeCountry>> CountriesChanged;
 
         private void TimerPinged()
         {
@@ -75,18 +91,26 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                 // redownload if file has 0-length or is older than 12 hours
                 if (databaseStream.Length == 0 || DateTimeOffset.UtcNow - fileLastModified > TimeSpan.FromHours(12))
                 {
+                    State = DatabaseState.Downloading;
+                    logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
+
                     // todo add progress tracking, handle errors from PerformDownload
 
                     var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
                     await client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
                 }
 
+                State = DatabaseState.Processing;
+                logger.LogInformation("Loading onion.db...");
+
                 databaseStream.Seek(0, SeekOrigin.Begin);
                 currentDb = OnionDb.Parser.ParseFrom(databaseStream);
             }
 
             Countries = currentDb.Countries.Select(x => new TorNodeCountry(x.CountryName, x.CountryCode, x.EntryNodeCount, x.ExitNodeCount, x.TotalNodeCount)).ToList();
-            GeoIpFiles = WriteGeoIpFiles(currentDb, _cancellation.Token);
+            GeoIPFiles = WriteGeoIpFiles(currentDb, _cancellation.Token);
+
+            State = DatabaseState.Ready;
         }
 
         /// <summary>
@@ -125,7 +149,9 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                 }
 
                 foreach (var writer in writers.Values)
+                {
                     writer.Dispose();
+                }
             }
             catch
             {
@@ -135,10 +161,14 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 
                 foreach (var file in fileNames.Values)
                     File.Delete(file);
+
+                throw;
             }
 
             return fileNames.ToDictionary(x => x.Key, x => new FileInfo(x.Value));
         }
+
+        #region HostedService
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
@@ -157,5 +187,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 
             return _currentCheckTask ?? Task.CompletedTask;
         }
+
+        #endregion
     }
 }
