@@ -77,10 +77,16 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 
         private async Task CheckDatabase()
         {
+            // additional guard to prevent checks running once disposed
+            if (_cancellation.IsCancellationRequested && _checkTimer != null)
+            {
+                await _checkTimer.DisposeAsync();
+                _checkTimer = null;
+            }
+
             OnionDb currentDb;
             DateTimeOffset? fileLastModified = null;
 
-            // check for an onion.db file
             if (File.Exists(DatabasePath))
             {
                 fileLastModified = File.GetLastWriteTimeUtc(DatabasePath);
@@ -88,7 +94,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 
             using (var databaseStream = new FileStream(DatabasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan))
             {
-                // redownload if file has 0-length or is older than 12 hours
+                // redownload if file is 0-length or is older than 12 hours
                 if (databaseStream.Length == 0 || DateTimeOffset.UtcNow - fileLastModified > TimeSpan.FromHours(12))
                 {
                     State = DatabaseState.Downloading;
@@ -133,7 +139,6 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 
             try
             {
-                // write headers to all files
                 await Task.WhenAll(writers.Values.Select(x => x.WriteHeader(database))).ConfigureAwait(false);
 
                 foreach (var country in database.Countries)
@@ -145,7 +150,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                         await v4Writer.WriteRanges(country.CountryCode, country.V4Ranges).ConfigureAwait(false);
 
                     if (country.V6Ranges.Count > 0 && writers.TryGetValue(AddressFamily.InterNetworkV6, out var v6Writer))
-                        await v6Writer.WriteRanges(country.CountryCode, country.V4Ranges).ConfigureAwait(false);
+                        await v6Writer.WriteRanges(country.CountryCode, country.V6Ranges).ConfigureAwait(false);
                 }
 
                 foreach (var writer in writers.Values)
@@ -185,7 +190,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
             _checkTimer?.Dispose();
             _cancellation?.Cancel();
 
-            return _currentCheckTask ?? Task.CompletedTask;
+            return _currentCheckTask?.WaitAsync(cancellationToken) ?? Task.CompletedTask;
         }
 
         #endregion
