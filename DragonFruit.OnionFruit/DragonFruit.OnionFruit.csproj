@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="Services\OnionDb\*.proto" GrpcServices="Client" />
+        <Protobuf Include="Services\OnionDatabase\oniondb.proto" GrpcServices="Client" />
     </ItemGroup>
 
     <ItemGroup>
