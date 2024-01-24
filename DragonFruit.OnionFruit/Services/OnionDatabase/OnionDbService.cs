@@ -36,6 +36,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
         private Task _currentCheckTask;
         private CancellationTokenSource _cancellation;
 
+        private OnionDb _currentDb;
         private DatabaseState _state;
         private IReadOnlyCollection<TorNodeCountry> _countries;
 
@@ -68,14 +69,19 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 
         private void TimerPinged()
         {
-            _currentCheckTask = CheckDatabase();
+            if (_currentDb == null)
+            {
+                LoadLocalDatabase();
+            }
+
+            _currentCheckTask = CheckOnlineUpdates();
 
             // schedule the timer to check again in 15 seconds if the task fails, or 12 hours if it succeeds
             _currentCheckTask.ContinueWith(_ => _checkTimer.Change(TimeSpan.FromSeconds(15), Timeout.InfiniteTimeSpan), TaskContinuationOptions.OnlyOnFaulted);
             _currentCheckTask.ContinueWith(_ => _checkTimer.Change(TimeSpan.FromHours(12), Timeout.InfiniteTimeSpan), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
-        private async Task CheckDatabase()
+        private async Task CheckOnlineUpdates()
         {
             // additional guard to prevent checks running once disposed
             if (_cancellation.IsCancellationRequested && _checkTimer != null)
@@ -84,39 +90,25 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                 _checkTimer = null;
             }
 
-            OnionDb currentDb;
-            DateTimeOffset? fileLastModified = null;
+            DateTimeOffset? fileLastModified = _currentDb == null ? null : DateTimeOffset.FromUnixTimeSeconds(_currentDb.DbVersion);
 
-            if (File.Exists(DatabasePath))
+            // redownload if file is 0-length or is older than 12 hours
+            if (File.Exists(DatabasePath) && fileLastModified - DateTimeOffset.Now < TimeSpan.FromHours(12))
             {
-                fileLastModified = File.GetLastWriteTimeUtc(DatabasePath);
+                return;
             }
 
-            using (var databaseStream = new FileStream(DatabasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan))
-            {
-                // redownload if file is 0-length or is older than 12 hours
-                if (databaseStream.Length == 0 || DateTimeOffset.UtcNow - fileLastModified > TimeSpan.FromHours(12))
-                {
-                    State = DatabaseState.Downloading;
-                    logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
+            using var databaseStream = new FileStream(DatabasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous);
 
-                    // todo add progress tracking, handle errors from PerformDownload
+            State = DatabaseState.Downloading;
+            logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
 
-                    var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
-                    await client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
-                }
+            // todo add progress tracking, handle errors from PerformDownload
 
-                State = DatabaseState.Processing;
-                logger.LogInformation("Loading onion.db...");
+            var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
+            await client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
 
-                databaseStream.Seek(0, SeekOrigin.Begin);
-                currentDb = OnionDb.Parser.ParseFrom(databaseStream);
-            }
-
-            Countries = currentDb.Countries.Select(x => new TorNodeCountry(x.CountryName, x.CountryCode, x.EntryNodeCount, x.ExitNodeCount, x.TotalNodeCount)).ToList();
-            GeoIPFiles = WriteGeoIpFiles(currentDb, _cancellation.Token);
-
-            State = DatabaseState.Ready;
+            LoadLocalDatabase();
         }
 
         /// <summary>
@@ -173,13 +165,35 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
             return fileNames.ToDictionary(x => x.Key, x => new FileInfo(x.Value));
         }
 
+        private void LoadLocalDatabase()
+        {
+            if (!File.Exists(DatabasePath))
+            {
+                _currentDb = null;
+                return;
+            }
+
+            State = DatabaseState.Processing;
+
+            using (var localReadStream = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan))
+            {
+                _currentDb = OnionDb.Parser.ParseFrom(localReadStream);
+            }
+
+            Countries = _currentDb.Countries.Select(x => new TorNodeCountry(x.CountryName, x.CountryCode, x.EntryNodeCount, x.ExitNodeCount, x.TotalNodeCount)).ToList();
+            GeoIPFiles = WriteGeoIpFiles(_currentDb, _cancellation.Token);
+
+            State = DatabaseState.Ready;
+        }
+
         #region HostedService
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
             _cancellation?.Dispose();
-
             _cancellation = new CancellationTokenSource();
+
+            // start timer after loading database
             _checkTimer = new Timer(_ => TimerPinged(), null, TimeSpan.Zero, Timeout.InfiniteTimeSpan);
 
             return Task.CompletedTask;
