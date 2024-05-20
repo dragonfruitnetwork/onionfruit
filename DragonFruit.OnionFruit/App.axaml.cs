@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -19,7 +20,7 @@ public partial class App(IHost host) : Application
 
     static App()
     {
-        Version = typeof(App).Assembly.GetName().Version!.ToString(3);
+        Version = Assembly.GetEntryAssembly()?.GetName().Version!.ToString(3);
         Title = $"OnionFruit\u2122 {Version}";
     }
 
