@@ -1,6 +1,10 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using DragonFruit.OnionFruit.Core;
+using DragonFruit.OnionFruit.Core.Network;
+using DragonFruit.OnionFruit.Core.Windows;
+using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Windows.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,19 +24,24 @@ public static class Program
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp()
-        => AppBuilder.Configure(() => new App(BuildHost()))
-            .UsePlatformDetect()
-            .WithInterFont()
-            .LogToTrace()
-            .UseReactiveUI();
+    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(BuildHost()))
+        .UsePlatformDetect()
+        .WithInterFont()
+        .LogToTrace()
+        .UseReactiveUI();
 
-    private static IHost BuildHost() =>
-        Host.CreateDefaultBuilder()
-            .ConfigureServices((context, services) =>
-            {
-                // register view models
-                services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
-            })
-            .Build();
+    private static IHost BuildHost() => Host.CreateDefaultBuilder()
+        .ConfigureServices((context, services) =>
+        {
+            // register platform-specific services
+            services.AddSingleton<IProxyManager, WindowsProxyManager>();
+            services.AddSingleton<ExecutableLocator>(new WindowsExecutableLocator("ONIONFRUIT_HOME"));
+
+            // register core services and background tasks
+            services.AddSingleton<TorSession>();
+
+            // register view models
+            services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
+        })
+        .Build();
 }
