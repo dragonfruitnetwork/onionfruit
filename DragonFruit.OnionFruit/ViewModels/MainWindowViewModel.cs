@@ -2,10 +2,12 @@
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
 using System;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Avalonia.Controls;
 using Avalonia.Media;
 using DragonFruit.OnionFruit.Models;
 using ReactiveUI;
@@ -27,6 +29,14 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly TorSession _session;
 
         private readonly ObservableAsPropertyHelper<ToolbarContent> _ribbonContent;
+
+        public MainWindowViewModel()
+        {
+            if (!Design.IsDesignMode)
+            {
+                throw new InvalidOperationException("This constructor should not be called in a non-design context. Use the other constructor instead.");
+            }
+        }
 
         public MainWindowViewModel(TorSession session)
         {
