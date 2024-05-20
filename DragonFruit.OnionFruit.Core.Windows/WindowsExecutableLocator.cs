@@ -26,7 +26,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
             Architecture.X86 => ["win-x86"],
 
             // no other platforms supported
-            _ => Enumerable.Empty<string>()
+            _ => []
         };
 
         public override IEnumerable<string> LocateExecutableInstancesOf(string executableName)
