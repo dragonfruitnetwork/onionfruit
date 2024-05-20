@@ -33,7 +33,10 @@ namespace DragonFruit.OnionFruit.ViewModels
             _session = session;
 
             // setup session event pump
-            var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler).ObserveOn(RxApp.MainThreadScheduler);
+            var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler)
+                .StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State))
+                .ObserveOn(RxApp.MainThreadScheduler);
+
             var ribbonContentSelector = sessionState.Select(x => GetRibbonContent(x.EventArgs));
 
             // setup ribbon content
