@@ -125,7 +125,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
         /// <summary>
         /// Checks for GeoIP files in the expected location and writes a new set if they don't exist
         /// </summary>
-        private static async Task<IReadOnlyDictionary<AddressFamily, FileInfo>> WriteGeoIpFiles(OnionDb database, CancellationToken cancellation = default)
+        private async Task<IReadOnlyDictionary<AddressFamily, FileInfo>> WriteGeoIpFiles(OnionDb database, CancellationToken cancellation = default)
         {
             var fileNames = new Dictionary<AddressFamily, string>
             {
@@ -133,8 +133,14 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                 [AddressFamily.InterNetworkV6] = Path.Combine(Path.GetTempPath(), string.Format(GeoIpFileTemplate, database.DbVersion, "6"))
             };
 
+            foreach (var (target, path) in fileNames)
+            {
+                logger.LogInformation("{target} GeoIP file to be written to {path}", target, path);
+            }
+
             if (fileNames.Values.All(File.Exists))
             {
+                logger.LogInformation("GeoIP files already exist, skipping write");
                 return fileNames.ToDictionary(x => x.Key, x => new FileInfo(x.Value));
             }
 
@@ -147,6 +153,8 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                 foreach (var country in database.Countries)
                 {
                     cancellation.ThrowIfCancellationRequested();
+
+                    logger.LogDebug("Writing GeoIP data for {country}", country.CountryName);
 
                     // write ipv4 and ipv6 ranges to the appropriate files
                     if (country.V4Ranges.Count > 0 && writers.TryGetValue(AddressFamily.InterNetwork, out var v4Writer))
@@ -200,6 +208,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 
             using (var localReadStream = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan))
             {
+                logger.LogInformation("Reading onion.db from disk");
                 _currentDb = OnionDb.Parser.ParseFrom(localReadStream);
             }
 
