@@ -62,7 +62,8 @@ namespace DragonFruit.OnionFruit.Models
                     throw new InvalidOperationException("Cannot start a process that is already running");
                 }
 
-                HandleProcessCleanup();
+                _process.ProcessStateChanged -= ProcessStateChanged;
+                _process.BootstrapProgressChanged -= ProcessBootstrapProgress;
             }
 
             // create session config and underlying process
@@ -95,7 +96,7 @@ namespace DragonFruit.OnionFruit.Models
         /// <summary>
         /// Stops the current tor session, cleaning up timers and configuration files.
         /// </summary>
-        public void StopSession()
+        public async ValueTask StopSession()
         {
             switch (_process.ProcessState)
             {
@@ -110,10 +111,13 @@ namespace DragonFruit.OnionFruit.Models
 
             State = TorSessionState.Disconnecting;
 
-            _connectionStallTimer?.Dispose();
-            _process.StopProcess();
+            if (_connectionStallTimer != null)
+            {
+                await _connectionStallTimer.DisposeAsync();
+            }
 
             // underlying process state change will cause the State to be set to Disconnected without manual intervention.
+            _process.StopProcess();
         }
 
         /// <summary>
@@ -208,8 +212,12 @@ namespace DragonFruit.OnionFruit.Models
                 // clear proxies
                 case TorProcess.State.Stopped:
                 {
-                    HandleProcessCleanup();
                     await proxyManager.SetProxy();
+
+                    if (_connectionStallTimer != null)
+                    {
+                        await _connectionStallTimer.DisposeAsync();
+                    }
 
                     State = TorSessionState.Disconnected;
                     break;
@@ -248,15 +256,6 @@ namespace DragonFruit.OnionFruit.Models
 
             process = new TorProcess(torExecutable.First(), loggerFactory.CreateLogger<TorProcess>());
             return true;
-        }
-
-        /// <summary>
-        /// Performs <see cref="TorProcess"/>-related cleanup operations
-        /// </summary>
-        private void HandleProcessCleanup()
-        {
-            _process.ProcessStateChanged -= ProcessStateChanged;
-            _process.BootstrapProgressChanged -= ProcessBootstrapProgress;
         }
 
         public enum TorSessionState
