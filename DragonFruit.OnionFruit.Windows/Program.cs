@@ -38,7 +38,7 @@ public static class Program
         .ConfigureLogging(logging =>
         {
             logging.ClearProviders();
-            logging.AddSimpleConsole(o =>
+            logging.SetMinimumLevel(LogLevel.Debug).AddSimpleConsole(o =>
             {
                 o.SingleLine = true;
                 o.IncludeScopes = false;
