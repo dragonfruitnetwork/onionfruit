@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Immutable;
 using DragonFruit.OnionFruit.Models;
 using ReactiveUI;
 
@@ -21,7 +22,7 @@ namespace DragonFruit.OnionFruit.ViewModels
     /// <param name="AllowToggling">Whether the toggle can be clicked</param>
     /// <param name="Background">The background colour to use</param>
     /// <param name="Text">The text to display on the left of the toolbar</param>
-    public record ToolbarContent(bool ToggleChecked, bool AllowToggling, Color Background, string Text);
+    public record ToolbarContent(bool ToggleChecked, bool AllowToggling, IImmutableSolidColorBrush Background, string Text);
 
     public class MainWindowViewModel : ReactiveObject, IDisposable
     {
@@ -88,18 +89,18 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private ToolbarContent GetRibbonContent(TorSession.TorSessionState state) => state switch
         {
-            TorSession.TorSessionState.Disconnected => new ToolbarContent(false, true, Colors.Red, "Tor Disconnected"),
-            TorSession.TorSessionState.Connected => new ToolbarContent(true, true, Colors.Green, "Tor Connected"),
+            TorSession.TorSessionState.Disconnected => new ToolbarContent(false, true, new ImmutableSolidColorBrush(Color.FromRgb(244, 67, 54)), "Tor Disconnected"),
+            TorSession.TorSessionState.Connected => new ToolbarContent(true, true, Brushes.Green, "Tor Connected"),
 
-            TorSession.TorSessionState.Connecting => new ToolbarContent(false, false, Colors.DarkOrange, "Tor Connecting"),
-            TorSession.TorSessionState.ConnectingStalled => new ToolbarContent(false, true, Colors.SlateGray, "Tor Connecting"),
+            TorSession.TorSessionState.Connecting => new ToolbarContent(false, false, Brushes.DarkOrange, "Tor Connecting"),
+            TorSession.TorSessionState.ConnectingStalled => new ToolbarContent(false, true, Brushes.SlateGray, "Tor Connecting"),
 
-            TorSession.TorSessionState.Disconnecting => new ToolbarContent(false, false, Colors.DarkOrange, "Tor Disconnecting"),
+            TorSession.TorSessionState.Disconnecting => new ToolbarContent(false, false, Brushes.DarkOrange, "Tor Disconnecting"),
 
-            TorSession.TorSessionState.BlockedProcess => new ToolbarContent(false, false, Colors.Black, "Tor Process blocked from starting"),
-            TorSession.TorSessionState.BlockedProxy => new ToolbarContent(false, false, Colors.Black, "OnionFruit was blocked from changing proxy settings"),
+            TorSession.TorSessionState.BlockedProcess => new ToolbarContent(false, false, Brushes.Black, "Tor Process blocked from starting"),
+            TorSession.TorSessionState.BlockedProxy => new ToolbarContent(false, false, Brushes.Black, "OnionFruit was blocked from changing proxy settings"),
 
-            TorSession.TorSessionState.KillSwitchTriggered => new ToolbarContent(true, true, Colors.DeepPink, "Tor Process Killed (Killswitch enabled)"),
+            TorSession.TorSessionState.KillSwitchTriggered => new ToolbarContent(true, true, Brushes.DeepPink, "Tor Process Killed (Killswitch enabled)"),
 
             _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
         };
