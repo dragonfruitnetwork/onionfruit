@@ -1,10 +1,13 @@
 ﻿using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using DragonFruit.Data;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Network;
 using DragonFruit.OnionFruit.Core.Windows;
 using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Services;
+using DragonFruit.OnionFruit.Services.OnionDatabase;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Windows.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,12 +53,18 @@ public static class Program
         })
         .ConfigureServices((context, services) =>
         {
+            // common services
+            services.AddSingleton<ApiClient, OnionFruitClient>();
+
             // register platform-specific services
             services.AddSingleton<IProxyManager, WindowsProxyManager>();
             services.AddSingleton<ExecutableLocator>(new WindowsExecutableLocator("ONIONFRUIT_HOME"));
 
             // register core services and background tasks
+            services.AddHostedService<OnionDbService>();
+
             services.AddSingleton<TorSession>();
+            services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
 
             // register view models
             services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
