@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Security;
 using System.Security.AccessControl;
 using System.Text;
@@ -31,7 +33,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
         {
             try
             {
-                _registry = Registry.CurrentUser.OpenSubKey(RegistryKeyName, RequiredRights);
+                _registry = Registry.CurrentUser.OpenSubKey(RegistryKeyName, RegistryKeyPermissionCheck.ReadWriteSubTree, RequiredRights);
             }
             catch (SecurityException)
             {
@@ -85,43 +87,33 @@ namespace DragonFruit.OnionFruit.Core.Windows
             if (proxies.Length == 0)
             {
                 _registry.SetValue(ProxyEnabledKey, 0);
-                _registry.DeleteValue(ProxyServerKey);
-
-                return ValueTask.FromResult(SignalSettingsChanged());
+                _registry.DeleteValue(ProxyServerKey, false);
             }
-
-            bool? globalState = null;
-            var proxyUrlBuilder = new StringBuilder();
-
-            foreach (var proxy in proxies)
+            else
             {
-                // set globalState if not set
-                globalState ??= proxy.Enabled;
+                bool globalState = proxies[0].Enabled;
+                var proxyUrlBuilder = new StringBuilder();
 
-                if (globalState != proxy.Enabled)
+                foreach (var proxy in proxies)
                 {
-                    throw new ArgumentException($"Enabled state is not mutually exclusive (expected {globalState}, got {proxy.Enabled}");
+                    if (globalState != proxy.Enabled)
+                    {
+                        throw new ArgumentException($"{nameof(NetworkProxy.Enabled)} must be the same for all proxies (expected {globalState}, got {proxy.Enabled}");
+                    }
+
+                    // IPv6 addresses need to be wrapped in square brackets
+                    var address = IPAddress.TryParse(proxy.Address.DnsSafeHost, out var ipAddress) && ipAddress.AddressFamily == AddressFamily.InterNetworkV6 ? $"[{ipAddress}]" : proxy.Address.DnsSafeHost;
+                    proxyUrlBuilder.Append($"{proxy.Address.Scheme}={address}:{proxy.Address.Port};");
                 }
 
-                proxyUrlBuilder.Append($"{proxy.Address.Scheme}={proxy.Address.IdnHost}:{proxy.Address.Port}");
+                proxyUrlBuilder.Length--;
 
-                if (!string.IsNullOrEmpty(proxy.Address.AbsolutePath))
-                {
-                    proxyUrlBuilder.Append($"/{proxy.Address.AbsolutePath.Trim('/')}");
-                }
-
-                proxyUrlBuilder.Append(';');
+                _registry.SetValue(ProxyEnabledKey, globalState ? 1 : 0);
+                _registry.SetValue(ProxyServerKey, proxyUrlBuilder.ToString());
             }
 
-            if (!globalState.HasValue)
-            {
-                throw new ArgumentException("At least one proxy is required to change settings");
-            }
-
-            _registry.SetValue(ProxyEnabledKey, globalState.Value ? 1 : 0);
-            _registry.SetValue(ProxyServerKey, proxyUrlBuilder.ToString().TrimEnd(';'));
-
-            return ValueTask.FromResult(SignalSettingsChanged());
+            var updateResult = SignalSettingsChanged();
+            return ValueTask.FromResult(updateResult);
         }
 
         private unsafe bool SignalSettingsChanged()
