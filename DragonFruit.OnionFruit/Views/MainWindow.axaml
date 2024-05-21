@@ -15,6 +15,12 @@
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
+    
+    <Window.Styles>
+        <Style Selector="Button#MaxRestoreButton">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+    </Window.Styles>
 
     <Window.Content>
         <Panel>
