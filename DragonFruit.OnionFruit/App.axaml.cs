@@ -46,9 +46,9 @@ public partial class App(IHost host) : Application
     {
         base.OnFrameworkInitializationCompleted();
 
-        // setup host shutdown logic
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // handle closing event
             desktop.Exit += delegate
             {
                 host.StopAsync(TimeSpan.FromSeconds(10)).GetAwaiter().GetResult();
@@ -57,8 +57,6 @@ public partial class App(IHost host) : Application
                 host = null;
             };
         }
-
-        // DataTemplates.Add(Host.Services.GetRequiredService<ViewLocator>());
 
         // because background services need to be started, StartAsync blocks until the app closes.
         // using the IHostApplicationLifetime, we can be notified when the windows are ready to be shown.
