@@ -9,6 +9,7 @@ using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Windows.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Windows;
 
@@ -31,6 +32,22 @@ public static class Program
         .UseReactiveUI();
 
     private static IHost BuildHost() => Host.CreateDefaultBuilder()
+        .ConfigureLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddSimpleConsole(o =>
+            {
+                o.SingleLine = true;
+                o.IncludeScopes = false;
+                o.TimestampFormat = "[dd/MM/yyyy hh:mm:ss] ";
+            });
+
+            logging.AddEventLog(o =>
+            {
+                o.Filter = (_, level) => level > LogLevel.Information;
+                o.SourceName = $"OnionFruit/v{typeof(Program).Assembly.GetName().Version!.ToString(3)}";
+            });
+        })
         .ConfigureServices((context, services) =>
         {
             // register platform-specific services
