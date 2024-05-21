@@ -22,6 +22,9 @@ public partial class App(IHost host) : Application
     {
         Version = Assembly.GetEntryAssembly()?.GetName().Version!.ToString(3);
         Title = $"OnionFruit\u2122 {Version}";
+
+        // enable mica effect on Windows 11 and above
+        TransparencyLevels = OperatingSystem.IsWindowsVersionAtLeast(10, 22000) ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
     }
 
     public IServiceProvider Services => host.Services;
@@ -29,7 +32,10 @@ public partial class App(IHost host) : Application
     public static string Title { get; }
     public static string Version { get; }
 
-    public static readonly IReadOnlyList<WindowTransparencyLevel> TransparencyLevels = [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur, WindowTransparencyLevel.None];
+    /// <summary>
+    /// Transparency level hints passed to windows to enable transparency effects (if supported).
+    /// </summary>
+    public static readonly IReadOnlyList<WindowTransparencyLevel> TransparencyLevels;
 
     public override void Initialize()
     {
