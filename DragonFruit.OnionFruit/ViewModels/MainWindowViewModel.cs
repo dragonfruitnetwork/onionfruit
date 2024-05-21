@@ -43,19 +43,14 @@ namespace DragonFruit.OnionFruit.ViewModels
         {
             _session = session;
 
-            // setup session event pump
-            var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler)
-                .StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State))
-                .ObserveOn(RxApp.MainThreadScheduler);
+            var sessionStateEvent = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State)).ObserveOn(RxApp.MainThreadScheduler);
+            var ribbonContentSelector = sessionStateEvent.Select(x => GetRibbonContent(x.EventArgs));
 
-            var ribbonContentSelector = sessionState.Select(x => GetRibbonContent(x.EventArgs));
-
-            // setup ribbon content
             _ribbonContent = ribbonContentSelector.ToProperty(this, x => x.RibbonContent, scheduler: RxApp.MainThreadScheduler);
             ribbonContentSelector.Subscribe().DisposeWith(_disposables);
 
             // in the future, there should be a way to move this elsewhere
-            ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).ObserveOn(RxApp.MainThreadScheduler).Select(x => x.AllowToggling), RxApp.TaskpoolScheduler);
+            ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler));
         }
 
         /// <summary>
@@ -70,9 +65,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private async Task ToggleSession()
         {
-            if (_session?.State is null or TorSession.TorSessionState.Connecting or TorSession.TorSessionState.Disconnecting)
+            if (_session.State is TorSession.TorSessionState.Connecting or TorSession.TorSessionState.Disconnecting)
             {
-                // todo log warning?
                 return;
             }
 
@@ -83,7 +77,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             }
             else
             {
-                _session.StopSession();
+                await _session.StopSession();
             }
         }
 
@@ -92,8 +86,8 @@ namespace DragonFruit.OnionFruit.ViewModels
             TorSession.TorSessionState.Disconnected => new ToolbarContent(false, true, new ImmutableSolidColorBrush(Color.FromRgb(244, 67, 54)), "Tor Disconnected"),
             TorSession.TorSessionState.Connected => new ToolbarContent(true, true, Brushes.Green, "Tor Connected"),
 
-            TorSession.TorSessionState.Connecting => new ToolbarContent(false, false, Brushes.DarkOrange, "Tor Connecting"),
-            TorSession.TorSessionState.ConnectingStalled => new ToolbarContent(false, true, Brushes.SlateGray, "Tor Connecting"),
+            TorSession.TorSessionState.Connecting => new ToolbarContent(true, false, Brushes.DarkOrange, "Tor Connecting"),
+            TorSession.TorSessionState.ConnectingStalled => new ToolbarContent(true, true, Brushes.SlateGray, "Tor Connecting"),
 
             TorSession.TorSessionState.Disconnecting => new ToolbarContent(false, false, Brushes.DarkOrange, "Tor Disconnecting"),
 
