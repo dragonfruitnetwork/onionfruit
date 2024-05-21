@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,6 +21,8 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
     /// </summary>
     public class OnionDbService(ApiClient client, ILogger<OnionDbService> logger) : IOnionDatabase, IHostedService
     {
+        private const string GeoIpFileTemplate = "oniondb-{0}.geoip{1}";
+
         #region Static Values
 
         // this will need to be moved to a central location when adding in settings, etc.
@@ -98,15 +101,23 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                 return;
             }
 
-            using var databaseStream = new FileStream(DatabasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous);
+            using (var databaseStream = new FileStream(DatabasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous))
+            {
+                State = DatabaseState.Downloading;
+                logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
 
-            State = DatabaseState.Downloading;
-            logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
+                // todo add progress tracking, handle errors from PerformDownload
 
-            // todo add progress tracking, handle errors from PerformDownload
+                var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
+                var downloadRequestStatus = await client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
 
-            var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
-            await client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
+                // return if download wasn't successful (no file to reload)
+                logger.LogInformation("onion.db download request returned {status}", downloadRequestStatus);
+                if (downloadRequestStatus != HttpStatusCode.OK)
+                {
+                    return;
+                }
+            }
 
             LoadLocalDatabase();
         }
@@ -118,8 +129,8 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
         {
             var fileNames = new Dictionary<AddressFamily, string>
             {
-                [AddressFamily.InterNetwork] = Path.Combine(Path.GetTempPath(), $"oniondb-{database.DbVersion}.geoip"),
-                [AddressFamily.InterNetworkV6] = Path.Combine(Path.GetTempPath(), $"oniondb-{database.DbVersion}.geoip6")
+                [AddressFamily.InterNetwork] = Path.Combine(Path.GetTempPath(), string.Format(GeoIpFileTemplate, database.DbVersion, string.Empty)),
+                [AddressFamily.InterNetworkV6] = Path.Combine(Path.GetTempPath(), string.Format(GeoIpFileTemplate, database.DbVersion, "6"))
             };
 
             if (fileNames.Values.All(File.Exists))
@@ -160,6 +171,18 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
                     File.Delete(file);
 
                 throw;
+            }
+
+            // delete all old geoip files from temp
+            foreach (var file in Directory.EnumerateFiles(Path.GetTempPath(), string.Format(GeoIpFileTemplate, "*", "*"), SearchOption.TopDirectoryOnly))
+            {
+                if (fileNames.Values.Contains(file, StringComparer.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                logger.LogInformation("Deleting old GeoIP file {file}", Path.GetFileName(file));
+                File.Delete(file);
             }
 
             return fileNames.ToDictionary(x => x.Key, x => new FileInfo(x.Value));
