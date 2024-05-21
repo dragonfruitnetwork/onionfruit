@@ -7,14 +7,12 @@
                      xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
                      mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
                      x:Class="DragonFruit.OnionFruit.Views.MainWindow"
+                     x:DataType="vm:MainWindowViewModel"
                      Background="{x:Null}"
-                     Width="500" Height="180" CanResize="False"
+                     Width="600" Height="210" CanResize="False"
                      TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
                      Title="{Binding Source={x:Static onionFruit:App.Title}}">
-
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel />
     </Design.DataContext>
 
@@ -35,6 +33,25 @@
                     <!-- <Image Source="avares://DragonFruit.OnionFruit/Assets/icon.ico" Height="16" Width="16" /> -->
                     <TextBlock Text="{Binding Source={x:Static onionFruit:App.Title}}" />
                 </StackPanel>
+                
+                <Panel Background="{Binding RibbonContent.Background}" VerticalAlignment="Top" DockPanel.Dock="Top">
+                    <DockPanel Margin="20, 10">
+                        <ToggleSwitch DockPanel.Dock="Right"
+                                      TabIndex="1"
+                                      OnContent="" 
+                                      OffContent=""
+                                      VerticalAlignment="Center"
+                                      Command="{Binding ToggleConnection}"
+                                      IsChecked="{Binding RibbonContent.ToggleChecked, Mode=OneWay}" />
+                        
+                        <TextBlock DockPanel.Dock="Left"
+                                   TabIndex="0"
+                                   FontSize="20"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Text="{Binding RibbonContent.Text}"/>
+                    </DockPanel>
+                </Panel>
             </DockPanel>
         </Panel>
     </Window.Content>
