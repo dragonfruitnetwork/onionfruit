@@ -12,6 +12,8 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
 {
     public interface IOnionDatabase
     {
+        internal const string TorCountryCode = "T1";
+
         /// <summary>
         /// The current state of the database
         /// </summary>
