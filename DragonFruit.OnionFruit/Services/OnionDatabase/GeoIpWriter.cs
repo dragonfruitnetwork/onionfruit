@@ -38,7 +38,7 @@ namespace DragonFruit.OnionFruit.Services.OnionDatabase
         public Task WriteHeader(OnionDb database)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
-            return writer.WriteLineAsync($"# OnionFruit GeoIP v{database.DbVersion}.\n# Data contained inside this file is licensed under {database.GeoLicense} and {database.TorLicense}\n");
+            return writer.WriteLineAsync($"# OnionFruit GeoIP v{database.DbVersion}.\n# Data contained inside this file is licensed under {database.GeoLicense} and {database.TorLicense}");
         }
 
         /// <summary>
