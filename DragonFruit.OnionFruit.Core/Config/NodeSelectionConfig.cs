@@ -103,7 +103,7 @@ namespace DragonFruit.OnionFruit.Core.Config
 
             if (!string.IsNullOrWhiteSpace(GeoIPv4File) && File.Exists(GeoIPv4File))
             {
-                await writer.WriteLineAsync($"GeoIPv4File {GeoIPv4File}").ConfigureAwait(false);
+                await writer.WriteLineAsync($"GeoIPFile {GeoIPv4File}").ConfigureAwait(false);
             }
 
             if (!string.IsNullOrWhiteSpace(GeoIPv6File) && File.Exists(GeoIPv6File))
