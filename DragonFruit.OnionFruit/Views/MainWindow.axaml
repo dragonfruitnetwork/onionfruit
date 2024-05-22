@@ -58,6 +58,19 @@
                                    Text="{Binding RibbonContent.Text}"/>
                     </DockPanel>
                 </Panel>
+                
+                <DockPanel DockPanel.Dock="Top" VerticalAlignment="Center" Margin="15, 0">
+                    <DockPanel.Styles>
+                        <Style Selector="Control">
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                        </Style>
+                    </DockPanel.Styles>
+
+                    <DockPanel DockPanel.Dock="Left">
+                        <Label DockPanel.Dock="Left" TabIndex="0" Margin="0, 0, 10, 0" Content="Country"/>
+                        <ComboBox DockPanel.Dock="Left" TabIndex="1" Margin="10, 0, 0, 0" HorizontalAlignment="Stretch" ItemsSource="{Binding ExitCountries}" DisplayMemberBinding="{Binding CountryName}"/>
+                    </DockPanel>
+                 </DockPanel>
             </DockPanel>
         </Panel>
     </Window.Content>
