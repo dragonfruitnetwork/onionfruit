@@ -32,10 +32,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="Services\OnionDatabase\oniondb.proto" GrpcServices="Client" />
+      <ProjectReference Include="..\DragonFruit.OnionFruit.Core\DragonFruit.OnionFruit.Core.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DragonFruit.OnionFruit.Core\DragonFruit.OnionFruit.Core.csproj" />
+      <Protobuf Include="Database\oniondb.proto">
+        <Generator>MSBuild:Compile</Generator>
+      </Protobuf>
     </ItemGroup>
 </Project>

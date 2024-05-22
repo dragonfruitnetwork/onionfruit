@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Config;
 using DragonFruit.OnionFruit.Core.Network;
-using DragonFruit.OnionFruit.Services.OnionDatabase;
+using DragonFruit.OnionFruit.Database;
 using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Models

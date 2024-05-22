@@ -14,7 +14,7 @@ using DragonFruit.OnionFruit.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace DragonFruit.OnionFruit.Services.OnionDatabase
+namespace DragonFruit.OnionFruit.Database
 {
     /// <summary>
     /// Hosted service responsible for managing the onion.db and geoip files

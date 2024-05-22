@@ -4,8 +4,8 @@
 using System;
 using Avalonia;
 using Avalonia.Platform;
+using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
-using DragonFruit.OnionFruit.Services.OnionDatabase;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.ViewModels.Interfaces;
 

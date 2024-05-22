@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using DragonFruit.OnionFruit.Models;
 
-namespace DragonFruit.OnionFruit.Services.OnionDatabase
+namespace DragonFruit.OnionFruit.Database
 {
     public interface IOnionDatabase
     {

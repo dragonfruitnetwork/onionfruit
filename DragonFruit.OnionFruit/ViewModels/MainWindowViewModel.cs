@@ -12,8 +12,8 @@ using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
+using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
-using DragonFruit.OnionFruit.Services.OnionDatabase;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels

@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Google.Protobuf;
 
-namespace DragonFruit.OnionFruit.Services.OnionDatabase
+namespace DragonFruit.OnionFruit.Database
 {
     public class GeoIpWriter(TextWriter writer) : IDisposable
     {
