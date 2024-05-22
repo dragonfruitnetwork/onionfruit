@@ -27,12 +27,7 @@ namespace DragonFruit.OnionFruit.Database
         #region Static Values
 
         // this will need to be moved to a central location when adding in settings, etc.
-        private static string DatabasePath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit", "onion.db");
-
-        static OnionDbService()
-        {
-            Directory.CreateDirectory(Path.GetDirectoryName(DatabasePath));
-        }
+        private static string DatabasePath => Path.Combine(App.StoragePath, "onion.db");
 
         #endregion
 

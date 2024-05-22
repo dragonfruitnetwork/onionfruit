@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
@@ -16,10 +17,12 @@ public partial class App(IHost host) : Application
 {
     private IDisposable _startupCallback;
 
-    public static App Instance => (App)Current;
+    internal static string StoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit");
 
     static App()
     {
+        Directory.CreateDirectory(StoragePath);
+
         Version = Assembly.GetEntryAssembly()?.GetName().Version!.ToString(3);
         Title = $"OnionFruit\u2122 {Version}";
 
@@ -27,6 +30,7 @@ public partial class App(IHost host) : Application
         TransparencyLevels = OperatingSystem.IsWindowsVersionAtLeast(10, 22000) ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
     }
 
+    public static App Instance => (App)Current;
     public IServiceProvider Services => host.Services;
 
     public static string Title { get; }
