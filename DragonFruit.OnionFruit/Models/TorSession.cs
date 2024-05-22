@@ -45,6 +45,11 @@ namespace DragonFruit.OnionFruit.Models
         }
 
         /// <summary>
+        /// Event fired when the underlying tor process' bootstrap progress changes
+        /// </summary>
+        public event EventHandler<int> BootstrapProgressChanged;
+
+        /// <summary>
         /// Event fired when the session state changes
         /// </summary>
         public event EventHandler<TorSessionState> SessionStateChanged;
@@ -115,6 +120,9 @@ namespace DragonFruit.OnionFruit.Models
             {
                 await _connectionStallTimer.DisposeAsync();
             }
+
+            // allow disconnecting state to propagate
+            await Task.Delay(750).ConfigureAwait(false);
 
             // underlying process state change will cause the State to be set to Disconnected without manual intervention.
             _process.StopProcess();
@@ -242,6 +250,9 @@ namespace DragonFruit.OnionFruit.Models
             {
                 _connectionStallTimer?.Change(TimeSpan.FromSeconds(30), Timeout.InfiniteTimeSpan);
             }
+
+            // forward progress using persistent event (as process is frequently replaced)
+            BootstrapProgressChanged?.Invoke(sender, e);
         }
 
         private bool TryCreateUnderlyingTorProcess(out TorProcess process)

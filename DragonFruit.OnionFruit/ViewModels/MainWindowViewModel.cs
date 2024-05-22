@@ -43,11 +43,16 @@ namespace DragonFruit.OnionFruit.ViewModels
         {
             _session = session;
 
-            var sessionStateEvent = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State)).ObserveOn(RxApp.MainThreadScheduler);
-            var ribbonContentSelector = sessionStateEvent.Select(x => GetRibbonContent(x.EventArgs));
+            // configure event-driven observables, ensuring correct disposal of subscriptions
+            var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State)).ObserveOn(RxApp.MainThreadScheduler);
+            var connectionProgress = Observable.FromEventPattern<EventHandler<int>, int>(handler => session.BootstrapProgressChanged += handler, handler => session.BootstrapProgressChanged -= handler).StartWith(new EventPattern<int>(this, 0)).ObserveOn(RxApp.MainThreadScheduler);
 
-            _ribbonContent = ribbonContentSelector.ToProperty(this, x => x.RibbonContent, scheduler: RxApp.MainThreadScheduler);
-            ribbonContentSelector.Subscribe().DisposeWith(_disposables);
+            sessionState.Subscribe().DisposeWith(_disposables);
+            connectionProgress.Subscribe().DisposeWith(_disposables);
+
+            _ribbonContent = sessionState.CombineLatest(connectionProgress)
+                .Select(x => GetRibbonContent(x.First.EventArgs, x.Second.EventArgs))
+                .ToProperty(this, x => x.RibbonContent, scheduler: RxApp.MainThreadScheduler);
 
             // in the future, there should be a way to move this elsewhere
             ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler));
@@ -81,12 +86,13 @@ namespace DragonFruit.OnionFruit.ViewModels
             }
         }
 
-        private ToolbarContent GetRibbonContent(TorSession.TorSessionState state) => state switch
+        private ToolbarContent GetRibbonContent(TorSession.TorSessionState state, int connectionProgress) => state switch
         {
             TorSession.TorSessionState.Disconnected => new ToolbarContent(false, true, new ImmutableSolidColorBrush(Color.FromRgb(244, 67, 54)), "Tor Disconnected"),
             TorSession.TorSessionState.Connected => new ToolbarContent(true, true, Brushes.Green, "Tor Connected"),
 
-            TorSession.TorSessionState.Connecting => new ToolbarContent(true, false, Brushes.DarkOrange, "Tor Connecting"),
+            TorSession.TorSessionState.Connecting when connectionProgress == 0 => new ToolbarContent(true, false, Brushes.DarkOrange, "Tor Connecting"),
+            TorSession.TorSessionState.Connecting => new ToolbarContent(true, false, Brushes.DarkOrange, $"Tor Connecting ({connectionProgress}%)"),
             TorSession.TorSessionState.ConnectingStalled => new ToolbarContent(true, true, Brushes.SlateGray, "Tor Connecting"),
 
             TorSession.TorSessionState.Disconnecting => new ToolbarContent(false, false, Brushes.DarkOrange, "Tor Disconnecting"),
