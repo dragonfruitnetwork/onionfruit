@@ -108,7 +108,7 @@ namespace DragonFruit.OnionFruit.Models
             }
 
             // start stall timer
-            _connectionStallTimer = new Timer(_ => State = TorSessionState.ConnectingStalled, null, TimeSpan.Zero, Timeout.InfiniteTimeSpan);
+            _connectionStallTimer = new Timer(_ => State = TorSessionState.ConnectingStalled, null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
             ProcessBootstrapProgress(this, 0);
         }
 
