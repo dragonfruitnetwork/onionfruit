@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Config;
 using DragonFruit.OnionFruit.Core.Network;
+using DragonFruit.OnionFruit.Services.OnionDatabase;
 using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Models
@@ -18,7 +20,7 @@ namespace DragonFruit.OnionFruit.Models
     /// <summary>
     /// Combines user configuration, control port access and the underlying tor process lifetime management into a single location
     /// </summary>
-    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, ILoggerFactory loggerFactory)
+    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, IOnionDatabase database, ILoggerFactory loggerFactory)
     {
         private const int DefaultSocksPort = 9050;
         private const int DefaultControlPort = 9051;
@@ -71,8 +73,20 @@ namespace DragonFruit.OnionFruit.Models
                 _process.BootstrapProgressChanged -= ProcessBootstrapProgress;
             }
 
+            // wait up to 15 seconds for geoip file generation task to complete
+            IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles;
+
+            try
+            {
+                geoIpFiles = await database.GeoIPFiles.WaitAsync(TimeSpan.FromSeconds(15));
+            }
+            catch
+            {
+                geoIpFiles = null;
+            }
+
             // create session config and underlying process
-            if (!TryGenerateSessionConfig(out _sessionConfig) || !TryCreateUnderlyingTorProcess(out _process))
+            if (!TryGenerateSessionConfig(geoIpFiles, out _sessionConfig) || !TryCreateUnderlyingTorProcess(out _process))
             {
                 return;
             }
@@ -131,7 +145,7 @@ namespace DragonFruit.OnionFruit.Models
         /// <summary>
         /// Builds a configuration for the current session using sane defaults and the user's preferences
         /// </summary>
-        private static bool TryGenerateSessionConfig(out IReadOnlyList<TorrcConfigEntry> sessionConfig)
+        private static bool TryGenerateSessionConfig(IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles, out IReadOnlyList<TorrcConfigEntry> sessionConfig)
         {
             var consumedPorts = new List<int>(2);
             var basicConfig = new ClientConfig
@@ -162,12 +176,26 @@ namespace DragonFruit.OnionFruit.Models
             var controlPort = PortScanner.GetClosestFreePort(DefaultControlPort, excludedPorts: consumedPorts)!.Value;
             var controlPortConfig = new ControlPortConfig(basicConfig.Endpoints.Select(x => new IPEndPoint(x.Address, controlPort)), Guid.NewGuid().ToString("N"));
 
-            // don't reuse control port
             consumedPorts.Add(controlPort);
 
-            // todo add onionfruit -> torrc config converters, geoip handling + control port monitoring
+            // node selection (GeoIP, countries)
+            var nodeSelectionConfig = new NodeSelectionConfig();
 
-            sessionConfig = [basicConfig, controlPortConfig];
+            if (geoIpFiles != null)
+            {
+                if (geoIpFiles.TryGetValue(AddressFamily.InterNetwork, out var ipv4File))
+                {
+                    nodeSelectionConfig.GeoIPv4File = ipv4File.FullName;
+                }
+
+                if (geoIpFiles.TryGetValue(AddressFamily.InterNetworkV6, out var ipv6File))
+                {
+                    nodeSelectionConfig.GeoIPv6File = ipv6File.FullName;
+                }
+            }
+
+            // todo add onionfruit -> torrc config converters, country handling + control port monitoring
+            sessionConfig = [basicConfig, controlPortConfig, nodeSelectionConfig];
             return true;
         }
 
