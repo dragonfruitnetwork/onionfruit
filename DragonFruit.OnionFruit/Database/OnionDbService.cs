@@ -2,6 +2,7 @@
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace DragonFruit.OnionFruit.Database
     /// <summary>
     /// Hosted service responsible for managing the onion.db and geoip files
     /// </summary>
-    public class OnionDbService(ApiClient client, ILogger<OnionDbService> logger) : IOnionDatabase, IHostedService
+    public class OnionDbService : IOnionDatabase, IHostedService, IDisposable
     {
         private const string GeoIpFileTemplate = "oniondb-{0}.geoip{1}";
 
@@ -42,6 +43,28 @@ namespace DragonFruit.OnionFruit.Database
         private OnionDb _currentDb;
         private DatabaseState _state;
         private IReadOnlyCollection<TorNodeCountry> _countries;
+
+
+        private readonly ApiClient _client;
+        private readonly ILogger<OnionDbService> _logger;
+
+        private readonly FileSystemWatcher _fileWatcher = new()
+        {
+            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+            Filter = string.Format(GeoIpFileTemplate, "*", "*"),
+            Path = Path.GetTempPath(),
+            EnableRaisingEvents = false
+        };
+
+        public OnionDbService(ApiClient client, ILogger<OnionDbService> logger)
+        {
+            _client = client;
+            _logger = logger;
+
+            _fileWatcher.Deleted += GeoIpFileAltered;
+            _fileWatcher.Changed += GeoIpFileAltered;
+            _fileWatcher.Renamed += GeoIpFileAltered;
+        }
 
         public DatabaseState State
         {
@@ -104,15 +127,15 @@ namespace DragonFruit.OnionFruit.Database
             using (var databaseStream = new FileStream(DatabasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous))
             {
                 State = DatabaseState.Downloading;
-                logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
+                _logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
 
                 // todo add progress tracking, handle errors from PerformDownload
 
                 var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
-                var downloadRequestStatus = await client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
+                var downloadRequestStatus = await _client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
 
                 // return if download wasn't successful (no file to reload)
-                logger.LogInformation("onion.db download request returned {status}", downloadRequestStatus);
+                _logger.LogInformation("onion.db download request returned {status}", downloadRequestStatus);
                 if (downloadRequestStatus != HttpStatusCode.OK)
                 {
                     return;
@@ -123,9 +146,10 @@ namespace DragonFruit.OnionFruit.Database
         }
 
         /// <summary>
-        /// Checks for GeoIP files in the expected location and writes a new set if they don't exist
+        /// Checks for GeoIP files in the expected location and writes a new set if they don't exist.
+        /// Additionally, starts a file watcher that will automatically rewrite the files should they be edited or deleted.
         /// </summary>
-        private async Task<IReadOnlyDictionary<AddressFamily, FileInfo>> WriteGeoIpFiles(OnionDb database, CancellationToken cancellation = default)
+        private async Task<IReadOnlyDictionary<AddressFamily, FileInfo>> PrepareGeoIpFiles(OnionDb database, CancellationToken cancellation = default)
         {
             var fileNames = new Dictionary<AddressFamily, string>
             {
@@ -135,15 +159,16 @@ namespace DragonFruit.OnionFruit.Database
 
             foreach (var (target, path) in fileNames)
             {
-                logger.LogInformation("{target} GeoIP file to be written to {path}", target, path);
+                _logger.LogInformation("{target} GeoIP file to be written to {path}", target, path);
             }
 
             if (fileNames.Values.All(File.Exists))
             {
-                logger.LogInformation("GeoIP files already exist, skipping write");
-                return fileNames.ToDictionary(x => x.Key, x => new FileInfo(x.Value));
+                _logger.LogInformation("GeoIP files already exist, skipping write");
+                goto returnResult;
             }
 
+            _fileWatcher.EnableRaisingEvents = false;
             var writers = fileNames.ToDictionary(x => x.Key, x => new GeoIpWriter(x.Value));
 
             try
@@ -154,7 +179,7 @@ namespace DragonFruit.OnionFruit.Database
                 {
                     cancellation.ThrowIfCancellationRequested();
 
-                    logger.LogDebug("Writing GeoIP data for {country}", country.CountryName);
+                    _logger.LogDebug("Writing GeoIP data for {country}", country.CountryName);
 
                     // write ipv4 and ipv6 ranges to the appropriate files
                     if (country.V4Ranges.Count > 0 && writers.TryGetValue(AddressFamily.InterNetwork, out var v4Writer))
@@ -189,11 +214,13 @@ namespace DragonFruit.OnionFruit.Database
                     continue;
                 }
 
-                logger.LogInformation("Deleting old GeoIP file {file}", Path.GetFileName(file));
+                _logger.LogInformation("Deleting old GeoIP file {file}", Path.GetFileName(file));
                 File.Delete(file);
             }
 
-            return fileNames.ToDictionary(x => x.Key, x => new FileInfo(x.Value));
+            returnResult:
+            _fileWatcher.EnableRaisingEvents = true;
+            return fileNames.ToFrozenDictionary(x => x.Key, x => new FileInfo(x.Value));
         }
 
         private void LoadLocalDatabase()
@@ -208,14 +235,34 @@ namespace DragonFruit.OnionFruit.Database
 
             using (var localReadStream = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan))
             {
-                logger.LogInformation("Reading onion.db from disk");
+                _logger.LogInformation("Reading onion.db from disk");
                 _currentDb = OnionDb.Parser.ParseFrom(localReadStream);
             }
 
+            GeoIpFileAltered(this, null);
             Countries = _currentDb.Countries.Select(x => new TorNodeCountry(x.CountryName, x.CountryCode, x.EntryNodeCount, x.ExitNodeCount, x.TotalNodeCount)).ToList();
-            GeoIPFiles = WriteGeoIpFiles(_currentDb, _cancellation.Token);
 
             State = DatabaseState.Ready;
+        }
+
+        private void GeoIpFileAltered(object sender, FileSystemEventArgs args)
+        {
+            if (args != null)
+            {
+                var filename = args is RenamedEventArgs renArgs ? renArgs.OldFullPath : args.FullPath;
+
+                if (GeoIPFiles.IsCompletedSuccessfully && GeoIPFiles.Result.Values.All(x => x.FullName != filename))
+                {
+                    return;
+                }
+            }
+
+            if (_currentDb == null || GeoIPFiles?.Status is TaskStatus.WaitingForActivation or TaskStatus.WaitingToRun or TaskStatus.Running)
+            {
+                return;
+            }
+
+            GeoIPFiles = PrepareGeoIpFiles(_currentDb, _cancellation.Token);
         }
 
         #region HostedService
@@ -233,6 +280,8 @@ namespace DragonFruit.OnionFruit.Database
 
         Task IHostedService.StopAsync(CancellationToken cancellationToken)
         {
+            _fileWatcher.EnableRaisingEvents = false;
+
             _checkTimer?.Dispose();
             _cancellation?.Cancel();
 
@@ -240,5 +289,15 @@ namespace DragonFruit.OnionFruit.Database
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            _checkTimer?.Dispose();
+            _currentCheckTask?.Dispose();
+            _cancellation?.Dispose();
+            _fileWatcher?.Dispose();
+
+            GeoIPFiles?.Dispose();
+        }
     }
 }
