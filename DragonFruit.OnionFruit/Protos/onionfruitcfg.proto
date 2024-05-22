@@ -1,0 +1,9 @@
+﻿syntax = "proto3";
+
+message OnionFruitConfigFile {
+  int32 configVersion = 1;
+  string lastClientVersion = 2;
+
+  optional string entryCountryCode = 3;
+  optional string exitCountryCode = 4;
+}
