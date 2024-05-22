@@ -2,6 +2,8 @@
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -11,6 +13,7 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Services.OnionDatabase;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -27,9 +30,13 @@ namespace DragonFruit.OnionFruit.ViewModels
     public class MainWindowViewModel : ReactiveObject, IDisposable
     {
         private readonly CompositeDisposable _disposables = new();
+
         private readonly TorSession _session;
+        private readonly IOnionDatabase _onionDatabase;
 
         private readonly ObservableAsPropertyHelper<ToolbarContent> _ribbonContent;
+        private readonly ObservableAsPropertyHelper<DatabaseState> _onionDbState;
+        private readonly ObservableAsPropertyHelper<IEnumerable<TorNodeCountry>> _onionDbExitCountries;
 
         public MainWindowViewModel()
         {
@@ -39,20 +46,39 @@ namespace DragonFruit.OnionFruit.ViewModels
             }
         }
 
-        public MainWindowViewModel(TorSession session)
+        public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase)
         {
             _session = session;
+            _onionDatabase = onionDatabase;
 
             // configure event-driven observables, ensuring correct disposal of subscriptions
-            var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State)).ObserveOn(RxApp.MainThreadScheduler);
-            var connectionProgress = Observable.FromEventPattern<EventHandler<int>, int>(handler => session.BootstrapProgressChanged += handler, handler => session.BootstrapProgressChanged -= handler).StartWith(new EventPattern<int>(this, 0)).ObserveOn(RxApp.MainThreadScheduler);
+            var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler)
+                .StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State))
+                .ObserveOn(RxApp.MainThreadScheduler);
+
+            var connectionProgress = Observable.FromEventPattern<EventHandler<int>, int>(handler => session.BootstrapProgressChanged += handler, handler => session.BootstrapProgressChanged -= handler)
+                .StartWith(new EventPattern<int>(this, 0))
+                .ObserveOn(RxApp.MainThreadScheduler);
+
+            var databaseState = Observable.FromEventPattern<EventHandler<DatabaseState>, DatabaseState>(handler => onionDatabase.StateChanged += handler, handler => onionDatabase.StateChanged -= handler)
+                .StartWith(new EventPattern<DatabaseState>(this, onionDatabase.State))
+                .ObserveOn(RxApp.MainThreadScheduler);
+
+            var databaseCountries = Observable.FromEventPattern<EventHandler<IReadOnlyCollection<TorNodeCountry>>, IReadOnlyCollection<TorNodeCountry>>(handler => onionDatabase.CountriesChanged += handler, handler => onionDatabase.CountriesChanged -= handler)
+                .StartWith(new EventPattern<IReadOnlyCollection<TorNodeCountry>>(this, onionDatabase.Countries))
+                .Select(ProcessCountries)
+                .ObserveOn(RxApp.MainThreadScheduler);
 
             sessionState.Subscribe().DisposeWith(_disposables);
             connectionProgress.Subscribe().DisposeWith(_disposables);
 
-            _ribbonContent = sessionState.CombineLatest(connectionProgress)
-                .Select(x => GetRibbonContent(x.First.EventArgs, x.Second.EventArgs))
-                .ToProperty(this, x => x.RibbonContent, scheduler: RxApp.MainThreadScheduler);
+            databaseState.Subscribe().DisposeWith(_disposables);
+            databaseCountries.Subscribe().DisposeWith(_disposables);
+
+            _onionDbState = databaseState.Select(x => x.EventArgs).ToProperty(this, x => x.OnionDatabaseState);
+            _onionDbExitCountries = databaseCountries.CombineLatest(databaseState).Where(x => x.Second.EventArgs == DatabaseState.Ready).Select(x => x.First).ToProperty(this, x => x.ExitCountries);
+
+            _ribbonContent = sessionState.CombineLatest(connectionProgress).Select(x => GetRibbonContent(x.First.EventArgs, x.Second.EventArgs)).ToProperty(this, x => x.RibbonContent, scheduler: RxApp.MainThreadScheduler);
 
             // in the future, there should be a way to move this elsewhere
             ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler));
@@ -67,6 +93,16 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// Gets the content of the ribbon (toggle state, text, background colour)
         /// </summary>
         public ToolbarContent RibbonContent => _ribbonContent.Value;
+
+        /// <summary>
+        /// Gets the current state of the onion.db information database
+        /// </summary>
+        public DatabaseState OnionDatabaseState => _onionDbState.Value;
+
+        /// <summary>
+        /// The available countries with at least one exit node.
+        /// </summary>
+        public IEnumerable<TorNodeCountry> ExitCountries => _onionDbExitCountries.Value;
 
         private async Task ToggleSession()
         {
@@ -104,6 +140,28 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
         };
+
+        private static IEnumerable<TorNodeCountry> ProcessCountries(EventPattern<IReadOnlyCollection<TorNodeCountry>> countriesEvent)
+        {
+            if (countriesEvent.EventArgs?.Count is null or 0)
+            {
+                return Enumerable.Empty<TorNodeCountry>();
+            }
+
+            uint entry = 0, exit = 0, total = 0;
+
+            foreach (var country in countriesEvent.EventArgs)
+            {
+                entry += country.EntryNodeCount;
+                exit += country.ExitNodeCount;
+                total += country.TotalNodeCount;
+            }
+
+            return countriesEvent.EventArgs
+                .Where(y => y.ExitNodeCount > 0)
+                .OrderBy(x => x.CountryName, StringComparer.Ordinal)
+                .Prepend(new TorNodeCountry("Random", IOnionDatabase.TorCountryCode, entry, exit, total));
+        }
 
         public void Dispose()
         {
