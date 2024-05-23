@@ -8,34 +8,26 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using DragonFruit.OnionFruit.Database;
+using Microsoft.Extensions.Logging;
 using CodedOutputStream = Google.Protobuf.CodedOutputStream;
 
 namespace DragonFruit.OnionFruit.Configuration
 {
     public class OnionFruitSettingsStore : SettingsStore<OnionFruitSetting>
     {
+        private readonly OnionFruitConfigFile _configFile;
+        private readonly ILogger<OnionFruitSettingsStore> _logger;
         private readonly List<Action<OnionFruitConfigFile>> _valueApplicators = [];
-        private OnionFruitConfigFile _configFile;
 
         private string ConfigurationFile => Path.Combine(App.StoragePath, "onionfruit.cfg");
 
-        public OnionFruitSettingsStore()
+        public OnionFruitSettingsStore(ILogger<OnionFruitSettingsStore> logger)
         {
-            RegisterOption(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode, static c => c.EntryCountryCode, static (c, val) => c.EntryCountryCode = val);
-            RegisterOption(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode, static c => c.ExitCountryCode, static (c, val) => c.ExitCountryCode = val);
-        }
+            _logger = logger;
+            _configFile = File.Exists(ConfigurationFile) ? OnionFruitConfigFile.Parser.ParseFrom(File.ReadAllBytes(ConfigurationFile)) : new OnionFruitConfigFile();
 
-        protected override async Task LoadConfiguration()
-        {
-            if (File.Exists(ConfigurationFile))
-            {
-                var configBytes = await File.ReadAllBytesAsync(ConfigurationFile).ConfigureAwait(false);
-                _configFile = OnionFruitConfigFile.Parser.ParseFrom(configBytes);
-            }
-            else
-            {
-                _configFile = new OnionFruitConfigFile();
-            }
+            RegisterOption(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode, static c => c.EntryCountryCode, static (c, val) => c.EntryCountryCode = val ?? IOnionDatabase.TorCountryCode);
+            RegisterOption(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode, static c => c.ExitCountryCode, static (c, val) => c.ExitCountryCode = val ?? IOnionDatabase.TorCountryCode);
 
             UpdateRegisteredValues();
         }
@@ -58,7 +50,11 @@ namespace DragonFruit.OnionFruit.Configuration
             var subject = new BehaviorSubject<T>(defaultValue);
 
             ConfigStore.Add(key, subject);
-            Subscriptions.Add(subject.DistinctUntilChanged().Subscribe(value => setter.Invoke(_configFile, value)));
+            Subscriptions.Add(subject.DistinctUntilChanged().Subscribe(value =>
+            {
+                _logger.LogDebug("Configuration value {key} updated to {value}", key, value);
+                setter.Invoke(_configFile, value);
+            }));
 
             _valueApplicators.Add(c => subject.OnNext(getter.Invoke(c)));
         }
