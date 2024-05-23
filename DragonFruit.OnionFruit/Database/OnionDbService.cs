@@ -8,12 +8,16 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DragonFruit.Data;
+using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.Database
 {
@@ -23,13 +27,7 @@ namespace DragonFruit.OnionFruit.Database
     public class OnionDbService : IOnionDatabase, IHostedService, IDisposable
     {
         private const string GeoIpFileTemplate = "oniondb-{0}.geoip{1}";
-
-        #region Static Values
-
-        // this will need to be moved to a central location when adding in settings, etc.
-        private static string DatabasePath => Path.Combine(App.StoragePath, "onion.db");
-
-        #endregion
+        private readonly string _databasePath = Path.Combine(App.StoragePath, "onion.db");
 
         private Timer _checkTimer;
         private Task _currentCheckTask;
@@ -39,26 +37,30 @@ namespace DragonFruit.OnionFruit.Database
         private DatabaseState _state;
         private IReadOnlyCollection<TorNodeCountry> _countries;
 
-
         private readonly ApiClient _client;
         private readonly ILogger<OnionDbService> _logger;
+        private readonly OnionFruitSettingsStore _settings;
+        private readonly CompositeDisposable _settingWatchers = new();
 
-        private readonly FileSystemWatcher _fileWatcher = new()
-        {
-            NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
-            Filter = string.Format(GeoIpFileTemplate, "*", "*"),
-            Path = Path.GetTempPath(),
-            EnableRaisingEvents = false
-        };
-
-        public OnionDbService(ApiClient client, ILogger<OnionDbService> logger)
+        public OnionDbService(ApiClient client, OnionFruitSettingsStore settings, ILogger<OnionDbService> logger)
         {
             _client = client;
             _logger = logger;
+            _settings = settings;
 
-            _fileWatcher.Deleted += GeoIpFileAltered;
-            _fileWatcher.Changed += GeoIpFileAltered;
-            _fileWatcher.Renamed += GeoIpFileAltered;
+            // create ready state observable, run config checks when database state changes or country-related settings are updated
+            var databaseReadyObservable = Observable.FromEventPattern<EventHandler<DatabaseState>, DatabaseState>(h => StateChanged += h, h => StateChanged -= h)
+                .ObserveOn(RxApp.TaskpoolScheduler)
+                .Select(x => x.EventArgs == DatabaseState.Ready);
+
+            foreach (var key in new[] {OnionFruitSetting.TorEntryCountryCode, OnionFruitSetting.TorExitCountryCode})
+            {
+                settings.GetObservableValue<string>(key)
+                    .CombineLatest(databaseReadyObservable)
+                    .Where(x => x.Second)
+                    .Subscribe(v => ValidateCountrySelection(key, v.First))
+                    .DisposeWith(_settingWatchers);
+            }
         }
 
         public DatabaseState State
@@ -102,43 +104,6 @@ namespace DragonFruit.OnionFruit.Database
             _currentCheckTask.ContinueWith(_ => _checkTimer.Change(TimeSpan.FromHours(12), Timeout.InfiniteTimeSpan), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
 
-        private async Task CheckOnlineUpdates()
-        {
-            // additional guard to prevent checks running once disposed
-            if (_cancellation.IsCancellationRequested && _checkTimer != null)
-            {
-                await _checkTimer.DisposeAsync();
-                _checkTimer = null;
-            }
-
-            DateTimeOffset? fileLastModified = _currentDb == null ? null : DateTimeOffset.FromUnixTimeSeconds(_currentDb.DbVersion);
-
-            // redownload if file is 0-length or is older than 12 hours
-            if (File.Exists(DatabasePath) && fileLastModified - DateTimeOffset.Now < TimeSpan.FromHours(12))
-            {
-                return;
-            }
-
-            using (var databaseStream = new FileStream(DatabasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous))
-            {
-                State = DatabaseState.Downloading;
-                _logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
-
-                // todo add progress tracking, handle errors from PerformDownload
-
-                var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
-                var downloadRequestStatus = await _client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
-
-                // return if download wasn't successful (no file to reload)
-                _logger.LogInformation("onion.db download request returned {status}", downloadRequestStatus);
-                if (downloadRequestStatus != HttpStatusCode.OK)
-                {
-                    return;
-                }
-            }
-
-            LoadLocalDatabase();
-        }
 
         /// <summary>
         /// Checks for GeoIP files in the expected location and writes a new set if they don't exist.
@@ -163,7 +128,6 @@ namespace DragonFruit.OnionFruit.Database
                 goto returnResult;
             }
 
-            _fileWatcher.EnableRaisingEvents = false;
             var writers = fileNames.ToDictionary(x => x.Key, x => new GeoIpWriter(x.Value));
 
             try
@@ -214,13 +178,50 @@ namespace DragonFruit.OnionFruit.Database
             }
 
             returnResult:
-            _fileWatcher.EnableRaisingEvents = true;
             return fileNames.ToFrozenDictionary(x => x.Key, x => new FileInfo(x.Value));
+        }
+
+        private async Task CheckOnlineUpdates()
+        {
+            // additional guard to prevent checks running once disposed
+            if (_cancellation.IsCancellationRequested && _checkTimer != null)
+            {
+                await _checkTimer.DisposeAsync();
+                _checkTimer = null;
+            }
+
+            DateTimeOffset? fileLastModified = _currentDb == null ? null : DateTimeOffset.FromUnixTimeSeconds(_currentDb.DbVersion);
+
+            // redownload if file is 0-length or is older than 12 hours
+            if (File.Exists(_databasePath) && fileLastModified - DateTimeOffset.Now < TimeSpan.FromHours(12))
+            {
+                return;
+            }
+
+            using (var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous))
+            {
+                State = DatabaseState.Downloading;
+                _logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
+
+                // todo add progress tracking, handle errors from PerformDownload
+
+                var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
+                var downloadRequestStatus = await _client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
+
+                // return if download wasn't successful (no file to reload)
+                _logger.LogInformation("onion.db download request returned {status}", downloadRequestStatus);
+                if (downloadRequestStatus != HttpStatusCode.OK)
+                {
+                    return;
+                }
+            }
+
+            LoadLocalDatabase();
         }
 
         private void LoadLocalDatabase()
         {
-            if (!File.Exists(DatabasePath))
+            if (!File.Exists(_databasePath))
             {
                 _currentDb = null;
                 return;
@@ -228,36 +229,30 @@ namespace DragonFruit.OnionFruit.Database
 
             State = DatabaseState.Processing;
 
-            using (var localReadStream = new FileStream(DatabasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan))
+            using (var localReadStream = new FileStream(_databasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan))
             {
                 _logger.LogInformation("Reading onion.db from disk");
                 _currentDb = OnionDb.Parser.ParseFrom(localReadStream);
             }
 
-            GeoIpFileAltered(this, null);
+            GeoIPFiles = PrepareGeoIpFiles(_currentDb, _cancellation.Token);
             Countries = _currentDb.Countries.Select(x => new TorNodeCountry(x.CountryName, x.CountryCode, x.EntryNodeCount, x.ExitNodeCount, x.TotalNodeCount)).ToList();
 
             State = DatabaseState.Ready;
         }
 
-        private void GeoIpFileAltered(object sender, FileSystemEventArgs args)
+        private void ValidateCountrySelection(OnionFruitSetting key, string currentValue)
         {
-            if (args != null)
+            var country = Countries.SingleOrDefault(x => x.CountryCode == currentValue);
+
+            switch (key)
             {
-                var filename = args is RenamedEventArgs renArgs ? renArgs.OldFullPath : args.FullPath;
-
-                if (GeoIPFiles.IsCompletedSuccessfully && GeoIPFiles.Result.Values.All(x => x.FullName != filename))
-                {
-                    return;
-                }
+                // check that the entry/exit count is positive while ensuring the country exists
+                case OnionFruitSetting.TorExitCountryCode when country?.ExitNodeCount is null or 0:
+                case OnionFruitSetting.TorEntryCountryCode when country?.EntryNodeCount is null or 0:
+                    _settings.SetValue(key, IOnionDatabase.TorCountryCode);
+                    break;
             }
-
-            if (_currentDb == null || GeoIPFiles?.Status is TaskStatus.WaitingForActivation or TaskStatus.WaitingToRun or TaskStatus.Running)
-            {
-                return;
-            }
-
-            GeoIPFiles = PrepareGeoIpFiles(_currentDb, _cancellation.Token);
         }
 
         #region HostedService
@@ -275,8 +270,6 @@ namespace DragonFruit.OnionFruit.Database
 
         Task IHostedService.StopAsync(CancellationToken cancellationToken)
         {
-            _fileWatcher.EnableRaisingEvents = false;
-
             _checkTimer?.Dispose();
             _cancellation?.Cancel();
 
@@ -290,7 +283,6 @@ namespace DragonFruit.OnionFruit.Database
             _checkTimer?.Dispose();
             _currentCheckTask?.Dispose();
             _cancellation?.Dispose();
-            _fileWatcher?.Dispose();
 
             GeoIPFiles?.Dispose();
         }
