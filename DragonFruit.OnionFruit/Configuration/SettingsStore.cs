@@ -22,12 +22,6 @@ namespace DragonFruit.OnionFruit.Configuration
         protected abstract Task SaveConfiguration();
 
         /// <summary>
-        /// Loads the configuration from storage
-        /// </summary>
-        /// <returns></returns>
-        protected abstract Task LoadConfiguration();
-
-        /// <summary>
         /// Gets the current value of a specified configuration key
         /// </summary>
         public TValue GetValue<TValue>(TKey key) => GetRootSubject<TValue>(key).Value;
@@ -48,6 +42,11 @@ namespace DragonFruit.OnionFruit.Configuration
             if (subject == null)
             {
                 throw new ArgumentException($"Key {key} does not exist in the configuration store");
+            }
+
+            if (subject.Value?.Equals(value) == true)
+            {
+                return;
             }
 
             subject.OnNext(value);
