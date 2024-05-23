@@ -66,9 +66,16 @@
                         </Style>
                     </DockPanel.Styles>
 
-                    <DockPanel DockPanel.Dock="Left">
+                    <DockPanel DockPanel.Dock="Left" IsVisible="{Binding CountriesDatabaseReady}">
                         <Label DockPanel.Dock="Left" TabIndex="0" Margin="0, 0, 10, 0" Content="Country"/>
-                        <ComboBox DockPanel.Dock="Left" TabIndex="1" Margin="10, 0, 0, 0" HorizontalAlignment="Stretch" ItemsSource="{Binding ExitCountries}" DisplayMemberBinding="{Binding CountryName}"/>
+                        <ComboBox DockPanel.Dock="Left"
+                                  TabIndex="1"
+                                  Margin="10, 0, 0, 0"
+                                  HorizontalAlignment="Stretch"
+                                  ItemsSource="{Binding ExitCountries}"
+                                  SelectedValue="{Binding SelectedCountryCode}"
+                                  SelectedValueBinding="{Binding CountryCode}"
+                                  DisplayMemberBinding="{Binding CountryName}"/>
                     </DockPanel>
                  </DockPanel>
             </DockPanel>
