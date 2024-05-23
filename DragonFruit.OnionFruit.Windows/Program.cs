@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
+using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Network;
 using DragonFruit.OnionFruit.Core.Windows;
@@ -56,6 +57,9 @@ public static class Program
             // register platform-specific services
             services.AddSingleton<IProxyManager, WindowsProxyManager>();
             services.AddSingleton<ExecutableLocator>(new WindowsExecutableLocator("ONIONFRUIT_HOME"));
+
+            // configuration
+            services.AddSingleton<OnionFruitSettingsStore>();
 
             // register core services
             services.AddSingleton<TorSession>();
