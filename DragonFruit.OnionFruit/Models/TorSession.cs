@@ -9,6 +9,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Config;
 using DragonFruit.OnionFruit.Core.Network;
@@ -20,7 +21,7 @@ namespace DragonFruit.OnionFruit.Models
     /// <summary>
     /// Combines user configuration, control port access and the underlying tor process lifetime management into a single location
     /// </summary>
-    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, IOnionDatabase database, ILoggerFactory loggerFactory)
+    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, IOnionDatabase database, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory)
     {
         private const int DefaultSocksPort = 9050;
         private const int DefaultControlPort = 9051;
@@ -145,7 +146,7 @@ namespace DragonFruit.OnionFruit.Models
         /// <summary>
         /// Builds a configuration for the current session using sane defaults and the user's preferences
         /// </summary>
-        private static bool TryGenerateSessionConfig(IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles, out IReadOnlyList<TorrcConfigEntry> sessionConfig)
+        private bool TryGenerateSessionConfig(IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles, out IReadOnlyList<TorrcConfigEntry> sessionConfig)
         {
             var consumedPorts = new List<int>(2);
             var basicConfig = new ClientConfig
@@ -161,14 +162,10 @@ namespace DragonFruit.OnionFruit.Models
             var targetPort = PortScanner.GetClosestFreePort(DefaultSocksPort, excludedPorts: consumedPorts)!.Value;
 
             if (Socket.OSSupportsIPv4)
-            {
                 basicConfig.Endpoints.Add(new IPEndPoint(IPAddress.Loopback, targetPort));
-            }
 
             if (Socket.OSSupportsIPv6)
-            {
                 basicConfig.Endpoints.Add(new IPEndPoint(IPAddress.IPv6Loopback, targetPort));
-            }
 
             // don't reuse SOCKS port
             consumedPorts.Add(targetPort);
@@ -184,13 +181,20 @@ namespace DragonFruit.OnionFruit.Models
             if (geoIpFiles != null)
             {
                 if (geoIpFiles.TryGetValue(AddressFamily.InterNetwork, out var ipv4File))
-                {
                     nodeSelectionConfig.GeoIPv4File = ipv4File.FullName;
-                }
 
                 if (geoIpFiles.TryGetValue(AddressFamily.InterNetworkV6, out var ipv6File))
-                {
                     nodeSelectionConfig.GeoIPv6File = ipv6File.FullName;
+
+                if (database.State == DatabaseState.Ready)
+                {
+                    var entryCountry = settings.GetValue<string>(OnionFruitSetting.TorEntryCountryCode);
+                    if (entryCountry != IOnionDatabase.TorCountryCode)
+                        nodeSelectionConfig.EntryNodes = [new NodeCountryFilter(entryCountry)];
+
+                    var exitCountry = settings.GetValue<string>(OnionFruitSetting.TorExitCountryCode);
+                    if (exitCountry != IOnionDatabase.TorCountryCode)
+                        nodeSelectionConfig.ExitNodes = [new NodeCountryFilter(exitCountry)];
                 }
             }
 
