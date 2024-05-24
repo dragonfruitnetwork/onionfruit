@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -63,6 +64,9 @@ namespace DragonFruit.OnionFruit.Database
             }
         }
 
+        public event EventHandler<DatabaseState> StateChanged;
+        public event EventHandler<IReadOnlyCollection<TorNodeCountry>> CountriesChanged;
+
         public DatabaseState State
         {
             get => _state;
@@ -87,23 +91,14 @@ namespace DragonFruit.OnionFruit.Database
 
         public Task<IReadOnlyDictionary<AddressFamily, FileInfo>> GeoIPFiles { get; private set; }
 
-        public event EventHandler<DatabaseState> StateChanged;
-        public event EventHandler<IReadOnlyCollection<TorNodeCountry>> CountriesChanged;
-
         private void TimerPinged()
         {
-            if (_currentDb == null)
-            {
-                LoadLocalDatabase();
-            }
-
             _currentCheckTask = CheckOnlineUpdates();
 
             // schedule the timer to check again in 15 seconds if the task fails, or 12 hours if it succeeds
             _currentCheckTask.ContinueWith(_ => _checkTimer.Change(TimeSpan.FromSeconds(15), Timeout.InfiniteTimeSpan), TaskContinuationOptions.OnlyOnFaulted);
             _currentCheckTask.ContinueWith(_ => _checkTimer.Change(TimeSpan.FromHours(12), Timeout.InfiniteTimeSpan), TaskContinuationOptions.OnlyOnRanToCompletion);
         }
-
 
         /// <summary>
         /// Checks for GeoIP files in the expected location and writes a new set if they don't exist.
@@ -128,7 +123,7 @@ namespace DragonFruit.OnionFruit.Database
                 goto returnResult;
             }
 
-            var writers = fileNames.ToDictionary(x => x.Key, x => new GeoIpWriter(x.Value));
+            var writers = fileNames.ToFrozenDictionary(x => x.Key, x => new GeoIpWriter(x.Value));
 
             try
             {
@@ -192,31 +187,34 @@ namespace DragonFruit.OnionFruit.Database
 
             DateTimeOffset? fileLastModified = _currentDb == null ? null : DateTimeOffset.FromUnixTimeSeconds(_currentDb.DbVersion);
 
-            // redownload if file is 0-length or is older than 12 hours
-            if (File.Exists(_databasePath) && fileLastModified - DateTimeOffset.Now < TimeSpan.FromHours(12))
+            // re-download if file is 0-length or is older than 12 hours
+            if (fileLastModified - DateTimeOffset.Now < TimeSpan.FromHours(12))
             {
                 return;
             }
 
-            using (var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous))
+            State = DatabaseState.Downloading;
+            _logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
+
+            using var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous);
+
+            try
             {
-                State = DatabaseState.Downloading;
-                _logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
-
-                // todo add progress tracking, handle errors from PerformDownload
-
                 var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
                 var downloadRequestStatus = await _client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
 
-                // return if download wasn't successful (no file to reload)
                 _logger.LogInformation("onion.db download request returned {status}", downloadRequestStatus);
-                if (downloadRequestStatus != HttpStatusCode.OK)
+
+                if (downloadRequestStatus == HttpStatusCode.OK)
                 {
-                    return;
+                    LoadLocalDatabase();
                 }
             }
-
-            LoadLocalDatabase();
+            catch (HttpRequestException e)
+            {
+                _logger.LogWarning(e, "Failed to download onion.db - web request failed with error: {message}", e.Message);
+                SetErrorState();
+            }
         }
 
         private void LoadLocalDatabase()
@@ -227,12 +225,17 @@ namespace DragonFruit.OnionFruit.Database
                 return;
             }
 
-            State = DatabaseState.Processing;
-
-            using (var localReadStream = new FileStream(_databasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan))
+            try
             {
-                _logger.LogInformation("Reading onion.db from disk");
+                using var localReadStream = new FileStream(_databasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan);
+
+                State = DatabaseState.Processing;
                 _currentDb = OnionDb.Parser.ParseFrom(localReadStream);
+            }
+            catch // todo detect if protobuf is corrupt, delete the file and restart the download
+            {
+                SetErrorState();
+                return;
             }
 
             GeoIPFiles = PrepareGeoIpFiles(_currentDb, _cancellation.Token);
@@ -247,7 +250,6 @@ namespace DragonFruit.OnionFruit.Database
 
             switch (key)
             {
-                // check that the entry/exit count is positive while ensuring the country exists
                 case OnionFruitSetting.TorExitCountryCode when country?.ExitNodeCount is null or 0:
                 case OnionFruitSetting.TorEntryCountryCode when country?.EntryNodeCount is null or 0:
                     _settings.SetValue(key, IOnionDatabase.TorCountryCode);
@@ -255,10 +257,21 @@ namespace DragonFruit.OnionFruit.Database
             }
         }
 
+        private void SetErrorState()
+        {
+            Countries = [];
+            GeoIPFiles = Task.FromResult<IReadOnlyDictionary<AddressFamily, FileInfo>>(new Dictionary<AddressFamily, FileInfo>(0));
+
+            // defaults to no countries and no geoip files, but reports to consumers as fully ready (which it technically is)
+            State = DatabaseState.Ready;
+        }
+
         #region HostedService
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
+            LoadLocalDatabase();
+
             _cancellation?.Dispose();
             _cancellation = new CancellationTokenSource();
 
