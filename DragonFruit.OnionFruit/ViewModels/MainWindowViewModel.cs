@@ -165,7 +165,9 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             TorSession.TorSessionState.Connecting when connectionProgress == 0 => new ToolbarContent(true, false, Brushes.DarkOrange, "Tor Connecting"),
             TorSession.TorSessionState.Connecting => new ToolbarContent(true, false, Brushes.DarkOrange, $"Tor Connecting ({connectionProgress}%)"),
-            TorSession.TorSessionState.ConnectingStalled => new ToolbarContent(true, true, Brushes.SlateGray, "Tor Connecting"),
+
+            TorSession.TorSessionState.ConnectingStalled when connectionProgress == 0 => new ToolbarContent(true, true, Brushes.SlateGray, "Tor Connecting"),
+            TorSession.TorSessionState.ConnectingStalled => new ToolbarContent(true, true, Brushes.SlateGray, $"Tor Connecting ({connectionProgress}%)"),
 
             TorSession.TorSessionState.Disconnecting => new ToolbarContent(false, false, Brushes.DarkOrange, "Tor Disconnecting"),
 
