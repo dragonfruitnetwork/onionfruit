@@ -72,6 +72,7 @@
                                   TabIndex="1"
                                   Margin="10, 0, 0, 0"
                                   HorizontalAlignment="Stretch"
+                                  IsEnabled="{Binding AllowConfigurationChanges}"
                                   ItemsSource="{Binding ExitCountries}"
                                   SelectedValue="{Binding SelectedCountryCode}"
                                   SelectedValueBinding="{Binding CountryCode}"

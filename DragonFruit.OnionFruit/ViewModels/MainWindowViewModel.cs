@@ -36,7 +36,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly IOnionDatabase _onionDatabase;
         private readonly OnionFruitSettingsStore _settings;
 
-        private readonly ObservableAsPropertyHelper<bool> _countriesDbReady;
+        private readonly ObservableAsPropertyHelper<bool> _countriesDbReady, _allowConfigurationChanges;
         private readonly ObservableAsPropertyHelper<string> _exitNodeCountry;
         private readonly ObservableAsPropertyHelper<ToolbarContent> _ribbonContent;
         private readonly ObservableAsPropertyHelper<IEnumerable<TorNodeCountry>> _onionDbExitCountries;
@@ -75,6 +75,8 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler);
 
             _countriesDbReady = databaseReady.ToProperty(this, x => x.CountriesDatabaseReady).DisposeWith(_disposables);
+            _allowConfigurationChanges = sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ToProperty(this, x => x.AllowConfigurationChanges).DisposeWith(_disposables);
+
             _onionDbExitCountries = databaseCountries
                 .CombineLatest(databaseReady)
                 .Where(x => x.Second)
@@ -112,6 +114,11 @@ namespace DragonFruit.OnionFruit.ViewModels
         public bool CountriesDatabaseReady => _countriesDbReady.Value;
 
         /// <summary>
+        /// Whether interface elements that allow configuration changes should be enabled
+        /// </summary>
+        public bool AllowConfigurationChanges => _allowConfigurationChanges.Value;
+
+        /// <summary>
         /// The available countries with at least one exit node.
         /// </summary>
         public IEnumerable<TorNodeCountry> ExitCountries => _onionDbExitCountries.Value;
@@ -122,7 +129,15 @@ namespace DragonFruit.OnionFruit.ViewModels
         public string SelectedCountryCode
         {
             get => _exitNodeCountry.Value;
-            set => _settings.SetValue(OnionFruitSetting.TorExitCountryCode, value);
+            set
+            {
+                if (_onionDatabase.State != DatabaseState.Ready)
+                {
+                    return;
+                }
+
+                _settings.SetValue(OnionFruitSetting.TorExitCountryCode, value);
+            }
         }
 
         private async Task ToggleSession()
