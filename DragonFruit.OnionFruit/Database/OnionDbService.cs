@@ -270,10 +270,10 @@ namespace DragonFruit.OnionFruit.Database
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
-            LoadLocalDatabase();
-
             _cancellation?.Dispose();
             _cancellation = new CancellationTokenSource();
+
+            LoadLocalDatabase();
 
             // start timer after loading database
             _checkTimer = new Timer(_ => TimerPinged(), null, TimeSpan.Zero, Timeout.InfiniteTimeSpan);
