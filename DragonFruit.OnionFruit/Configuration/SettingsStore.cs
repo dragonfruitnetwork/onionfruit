@@ -5,9 +5,13 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
+using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.Configuration
 {
@@ -16,10 +20,15 @@ namespace DragonFruit.OnionFruit.Configuration
         protected readonly IDictionary<TKey, object> ConfigStore = new ConcurrentDictionary<TKey, object>();
         protected readonly CompositeDisposable Subscriptions = new();
 
-        /// <summary>
-        /// Saves the current configuration to persistent storage
-        /// </summary>
-        protected abstract Task SaveConfiguration();
+        private readonly object _saveLock = new();
+        private long _lastSaveValue;
+
+        protected virtual void RegisterSettings()
+        {
+        }
+
+        protected abstract void LoadConfiguration();
+        protected abstract void SaveConfiguration();
 
         /// <summary>
         /// Gets the current value of a specified configuration key
@@ -52,7 +61,7 @@ namespace DragonFruit.OnionFruit.Configuration
             subject.OnNext(value);
         }
 
-        protected BehaviorSubject<TValue> GetRootSubject<TValue>(TKey key)
+        private BehaviorSubject<TValue> GetRootSubject<TValue>(TKey key)
         {
             if (!ConfigStore.TryGetValue(key, out var subject))
             {
@@ -65,6 +74,39 @@ namespace DragonFruit.OnionFruit.Configuration
             }
 
             throw new InvalidCastException($"Subject is not of the expected type. Expected <{subject.GetType().GetGenericParameterConstraints().Single().Name}>, got <{typeof(TValue).Name}>");
+        }
+
+        protected IObservable<TValue> RegisterOption<TValue>(TKey key, TValue defaultValue, out BehaviorSubject<TValue> subject)
+        {
+            if (ConfigStore.ContainsKey(key))
+            {
+                throw new ArgumentException($"Key {key} already exists in the configuration store");
+            }
+
+            subject = new BehaviorSubject<TValue>(defaultValue);
+            var observable = subject.DistinctUntilChanged().Skip(1);
+
+            ConfigStore.Add(key, subject);
+            Subscriptions.Add(observable.ObserveOn(RxApp.TaskpoolScheduler).Select(_ => QueueSave()).Subscribe());
+
+            return observable;
+        }
+
+        private async Task<Unit> QueueSave()
+        {
+            var lastSave = Interlocked.Increment(ref _lastSaveValue);
+
+            await Task.Delay(250).ConfigureAwait(false);
+
+            if (lastSave == _lastSaveValue)
+            {
+                lock (_saveLock)
+                {
+                    SaveConfiguration();
+                }
+            }
+
+            return Unit.Default;
         }
 
         public void Dispose()
