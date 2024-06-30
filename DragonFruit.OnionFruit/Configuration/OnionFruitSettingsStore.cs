@@ -45,11 +45,20 @@ namespace DragonFruit.OnionFruit.Configuration
                 _configFile = new OnionFruitConfigFile();
             }
 
-            UpdateRegisteredValues();
+            foreach (var applicator in _valueApplicators)
+            {
+                applicator.Invoke(_configFile);
+            }
         }
 
         protected override void SaveConfiguration()
         {
+            // create a backup copy of the current file
+            if (File.Exists(ConfigurationFile))
+            {
+                File.Copy(ConfigurationFile, ConfigurationFile + ".bak", true);
+            }
+
             using var codedOutputStream = new CodedOutputStream(File.Create(ConfigurationFile));
             _configFile.WriteTo(codedOutputStream);
         }
@@ -64,17 +73,6 @@ namespace DragonFruit.OnionFruit.Configuration
                 _logger.LogDebug("Configuration value {key} updated to {value}", key, value);
                 setter.Invoke(_configFile, value);
             }));
-        }
-
-        /// <summary>
-        /// Invokes all getters against the current configuration object to update stored values
-        /// </summary>
-        private void UpdateRegisteredValues()
-        {
-            foreach (var applicator in _valueApplicators)
-            {
-                applicator.Invoke(_configFile);
-            }
         }
     }
 
