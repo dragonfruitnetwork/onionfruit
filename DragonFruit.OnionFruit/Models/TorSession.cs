@@ -75,15 +75,29 @@ namespace DragonFruit.OnionFruit.Models
             }
 
             // wait up to 15 seconds for geoip file generation task to complete
-            IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles;
+            IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles = null;
 
-            try
+            if (database.State == DatabaseState.Ready)
             {
-                geoIpFiles = await database.GeoIPFiles.WaitAsync(TimeSpan.FromSeconds(15));
+                try
+                {
+                    geoIpFiles = await database.GeoIPFiles.WaitAsync(TimeSpan.FromSeconds(15));
+                }
+                catch (TimeoutException)
+                {
+                    // do nothing
+                }
+                catch (Exception e)
+                {
+                    loggerFactory.CreateLogger<IOnionDatabase>().LogWarning(e, "GeoIP write task failed unexpectedly: {message}", e.Message);
+                }
             }
-            catch
+            else
             {
-                geoIpFiles = null;
+                // if the database isn't ready, set the country codes to "random"
+                // this also allows the UI to be refreshed to let the user know in the event the database does finish loading
+                settings.SetValue(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode);
+                settings.SetValue(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode);
             }
 
             // create session config and underlying process
