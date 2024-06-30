@@ -5,6 +5,7 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
                      xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
+                     xmlns:controls="clr-namespace:DragonFruit.OnionFruit.Controls"
                      mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
                      x:Class="DragonFruit.OnionFruit.Views.MainWindow"
                      x:DataType="vm:MainWindowViewModel"
@@ -66,18 +67,29 @@
                         </Style>
                     </DockPanel.Styles>
 
-                    <DockPanel DockPanel.Dock="Left" IsVisible="{Binding CountriesDatabaseReady}">
-                        <Label DockPanel.Dock="Left" TabIndex="0" Margin="0, 0, 10, 0" Content="Country"/>
-                        <ComboBox DockPanel.Dock="Left"
-                                  TabIndex="1"
-                                  Margin="10, 0, 0, 0"
-                                  HorizontalAlignment="Stretch"
-                                  IsEnabled="{Binding AllowConfigurationChanges}"
-                                  ItemsSource="{Binding ExitCountries}"
-                                  SelectedValue="{Binding SelectedCountryCode}"
-                                  SelectedValueBinding="{Binding CountryCode}"
-                                  DisplayMemberBinding="{Binding CountryName}"/>
-                    </DockPanel>
+                    <controls:SwitchingControl DockPanel.Dock="Left" Switch="{Binding CountriesDatabaseReady}">
+                        <controls:SwitchingControl.SwitchFalse>
+                            <DataTemplate>
+                                <Label>Loading Database...</Label>
+                            </DataTemplate>
+                        </controls:SwitchingControl.SwitchFalse>
+                        <controls:SwitchingControl.SwitchTrue>
+                               <DataTemplate x:DataType="vm:MainWindowViewModel">
+                                   <DockPanel>
+                                       <Label DockPanel.Dock="Left" TabIndex="0" Margin="0, 0, 10, 0" Content="Country"/>
+                                       <ComboBox DockPanel.Dock="Left"
+                                                 TabIndex="1"
+                                                 Margin="10, 0, 0, 0"
+                                                 HorizontalAlignment="Stretch"
+                                                 IsEnabled="{Binding AllowConfigurationChanges}"
+                                                 SelectedValue="{Binding SelectedCountryCode}"
+                                                 SelectedValueBinding="{Binding CountryCode}"
+                                                 DisplayMemberBinding="{Binding CountryName}"
+                                                 ItemsSource="{Binding ExitCountries}"/>
+                                   </DockPanel>
+                               </DataTemplate>
+                        </controls:SwitchingControl.SwitchTrue>
+                    </controls:SwitchingControl>
                  </DockPanel>
             </DockPanel>
         </Panel>
