@@ -75,14 +75,8 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler);
 
             _countriesDbReady = databaseReady.ToProperty(this, x => x.CountriesDatabaseReady).DisposeWith(_disposables);
+            _onionDbExitCountries = databaseCountries.ToProperty(this, x => x.ExitCountries).DisposeWith(_disposables);
             _allowConfigurationChanges = sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ToProperty(this, x => x.AllowConfigurationChanges).DisposeWith(_disposables);
-
-            _onionDbExitCountries = databaseCountries
-                .CombineLatest(databaseReady)
-                .Where(x => x.Second)
-                .Select(x => x.First)
-                .ToProperty(this, x => x.ExitCountries)
-                .DisposeWith(_disposables);
 
             _ribbonContent = sessionState
                 .CombineLatest(connectionProgress)
@@ -90,7 +84,11 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .ToProperty(this, x => x.RibbonContent, scheduler: RxApp.MainThreadScheduler)
                 .DisposeWith(_disposables);
 
+            // don't publish the settings value if the database isn't ready
             _exitNodeCountry = settings.GetObservableValue<string>(OnionFruitSetting.TorExitCountryCode)
+                .CombineLatest(databaseReady)
+                .Where(x => x.Second)
+                .Select(x => x.First)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, x => x.SelectedCountryCode)
                 .DisposeWith(_disposables);
@@ -183,7 +181,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         {
             if (countriesEvent.EventArgs?.Count is null or 0)
             {
-                return Enumerable.Empty<TorNodeCountry>();
+                return [new TorNodeCountry("Random", IOnionDatabase.TorCountryCode, 0, 0, 0)];
             }
 
             uint entry = 0, exit = 0, total = 0;
