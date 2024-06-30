@@ -19,6 +19,7 @@ namespace DragonFruit.OnionFruit.Configuration
     {
         protected readonly IDictionary<TKey, object> ConfigStore = new ConcurrentDictionary<TKey, object>();
         protected readonly CompositeDisposable Subscriptions = new();
+        protected readonly BehaviorSubject<bool> IsLoaded = new(false);
 
         private readonly object _saveLock = new();
         private long _lastSaveValue;
@@ -78,18 +79,18 @@ namespace DragonFruit.OnionFruit.Configuration
 
         protected IObservable<TValue> RegisterOption<TValue>(TKey key, TValue defaultValue, out BehaviorSubject<TValue> subject)
         {
-            if (ConfigStore.ContainsKey(key))
+            if (ConfigStore.TryGetValue(key, out var cachedSubject) && cachedSubject is BehaviorSubject<TValue>)
             {
                 throw new ArgumentException($"Key {key} already exists in the configuration store");
             }
 
             subject = new BehaviorSubject<TValue>(defaultValue);
-            var observable = subject.DistinctUntilChanged().Skip(1);
+            var watcher = subject.CombineLatest(IsLoaded).Where(x => x.Second).Select(x => x.First).DistinctUntilChanged();
 
             ConfigStore.Add(key, subject);
-            Subscriptions.Add(observable.ObserveOn(RxApp.TaskpoolScheduler).Select(_ => QueueSave()).Subscribe());
+            watcher.ObserveOn(RxApp.TaskpoolScheduler).Select(_ => QueueSave()).Subscribe().DisposeWith(Subscriptions);
 
-            return observable;
+            return watcher;
         }
 
         private async Task<Unit> QueueSave()
@@ -98,7 +99,7 @@ namespace DragonFruit.OnionFruit.Configuration
 
             await Task.Delay(250).ConfigureAwait(false);
 
-            if (lastSave == _lastSaveValue)
+            if (lastSave == Interlocked.Read(ref _lastSaveValue))
             {
                 lock (_saveLock)
                 {

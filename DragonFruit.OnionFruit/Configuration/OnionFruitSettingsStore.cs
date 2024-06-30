@@ -25,6 +25,8 @@ namespace DragonFruit.OnionFruit.Configuration
 
             RegisterSettings();
             LoadConfiguration();
+
+            IsLoaded.OnNext(true);
         }
 
         protected override void RegisterSettings()
