@@ -60,14 +60,21 @@
                     </DockPanel>
                 </Panel>
                 
-                <DockPanel DockPanel.Dock="Top" VerticalAlignment="Center" Margin="15, 0">
+                <DockPanel DockPanel.Dock="Top">
                     <DockPanel.Styles>
                         <Style Selector="Control">
                             <Setter Property="VerticalAlignment" Value="Center"/>
                         </Style>
                     </DockPanel.Styles>
 
-                    <controls:SwitchingControl DockPanel.Dock="Left" Switch="{Binding CountriesDatabaseReady}">
+                    <Button DockPanel.Dock="Right"
+                            Content="Settings" Padding="30, 0" CornerRadius="0"
+                            Background="Transparent" BorderBrush="Transparent"
+                            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                            Command="{Binding OpenSettingsWindow}"/>
+
+                    <!-- Country switch, last item fills remaining space -->
+                    <controls:SwitchingControl DockPanel.Dock="Left" Switch="{Binding CountriesDatabaseReady}" Margin="15, 0" VerticalAlignment="Center">
                         <controls:SwitchingControl.SwitchFalse>
                             <DataTemplate>
                                 <Label>Loading Database...</Label>
@@ -90,7 +97,7 @@
                                </DataTemplate>
                         </controls:SwitchingControl.SwitchTrue>
                     </controls:SwitchingControl>
-                 </DockPanel>
+                  </DockPanel>
             </DockPanel>
         </Panel>
     </Window.Content>
