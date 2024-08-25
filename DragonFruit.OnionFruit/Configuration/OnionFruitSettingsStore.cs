@@ -35,6 +35,7 @@ namespace DragonFruit.OnionFruit.Configuration
 
         protected override void RegisterSettings()
         {
+            // todo use the Has* property to determine if it's been set, if so use getter otherwise use default
             RegisterOption(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode, static c => c.EntryCountryCode, static (c, val) => c.EntryCountryCode = val ?? IOnionDatabase.TorCountryCode);
             RegisterOption(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode, static c => c.ExitCountryCode, static (c, val) => c.ExitCountryCode = val ?? IOnionDatabase.TorCountryCode);
         }
