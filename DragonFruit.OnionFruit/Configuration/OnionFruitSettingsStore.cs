@@ -12,6 +12,8 @@ namespace DragonFruit.OnionFruit.Configuration
 {
     public class OnionFruitSettingsStore : SettingsStore<OnionFruitSetting>
     {
+        private const int ConfigVersion = 1;
+
         private readonly ILogger<OnionFruitSettingsStore> _logger;
         private readonly List<Action<OnionFruitConfigFile>> _valueApplicators = [];
 
@@ -29,6 +31,8 @@ namespace DragonFruit.OnionFruit.Configuration
             IsLoaded.OnNext(true);
         }
 
+        public Version PreviousClientVersion { get; private set; }
+
         protected override void RegisterSettings()
         {
             RegisterOption(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode, static c => c.EntryCountryCode, static (c, val) => c.EntryCountryCode = val ?? IOnionDatabase.TorCountryCode);
@@ -44,7 +48,23 @@ namespace DragonFruit.OnionFruit.Configuration
             }
             else
             {
-                _configFile = new OnionFruitConfigFile();
+                _configFile = new OnionFruitConfigFile()
+                {
+                    ConfigVersion = ConfigVersion
+                };
+            }
+
+            if (!string.IsNullOrEmpty(_configFile.LastClientVersion) && Version.TryParse(_configFile.LastClientVersion, out var v))
+            {
+                PreviousClientVersion = v;
+            }
+
+            var currentVersion = typeof(App).Assembly.GetName().Version!;
+            if (PreviousClientVersion != currentVersion)
+            {
+                _configFile.LastClientVersion = currentVersion.ToString();
+
+                SaveConfiguration();
             }
 
             foreach (var applicator in _valueApplicators)
