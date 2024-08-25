@@ -81,7 +81,7 @@ public partial class App(IHost host) : Application
 
         desktop.MainWindow = new MainWindow
         {
-            DataContext = Services.GetRequiredService<MainWindowViewModel>()
+            ViewModel = Services.GetRequiredService<MainWindowViewModel>()
         };
     }
 }

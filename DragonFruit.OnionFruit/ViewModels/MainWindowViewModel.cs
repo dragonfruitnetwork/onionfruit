@@ -94,12 +94,18 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .DisposeWith(_disposables);
 
             ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
+            OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(Unit.Default), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
         }
 
         /// <summary>
         /// Command to toggle the connection (i.e. the toggle switch)
         /// </summary>
         public ICommand ToggleConnection { get; }
+
+        /// <summary>
+        /// Command to open the settings page
+        /// </summary>
+        public ICommand OpenSettingsWindow { get; }
 
         /// <summary>
         /// Gets the content of the ribbon (toggle state, text, background colour)
@@ -120,6 +126,11 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// The available countries with at least one exit node.
         /// </summary>
         public IEnumerable<TorNodeCountry> ExitCountries => _onionDbExitCountries.Value;
+
+        /// <summary>
+        /// Interaction between the current window and a request for the settings page to be opened
+        /// </summary>
+        public Interaction<Unit, Unit> SettingsWindowInteraction { get; } = new();
 
         /// <summary>
         /// The two-letter country code selected to pass traffic out from
