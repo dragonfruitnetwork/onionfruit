@@ -9,8 +9,11 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
+using DragonFruit.OnionFruit.ViewModels;
+using DragonFruit.OnionFruit.Views.Settings;
 using FluentAvalonia.UI.Controls;
 using FluentAvalonia.UI.Windowing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DragonFruit.OnionFruit.Views;
 
@@ -40,7 +43,10 @@ public partial class SettingsWindow : AppWindow
 
     public IEnumerable<SettingsTabInfo> Tabs { get; } =
     [
-        new("Countries", Symbol.Globe, () => new ContentPresenter())
+        new("Connection", Symbol.Globe, () => new ConnectionSettingsTabView
+        {
+            DataContext = ActivatorUtilities.CreateInstance<ConnectionSettingsTabViewModel>(App.Instance.Services)
+        })
     ];
 
     public IEnumerable<SettingsTabInfo> FooterTabs { get; } =
