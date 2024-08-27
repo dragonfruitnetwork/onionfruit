@@ -3,8 +3,12 @@
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+                     xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+                     xmlns:views="clr-namespace:DragonFruit.OnionFruit.Views"
                      mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                      x:Class="DragonFruit.OnionFruit.Views.SettingsWindow"
+                     x:DataType="views:SettingsWindow"
+                     DataContext="{Binding RelativeSource={RelativeSource Self}}"
                      Title="Settings">
     <Window.Content>
         <Panel>
@@ -23,6 +27,25 @@
                     <!-- <Image Source="avares://DragonFruit.OnionFruit/Assets/icon.ico" Height="16" Width="16" /> -->
                     <TextBlock Text="OnionFruit Settings" />
                 </StackPanel>
+                
+                <controls:NavigationView MenuItemsSource="{Binding Tabs}"
+                                         FooterMenuItemsSource="{Binding FooterTabs}"
+                                         SelectedItem="{Binding SelectedTab}"
+                                         Content="{Binding SelectedTab}"
+                                         PaneDisplayMode="LeftCompact"
+                                         OpenPaneLength="200"
+                                         IsSettingsVisible="False"
+                                         IsBackButtonVisible="False">
+                    <controls:NavigationView.MenuItemTemplate>
+                        <DataTemplate DataType="{x:Type views:SettingsTabInfo}">
+                            <controls:NavigationViewItem Content="{CompiledBinding Name}" IconSource="{CompiledBinding Icon}" />
+                        </DataTemplate>
+                    </controls:NavigationView.MenuItemTemplate>
+
+                    <controls:NavigationView.ContentTemplate>
+                        <views:SettingTabViewTemplate />
+                    </controls:NavigationView.ContentTemplate>
+                </controls:NavigationView>
             </DockPanel>
         </Panel>
     </Window.Content>
