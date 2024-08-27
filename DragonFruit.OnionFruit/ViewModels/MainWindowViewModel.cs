@@ -192,22 +192,13 @@ namespace DragonFruit.OnionFruit.ViewModels
         {
             if (countriesEvent.EventArgs?.Count is null or 0)
             {
-                return [new TorNodeCountry("Random", IOnionDatabase.TorCountryCode, 0, 0, 0)];
-            }
-
-            uint entry = 0, exit = 0, total = 0;
-
-            foreach (var country in countriesEvent.EventArgs)
-            {
-                entry += country.EntryNodeCount;
-                exit += country.ExitNodeCount;
-                total += country.TotalNodeCount;
+                return [TorNodeCountry.Random];
             }
 
             return countriesEvent.EventArgs
                 .Where(y => y.ExitNodeCount > 0)
                 .OrderBy(x => x.CountryName, StringComparer.Ordinal)
-                .Prepend(new TorNodeCountry("Random", IOnionDatabase.TorCountryCode, entry, exit, total));
+                .Prepend(TorNodeCountry.Random);
         }
 
         public void Dispose()
