@@ -9,10 +9,10 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:ConnectionSettingsTabViewModel"
              x:Class="DragonFruit.OnionFruit.Views.Settings.ConnectionSettingsTabView">
-    <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="20">
+    <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
         <controls:NavigationViewItemHeader Content="Tor Connection" VerticalAlignment="Top" FontSize="24" />
 
-        <Grid ColumnDefinitions="Auto, *, 1.5*, *, Auto, *, 1.5*, *, Auto" RowDefinitions="*, Auto" Margin="15, 20, 15, 0">
+        <Grid ColumnDefinitions="Auto, *, Auto, *, Auto, *, Auto, *, Auto" RowDefinitions="*, Auto" Margin="15, 20">
             <Grid.Styles>
                 <Style Selector="ComboBox">
                     <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -39,10 +39,7 @@
             <Label Grid.Row="1" Grid.Column="0" Content="{Binding Source={x:Static system:Environment.MachineName}}" />
             <Border Grid.Row="0" Grid.Column="1" />
 
-            <ComboBox Grid.Row="0" Grid.Column="2"
-                      SelectedItem="{Binding SelectedEntryCountry}"
-                      ItemsSource="{Binding EntryCountries}"
-                      DisplayMemberBinding="{Binding CountryName}" />
+            <Label Grid.Row="0" Grid.Column="2" Content="{Binding SelectedEntryCountryFlag}" FontSize="36" FontFamily="{StaticResource TwemojiFont}"/>
             <Label Grid.Row="1" Grid.Column="2" Content="Entry Location" />
 
             <Border Grid.Row="0" Grid.Column="3" />
@@ -51,15 +48,32 @@
             <Label Grid.Row="1" Grid.Column="4" Content="Tor Network" />
             <Border Grid.Row="0" Grid.Column="5" />
 
-            <ComboBox Grid.Row="0" Grid.Column="6"
-                      SelectedItem="{Binding SelectedExitCountry}"
-                      ItemsSource="{Binding ExitCountries}"
-                      DisplayMemberBinding="{Binding CountryName}" />
+            <Label Grid.Row="0" Grid.Column="6" Content="{Binding SelectedExitCountryFlag}" FontSize="36" FontFamily="{StaticResource TwemojiFont}" />
             <Label Grid.Row="1" Grid.Column="6" Content="Exit Location" />
 
             <Border Grid.Row="0" Grid.Column="7" />
             <lucideAvalonia:Lucide Grid.Row="0" Grid.Column="8" Icon="Earth" />
             <Label Grid.Row="1" Grid.Column="8" Content="Internet" />
         </Grid>
+        
+        <controls:SettingsExpander IconSource="Import" Description="Entry Location">
+            <controls:SettingsExpander.Footer>
+                <ComboBox MinWidth="300"
+                          SelectedItem="{Binding SelectedEntryCountry}"
+                          ItemsSource="{Binding EntryCountries}"
+                          DisplayMemberBinding="{Binding CountryName}" />
+            </controls:SettingsExpander.Footer>
+        </controls:SettingsExpander>
+        
+        <controls:SettingsExpander IconSource="MapPin" Description="Exit Location">
+            <controls:SettingsExpander.Footer>
+                <ComboBox MinWidth="300"
+                          SelectedItem="{Binding SelectedExitCountry}"
+                          ItemsSource="{Binding ExitCountries}"
+                          DisplayMemberBinding="{Binding CountryName}" />
+            </controls:SettingsExpander.Footer>
+        </controls:SettingsExpander>
+        
+        
     </StackPanel>
 </UserControl>

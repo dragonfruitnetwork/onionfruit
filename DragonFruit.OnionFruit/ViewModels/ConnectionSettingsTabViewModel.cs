@@ -18,6 +18,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly OnionFruitSettingsStore _settings;
 
         private readonly ObservableAsPropertyHelper<bool> _databaseLoaded;
+        private readonly ObservableAsPropertyHelper<string> _selectedEntryCountryFlag, _selectedExitCountryFlag;
         private readonly ObservableAsPropertyHelper<TorNodeCountry> _selectedEntryCountry, _selectedExitCountry;
         private readonly ObservableAsPropertyHelper<IEnumerable<TorNodeCountry>> _entryCountries, _exitCountries;
 
@@ -65,19 +66,23 @@ namespace DragonFruit.OnionFruit.ViewModels
             _databaseLoaded = databaseReady.ToProperty(this, x => x.DatabaseLoaded);
 
             // settings binding
-            _selectedEntryCountry = this.WhenAnyValue(x => x.EntryCountries)
+            var entryCountry = this.WhenAnyValue(x => x.EntryCountries)
                 .Where(x => x != null)
                 .CombineLatest(settings.GetObservableValue<string>(OnionFruitSetting.TorEntryCountryCode))
                 .Select(x => x.First?.SingleOrDefault(y => y.CountryCode == x.Second))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .ToProperty(this, x => x.SelectedEntryCountry);
+                .ObserveOn(RxApp.MainThreadScheduler);
 
-            _selectedExitCountry = this.WhenAnyValue(x => x.ExitCountries)
+            var exitCountry = this.WhenAnyValue(x => x.ExitCountries)
                 .Where(x => x != null)
                 .CombineLatest(settings.GetObservableValue<string>(OnionFruitSetting.TorExitCountryCode))
                 .Select(x => x.First?.SingleOrDefault(y => y.CountryCode == x.Second))
-                .ObserveOn(RxApp.MainThreadScheduler)
-                .ToProperty(this, x => x.SelectedExitCountry);
+                .ObserveOn(RxApp.MainThreadScheduler);
+
+            _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry);
+            _selectedExitCountry = exitCountry.ToProperty(this, x => x.SelectedExitCountry);
+
+            _selectedEntryCountryFlag = entryCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedEntryCountryFlag);
+            _selectedExitCountryFlag = exitCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedExitCountryFlag);
         }
 
         /// <summary>
@@ -121,6 +126,26 @@ namespace DragonFruit.OnionFruit.ViewModels
 
                 _settings.SetValue(OnionFruitSetting.TorExitCountryCode, value.CountryCode);
             }
+        }
+
+        public string SelectedEntryCountryFlag => _selectedEntryCountryFlag.Value;
+
+        public string SelectedExitCountryFlag => _selectedExitCountryFlag.Value;
+
+        private static string GetFlagEmoji(TorNodeCountry country)
+        {
+            // use globe if not known
+            if (country.CountryCode == IOnionDatabase.TorCountryCode)
+            {
+                return "\U0001F6A9";
+            }
+
+            var normalised = country.CountryCode.ToUpperInvariant();
+
+            int firstCodePoint = 0x1F1E6 + (normalised[0] - 'A');
+            int secondCodePoint = 0x1F1E6 + (normalised[1] - 'A');
+
+            return char.ConvertFromUtf32(firstCodePoint) + char.ConvertFromUtf32(secondCodePoint);
         }
     }
 }
