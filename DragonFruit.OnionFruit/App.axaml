@@ -5,4 +5,7 @@
     <Application.Styles>
         <styling:FluentAvaloniaTheme PreferSystemTheme="True" UseSystemFontOnWindows="True" />
     </Application.Styles>
+    <Application.Resources>
+        <FontFamily x:Key="TwemojiFont">avares://DragonFruit.OnionFruit/Assets/Twemoji.Mozilla.ttf#Twemoji Mozilla</FontFamily>
+    </Application.Resources>
 </Application>

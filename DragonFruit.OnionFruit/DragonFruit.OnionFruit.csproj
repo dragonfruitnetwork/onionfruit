@@ -7,7 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <AvaloniaResource Include="Assets\**"/>
+        <AvaloniaResource Include="Assets\*.ttf"/>
+    </ItemGroup>
+    
+    <ItemGroup>
         <Protobuf Include="Protos\*.proto">
             <GrpcServices>Both</GrpcServices>
             <Access>Public</Access>
