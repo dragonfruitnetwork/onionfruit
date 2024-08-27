@@ -10,7 +10,7 @@
                      x:Class="DragonFruit.OnionFruit.Views.MainWindow"
                      x:DataType="vm:MainWindowViewModel"
                      Background="{x:Null}"
-                     Width="600" Height="210" CanResize="False"
+                     Width="600" Height="175" CanResize="False"
                      TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
                      Title="{Binding Source={x:Static onionFruit:App.Title}}">
     <Design.DataContext>
@@ -101,5 +101,4 @@
             </DockPanel>
         </Panel>
     </Window.Content>
-
 </windowing:AppWindow>
