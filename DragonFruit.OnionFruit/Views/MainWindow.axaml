@@ -88,11 +88,11 @@
                                                  TabIndex="1"
                                                  Margin="10, 0, 0, 0"
                                                  HorizontalAlignment="Stretch"
-                                                 IsEnabled="{Binding AllowConfigurationChanges}"
-                                                 SelectedValue="{Binding SelectedCountryCode}"
+                                                 ItemsSource="{Binding ExitCountries}"
                                                  SelectedValueBinding="{Binding CountryCode}"
                                                  DisplayMemberBinding="{Binding CountryName}"
-                                                 ItemsSource="{Binding ExitCountries}"/>
+                                                 SelectedValue="{Binding SelectedCountryCode}"
+                                                 IsEnabled="{Binding AllowConfigurationChanges}"/>
                                    </DockPanel>
                                </DataTemplate>
                         </controls:SwitchingControl.SwitchTrue>

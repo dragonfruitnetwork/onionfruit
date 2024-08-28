@@ -140,7 +140,8 @@ namespace DragonFruit.OnionFruit.ViewModels
             get => _exitNodeCountry.Value;
             set
             {
-                if (_onionDatabase.State != DatabaseState.Ready)
+                // prevent setting null values
+                if (value == null)
                 {
                     return;
                 }
