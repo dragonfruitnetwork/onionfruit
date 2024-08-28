@@ -4,8 +4,8 @@ message OnionFruitConfigFile {
   int32 configVersion = 1;
   string lastClientVersion = 2;
 
-  optional string entryCountryCode = 3;
-  optional string exitCountryCode = 4;
+  string entryCountryCode = 3;
+  string exitCountryCode = 4;
   
   bool enableWebsiteLaunchOnConnect = 5;
   bool enableWebsiteLaunchOnDisconnect = 6;
