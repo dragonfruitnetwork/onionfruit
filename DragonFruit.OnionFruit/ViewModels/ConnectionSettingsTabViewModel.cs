@@ -13,21 +13,27 @@ using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {
-    public class ConnectionSettingsTabViewModel : ReactiveObject
+    public class ConnectionSettingsTabViewModel : ReactiveObject, IDisposable
     {
+        private readonly OnionDbService _database;
         private readonly OnionFruitSettingsStore _settings;
 
+        private readonly IDisposable _databaseStateReaction;
+
         private readonly ObservableAsPropertyHelper<bool> _databaseLoaded;
+        private readonly ObservableAsPropertyHelper<DatabaseState> _databaseState;
+
         private readonly ObservableAsPropertyHelper<string> _selectedEntryCountryFlag, _selectedExitCountryFlag;
         private readonly ObservableAsPropertyHelper<TorNodeCountry> _selectedEntryCountry, _selectedExitCountry;
         private readonly ObservableAsPropertyHelper<IEnumerable<TorNodeCountry>> _entryCountries, _exitCountries;
 
         public ConnectionSettingsTabViewModel(OnionDbService database, OnionFruitSettingsStore settings)
         {
+            _database = database;
             _settings = settings;
-            var databaseReady = Observable.FromEventPattern<EventHandler<DatabaseState>, DatabaseState>(handler => database.StateChanged += handler, handler => database.StateChanged -= handler)
+
+            var databaseState = Observable.FromEventPattern<EventHandler<DatabaseState>, DatabaseState>(handler => database.StateChanged += handler, handler => database.StateChanged -= handler)
                 .StartWith(new EventPattern<DatabaseState>(this, database.State))
-                .Select(x => x.EventArgs == DatabaseState.Ready)
                 .ObserveOn(RxApp.MainThreadScheduler);
 
             var countries = Observable.FromEventPattern<EventHandler<IReadOnlyCollection<TorNodeCountry>>, IReadOnlyCollection<TorNodeCountry>>(handler => database.CountriesChanged += handler, handler => database.CountriesChanged -= handler)
@@ -63,7 +69,9 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             _entryCountries = countries.Select(x => x.entryCountries).ToProperty(this, x => x.EntryCountries);
             _exitCountries = countries.Select(x => x.exitCountries).ToProperty(this, x => x.ExitCountries);
-            _databaseLoaded = databaseReady.ToProperty(this, x => x.DatabaseLoaded);
+
+            _databaseState = databaseState.Select(x => x.EventArgs).ToProperty(this, x => x.DatabaseState);
+            _databaseLoaded = databaseState.Select(x => x.EventArgs == DatabaseState.Ready).ToProperty(this, x => x.DatabaseLoaded);
 
             // settings binding
             var entryCountry = this.WhenAnyValue(x => x.EntryCountries)
@@ -78,6 +86,18 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Select(x => x.First?.SingleOrDefault(y => y.CountryCode == x.Second))
                 .ObserveOn(RxApp.MainThreadScheduler);
 
+            // versions/licenses are updated when the database state changes
+            _databaseStateReaction = databaseState.Subscribe(s =>
+            {
+                if (s.EventArgs != DatabaseState.Ready)
+                {
+                    return;
+                }
+
+                this.RaisePropertyChanged(nameof(DatabaseVersion));
+                this.RaisePropertyChanged(nameof(DatabaseLicense));
+            });
+
             _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry);
             _selectedExitCountry = exitCountry.ToProperty(this, x => x.SelectedExitCountry);
 
@@ -89,6 +109,11 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// Gets whether the countries database has been loaded and <see cref="TorNodeCountry"/> items have been created.
         /// </summary>
         public bool DatabaseLoaded => _databaseLoaded.Value;
+
+        public DatabaseState DatabaseState => _databaseState.Value;
+
+        public string DatabaseVersion => _database.DisplayVersion;
+        public string DatabaseLicense => _database.EmbeddedLicenses;
 
         /// <summary>
         /// The currently available "guard" nodes, represented as countries
@@ -146,6 +171,23 @@ namespace DragonFruit.OnionFruit.ViewModels
             int secondCodePoint = 0x1F1E6 + (normalised[1] - 'A');
 
             return char.ConvertFromUtf32(firstCodePoint) + char.ConvertFromUtf32(secondCodePoint);
+        }
+
+        public void Dispose()
+        {
+            _databaseStateReaction.Dispose();
+
+            _databaseLoaded.Dispose();
+            _databaseState.Dispose();
+
+            _selectedEntryCountryFlag.Dispose();
+            _selectedExitCountryFlag.Dispose();
+
+            _selectedEntryCountry.Dispose();
+            _selectedExitCountry.Dispose();
+
+            _entryCountries.Dispose();
+            _exitCountries.Dispose();
         }
     }
 }

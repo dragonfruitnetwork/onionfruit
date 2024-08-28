@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -88,6 +89,18 @@ namespace DragonFruit.OnionFruit.Database
                 CountriesChanged?.Invoke(this, value);
             }
         }
+
+        /// <summary>
+        /// The version to display to the user.
+        /// </summary>
+        [MaybeNull]
+        public string DisplayVersion { get; private set; }
+
+        /// <summary>
+        /// Any embedded licenses included with the database.
+        /// </summary>
+        [MaybeNull]
+        public string EmbeddedLicenses { get; private set; }
 
         public Task<IReadOnlyDictionary<AddressFamily, FileInfo>> GeoIPFiles { get; private set; }
 
@@ -238,8 +251,14 @@ namespace DragonFruit.OnionFruit.Database
                 return;
             }
 
+            DisplayVersion = _currentDb.DbVersion.ToString("X");
             GeoIPFiles = PrepareGeoIpFiles(_currentDb, _cancellation.Token);
             Countries = _currentDb.Countries.Select(x => new TorNodeCountry(x.CountryName, x.CountryCode, x.EntryNodeCount, x.ExitNodeCount, x.TotalNodeCount)).ToList();
+            EmbeddedLicenses = string.Join(", ",
+            [
+                string.IsNullOrEmpty(_currentDb.TorLicense) ? null : $"Tor (Onionoo) data licensed under {_currentDb.TorLicense}",
+                string.IsNullOrEmpty(_currentDb.GeoLicense) ? null : $"GeoIP (IPFire/libloc) data licensed under {_currentDb.GeoLicense}"
+            ]);
 
             State = DatabaseState.Ready;
         }

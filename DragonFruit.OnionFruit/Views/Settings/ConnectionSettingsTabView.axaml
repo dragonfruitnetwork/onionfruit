@@ -6,13 +6,14 @@
              xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:viewModels="clr-namespace:DragonFruit.OnionFruit.ViewModels"
+             xmlns:controls1="clr-namespace:DragonFruit.OnionFruit.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:ConnectionSettingsTabViewModel"
              x:Class="DragonFruit.OnionFruit.Views.Settings.ConnectionSettingsTabView">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
         <controls:NavigationViewItemHeader Content="Tor Connection" VerticalAlignment="Top" FontSize="24" />
 
-        <Grid ColumnDefinitions="Auto, *, Auto, *, Auto, *, Auto, *, Auto" RowDefinitions="*, Auto" Margin="15, 20">
+        <Grid ColumnDefinitions="Auto, *, Auto, .75*, Auto, .75*, Auto, *, Auto" RowDefinitions="*, Auto" Margin="15, 20">
             <Grid.Styles>
                 <Style Selector="ComboBox">
                     <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -56,24 +57,46 @@
             <Label Grid.Row="1" Grid.Column="8" Content="Internet" />
         </Grid>
         
-        <controls:SettingsExpander IconSource="Import" Description="Entry Location">
+        <controls:SettingsExpander IconSource="Cloud" Description="Database Status">
             <controls:SettingsExpander.Footer>
-                <ComboBox MinWidth="300"
-                          SelectedItem="{Binding SelectedEntryCountry}"
-                          ItemsSource="{Binding EntryCountries}"
-                          DisplayMemberBinding="{Binding CountryName}" />
+                <Label Content="{Binding DatabaseState}"/>
             </controls:SettingsExpander.Footer>
+            <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, 10, *" >
+                <Label Grid.Row="0" Grid.Column="0">Database Version</Label>
+                <Label Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Content="{Binding DatabaseVersion, Mode=OneTime}"/>
+
+                <Label Grid.Row="2" Grid.Column="0">Acknowledgements</Label>
+                <Label Grid.Row="2" Grid.Column="1" Margin="10,0,0,0">
+                    <TextBlock TextWrapping="WrapWithOverflow" Text="{Binding DatabaseLicense, Mode=OneTime}"/>
+                </Label>
+            </Grid>
         </controls:SettingsExpander>
         
-        <controls:SettingsExpander IconSource="MapPin" Description="Exit Location">
-            <controls:SettingsExpander.Footer>
-                <ComboBox MinWidth="300"
-                          SelectedItem="{Binding SelectedExitCountry}"
-                          ItemsSource="{Binding ExitCountries}"
-                          DisplayMemberBinding="{Binding CountryName}" />
-            </controls:SettingsExpander.Footer>
-        </controls:SettingsExpander>
+        <controls1:SwitchingControl Switch="{Binding DatabaseLoaded}">
+            <controls1:SwitchingControl.SwitchTrue>
+                <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
+                    <StackPanel Orientation="Vertical" Spacing="5">
+                        <controls:SettingsExpander IconSource="World" Description="Entry Location">
+                            <controls:SettingsExpander.Footer>
+                                <ComboBox MinWidth="300"
+                                          SelectedItem="{Binding SelectedEntryCountry}"
+                                          ItemsSource="{Binding EntryCountries}"
+                                          DisplayMemberBinding="{Binding CountryName}" />
+                            </controls:SettingsExpander.Footer>
+                        </controls:SettingsExpander>
         
+                        <controls:SettingsExpander IconSource="MapPin" Description="Exit Location">
+                            <controls:SettingsExpander.Footer>
+                                <ComboBox MinWidth="300"
+                                          SelectedItem="{Binding SelectedExitCountry}"
+                                          ItemsSource="{Binding ExitCountries}"
+                                          DisplayMemberBinding="{Binding CountryName}" />
+                            </controls:SettingsExpander.Footer>
+                        </controls:SettingsExpander>
+                    </StackPanel>
+                </DataTemplate>
+            </controls1:SwitchingControl.SwitchTrue>
+        </controls1:SwitchingControl>
         
     </StackPanel>
 </UserControl>
