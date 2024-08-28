@@ -2,8 +2,12 @@
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Reactive.Disposables;
+using System.Reflection;
 using DragonFruit.OnionFruit.Database;
 using Microsoft.Extensions.Logging;
 using CodedOutputStream = Google.Protobuf.CodedOutputStream;
@@ -17,9 +21,9 @@ namespace DragonFruit.OnionFruit.Configuration
         public static readonly string DefaultConnectionPage = "https://dragonfruit.network/onionfruit/status";
 
         private readonly ILogger<OnionFruitSettingsStore> _logger;
-        private readonly List<Action<OnionFruitConfigFile>> _valueApplicators = [];
 
         private OnionFruitConfigFile _configFile;
+        private IDictionary<OnionFruitSetting, SettingsStoreEntry> _storeEntries = new Dictionary<OnionFruitSetting, SettingsStoreEntry>();
 
         private string ConfigurationFile => Path.Combine(App.StoragePath, "onionfruit.cfg");
 
@@ -33,28 +37,44 @@ namespace DragonFruit.OnionFruit.Configuration
             IsLoaded.OnNext(true);
         }
 
+        /// <summary>
+        /// Stores Information about a stored settings value.
+        /// </summary>
+        /// <param name="DefaultValue">The default value, should be stored if the configuration is new or being reset</param>
+        /// <param name="Accessor">The <see cref="PropertyInfo"/> to use when getting or setting the underlying value</param>
+        /// <param name="ValueClearMethod">Method to use the clear the underlying value in <see cref="Accessor"/>. If this is set, the underlying value can is nullable</param>
+        private record SettingsStoreEntry([MaybeNull] object DefaultValue, PropertyInfo Accessor, [MaybeNull] MethodInfo ValueClearMethod, Action<OnionFruitConfigFile> FetchFromConfig);
+
         public Version PreviousClientVersion { get; private set; }
 
         protected override void RegisterSettings()
         {
-            // todo use the Has* property to determine if it's been set, if so use getter otherwise use default
-            // todo look into creating a special register method that takes the enum, default value and property name, then work the rest out...
-            RegisterOption(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode, static c => c.EntryCountryCode, static (c, val) => c.EntryCountryCode = val ?? IOnionDatabase.TorCountryCode);
-            RegisterOption(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode, static c => c.ExitCountryCode, static (c, val) => c.ExitCountryCode = val ?? IOnionDatabase.TorCountryCode);
+            RegisterOption(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode, nameof(OnionFruitConfigFile.EntryCountryCode));
+            RegisterOption(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode, nameof(OnionFruitConfigFile.ExitCountryCode));
 
-            RegisterOption(OnionFruitSetting.EnableWebsiteLaunchConnect, true, static c => c.EnableWebsiteLaunchOnConnect, static (c, val) => c.EnableWebsiteLaunchOnConnect = val);
-            RegisterOption(OnionFruitSetting.EnableWebsiteLaunchDisconnect, false, static c => c.EnableWebsiteLaunchOnDisconnect, static (c, val) => c.EnableWebsiteLaunchOnDisconnect = val);
+            RegisterOption(OnionFruitSetting.EnableWebsiteLaunchConnect, true, nameof(OnionFruitConfigFile.EnableWebsiteLaunchOnConnect));
+            RegisterOption(OnionFruitSetting.EnableWebsiteLaunchDisconnect, false, nameof(OnionFruitConfigFile.EnableWebsiteLaunchOnDisconnect));
 
-            RegisterOption(OnionFruitSetting.WebsiteLaunchConnect, DefaultConnectionPage, static c => c.LaunchWebsiteOnConnect, static (c, val) => SetOptionalValue(c, val, nameof(OnionFruitConfigFile.LaunchWebsiteOnConnect)));
-            RegisterOption(OnionFruitSetting.WebsiteLaunchDisconnect, DefaultConnectionPage, static c => c.LaunchWebsiteOnDisconnect, static (c, val) => SetOptionalValue(c, val, nameof(OnionFruitConfigFile.LaunchWebsiteOnDisconnect)));
+            RegisterOption(OnionFruitSetting.WebsiteLaunchConnect, DefaultConnectionPage, nameof(OnionFruitConfigFile.LaunchWebsiteOnConnect));
+            RegisterOption(OnionFruitSetting.WebsiteLaunchDisconnect, DefaultConnectionPage, nameof(OnionFruitConfigFile.LaunchWebsiteOnDisconnect));
+
+            // freeze to prevent further changes, improve performance
+            _storeEntries = _storeEntries.ToFrozenDictionary();
         }
 
         protected override void LoadConfiguration()
         {
+            // todo handle backup file if original is corrupt
             if (File.Exists(ConfigurationFile))
             {
                 using var fs = File.OpenRead(ConfigurationFile);
                 _configFile = OnionFruitConfigFile.Parser.ParseFrom(fs);
+
+                // read values from config file
+                foreach (var entry in _storeEntries.Values)
+                {
+                    entry.FetchFromConfig.Invoke(_configFile);
+                }
             }
             else
             {
@@ -62,8 +82,22 @@ namespace DragonFruit.OnionFruit.Configuration
                 {
                     ConfigVersion = ConfigVersion
                 };
+
+                // write default values to config file
+                foreach (var entry in _storeEntries.Values)
+                {
+                    if (entry.DefaultValue == null && entry.ValueClearMethod != null)
+                    {
+                        entry.ValueClearMethod.Invoke(_configFile, null);
+                    }
+                    else
+                    {
+                        entry.Accessor.SetValue(_configFile, entry.DefaultValue);
+                    }
+                }
             }
 
+            // set client version info
             if (!string.IsNullOrEmpty(_configFile.LastClientVersion) && Version.TryParse(_configFile.LastClientVersion, out var v))
             {
                 PreviousClientVersion = v;
@@ -73,13 +107,7 @@ namespace DragonFruit.OnionFruit.Configuration
             if (PreviousClientVersion != currentVersion)
             {
                 _configFile.LastClientVersion = currentVersion.ToString();
-
                 SaveConfiguration();
-            }
-
-            foreach (var applicator in _valueApplicators)
-            {
-                applicator.Invoke(_configFile);
             }
         }
 
@@ -95,28 +123,43 @@ namespace DragonFruit.OnionFruit.Configuration
             _configFile.WriteTo(codedOutputStream);
         }
 
-        private void RegisterOption<T>(OnionFruitSetting key, T defaultValue, Func<OnionFruitConfigFile, T> getter, Action<OnionFruitConfigFile, T> setter)
+        private void RegisterOption<T>(OnionFruitSetting key, T defaultValue, string propertyName)
         {
             var observable = RegisterOption(key, defaultValue, out var subject);
 
-            _valueApplicators.Add(c => subject.OnNext(getter.Invoke(c)));
-            Subscriptions.Add(observable.Subscribe(value =>
-            {
-                _logger.LogDebug("Configuration value {key} updated to {value}", key, value);
-                setter.Invoke(_configFile, value);
-            }));
-        }
+            var accessor = typeof(OnionFruitConfigFile).GetProperty(propertyName);
+            var accessorClearMethod = typeof(OnionFruitConfigFile).GetMethod($"Clear{propertyName}");
 
-        private static void SetOptionalValue<T>(OnionFruitConfigFile config, T value, string propertyName)
-        {
-            if (value != null)
+            if (accessor == null)
             {
-                typeof(OnionFruitConfigFile).GetProperty(propertyName)!.SetValue(config, value);
-                return;
+                throw new ArgumentException("Invalid property name", nameof(propertyName));
             }
 
-            // run clear method instead of setting null
-            typeof(OnionFruitConfigFile).GetMethod($"Clear{propertyName}")!.Invoke(config, null);
+            if (defaultValue == null && accessorClearMethod == null)
+            {
+                throw new ArgumentException("Cannot have a null default value without a clear method", nameof(defaultValue));
+            }
+
+            _storeEntries[key] = new SettingsStoreEntry(defaultValue, accessor, accessorClearMethod, c => subject.OnNext((T)accessor.GetValue(c, null)));
+
+            observable.Subscribe(value =>
+            {
+                if (value == null && _storeEntries[key].ValueClearMethod != null)
+                {
+                    _logger.LogDebug("Configuration value {key} cleared", key);
+                    _storeEntries[key].ValueClearMethod.Invoke(_configFile, null);
+                }
+                else if (value == null)
+                {
+                    _logger.LogDebug("Configuration value {key} reset to default value ('{val}')", key, defaultValue);
+                    subject.OnNext(defaultValue);
+                }
+                else
+                {
+                    _logger.LogDebug("Configuration value {key} set to '{val}'", key, value);
+                    _storeEntries[key].Accessor.SetValue(_configFile, value);
+                }
+            }).DisposeWith(Subscriptions);
         }
     }
 
