@@ -9,7 +9,7 @@
                      x:Class="DragonFruit.OnionFruit.Views.SettingsWindow"
                      x:DataType="views:SettingsWindow"
                      DataContext="{Binding RelativeSource={RelativeSource Self}}"
-                     Title="Settings" Height="600" Width="1200" MinHeight="400" MinWidth="600">
+                     Title="Settings" Height="600" Width="1200" MinHeight="400" MinWidth="600" Background="{x:Null}">
     <Window.Content>
         <Panel>
             <ExperimentalAcrylicBorder IsHitTestVisible="False">

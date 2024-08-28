@@ -29,9 +29,10 @@ public partial class SettingsWindow : AppWindow
     {
         InitializeComponent();
 
-        // set titlebar options
         TitleBar.ExtendsContentIntoTitleBar = true;
         TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
+
+        TransparencyLevelHint = App.TransparencyLevels;
 
         SelectedTab = Tabs.First();
     }

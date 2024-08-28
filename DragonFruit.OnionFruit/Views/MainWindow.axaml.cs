@@ -18,6 +18,8 @@ public partial class MainWindow : ReactiveAppWindow<MainWindowViewModel>
         TitleBar.ExtendsContentIntoTitleBar = true;
         TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
 
+        TransparencyLevelHint = App.TransparencyLevels;
+
         this.WhenActivated(action => action(ViewModel!.SettingsWindowInteraction.RegisterHandler(OpenSettingsWindow)));
     }
 

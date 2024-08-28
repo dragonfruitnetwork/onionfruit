@@ -23,7 +23,9 @@ public partial class App(IHost host) : Application
     {
         Directory.CreateDirectory(StoragePath);
 
-        Version = Assembly.GetEntryAssembly()?.GetName().Version!.ToString(3);
+        var assemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
+
+        Version = assemblyVersion!.ToString(assemblyVersion.Minor > 0 ? 3 : 2);
         Title = $"OnionFruit\u2122 {Version}";
 
         // enable mica effect on Windows 11 and above
