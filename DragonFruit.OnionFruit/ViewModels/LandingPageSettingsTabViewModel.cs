@@ -23,6 +23,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             _connectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchConnect).ToProperty(this, x => x.EnableConnectedPage);
             _disconnectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchDisconnect).ToProperty(this, x => x.EnableDisconnectedPage);
+
+            LaunchUrl = ReactiveCommand.Create<string>(url => App.Launch(url), outputScheduler: RxApp.TaskpoolScheduler);
         }
 
         public bool EnableConnectedPage
@@ -50,6 +52,6 @@ namespace DragonFruit.OnionFruit.ViewModels
             set => _settings.SetValue(OnionFruitSetting.WebsiteLaunchDisconnect, value);
         }
 
-        public ICommand LaunchPage { get; }
+        public ICommand LaunchUrl { get; }
     }
 }

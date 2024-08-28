@@ -24,7 +24,7 @@
                     <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableConnectedPage}"/>
                 </controls:SettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableConnectedPage}">
-                    <Button DockPanel.Dock="Right" Content="Open"/>
+                    <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding ConnectedPage}" Command="{Binding LaunchUrl}"/>
                     <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding ConnectedPage}" Watermark="{Binding Source={x:Static configuration:OnionFruitSettingsStore.DefaultConnectionPage}}"/>
                 </DockPanel>
             </controls:SettingsExpander>
@@ -34,7 +34,7 @@
                     <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableDisconnectedPage}"/>
                 </controls:SettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableDisconnectedPage}">
-                    <Button DockPanel.Dock="Right" Content="Open"/>
+                    <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding DisconnectedPage}" Command="{Binding LaunchUrl}"/>
                     <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding DisconnectedPage}" Watermark="{Binding Source={x:Static configuration:OnionFruitSettingsStore.DefaultConnectionPage}}"/>
                 </DockPanel>
             </controls:SettingsExpander>

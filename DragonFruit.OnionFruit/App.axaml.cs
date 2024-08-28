@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using Avalonia;
@@ -85,5 +86,22 @@ public partial class App(IHost host) : Application
         {
             ViewModel = Services.GetRequiredService<MainWindowViewModel>()
         };
+    }
+
+    /// <summary>
+    /// Launches a URL in the default browser
+    /// </summary>
+    /// <param name="url">The url to launch</param>
+    /// <returns>Whether the request was completed successfully</returns>
+    public static bool Launch(string url)
+    {
+        var psi = new ProcessStartInfo
+        {
+            Verb = "open",
+            FileName = url,
+            UseShellExecute = true
+        };
+
+        return Process.Start(psi) != null;
     }
 }
