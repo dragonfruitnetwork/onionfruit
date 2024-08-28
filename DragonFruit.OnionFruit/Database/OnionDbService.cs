@@ -265,13 +265,19 @@ namespace DragonFruit.OnionFruit.Database
 
         private void ValidateCountrySelection(OnionFruitSetting key, string currentValue)
         {
+            // ignore validation of random country code
+            if (currentValue == IOnionDatabase.TorCountryCode)
+            {
+                return;
+            }
+
             var country = Countries.SingleOrDefault(x => x.CountryCode == currentValue);
 
             switch (key)
             {
                 case OnionFruitSetting.TorExitCountryCode when country?.ExitNodeCount is null or 0:
                 case OnionFruitSetting.TorEntryCountryCode when country?.EntryNodeCount is null or 0:
-                    _settings.SetValue(key, IOnionDatabase.TorCountryCode);
+                    _settings.SetValue<string>(key, null);
                     break;
             }
         }
