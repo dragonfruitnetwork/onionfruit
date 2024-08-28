@@ -51,7 +51,10 @@ public partial class SettingsWindow : AppWindow
         {
             DataContext = ActivatorUtilities.CreateInstance<ConnectionSettingsTabViewModel>(App.Instance.Services)
         }),
-        new SettingsTabInfo("Landing Pages", Symbol.Go, () => new WebsiteSettingsTabView())
+        new SettingsTabInfo("Landing Pages", Symbol.Go, () => new LandingPageSettingsTabView
+        {
+            DataContext = ActivatorUtilities.CreateInstance<LandingPageSettingsTabViewModel>(App.Instance.Services)
+        })
     ];
 
     public IEnumerable<SettingsTabInfo> FooterTabs { get; } =

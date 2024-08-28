@@ -5,9 +5,9 @@ using Avalonia.Controls;
 
 namespace DragonFruit.OnionFruit.Views.Settings
 {
-    public partial class WebsiteSettingsTabView : UserControl
+    public partial class LandingPageSettingsTabView : UserControl
     {
-        public WebsiteSettingsTabView()
+        public LandingPageSettingsTabView()
         {
             InitializeComponent();
         }
