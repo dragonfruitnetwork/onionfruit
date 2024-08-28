@@ -33,7 +33,7 @@
                                          FooterMenuItemsSource="{Binding FooterTabs}"
                                          SelectedItem="{Binding SelectedTab}"
                                          Content="{Binding SelectedTab}"
-                                         PaneDisplayMode="LeftCompact"
+                                         PaneDisplayMode="Auto"
                                          IsBackButtonVisible="False"
                                          IsSettingsVisible="False"
                                          OpenPaneLength="225">
