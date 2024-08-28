@@ -97,6 +97,5 @@
                 </DataTemplate>
             </controls1:SwitchingControl.SwitchTrue>
         </controls1:SwitchingControl>
-        
     </StackPanel>
 </UserControl>
