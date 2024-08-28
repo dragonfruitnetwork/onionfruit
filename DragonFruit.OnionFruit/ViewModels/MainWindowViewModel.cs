@@ -33,7 +33,6 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly CompositeDisposable _disposables = new();
 
         private readonly TorSession _session;
-        private readonly IOnionDatabase _onionDatabase;
         private readonly OnionFruitSettingsStore _settings;
 
         private readonly ObservableAsPropertyHelper<bool> _countriesDbReady, _allowConfigurationChanges;
@@ -52,7 +51,6 @@ namespace DragonFruit.OnionFruit.ViewModels
         public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, OnionFruitSettingsStore settings)
         {
             _session = session;
-            _onionDatabase = onionDatabase;
             _settings = settings;
 
             // configure event-driven observables, ensuring correct disposal of subscriptions
