@@ -13,7 +13,8 @@ namespace DragonFruit.OnionFruit.Configuration
     public class OnionFruitSettingsStore : SettingsStore<OnionFruitSetting>
     {
         private const int ConfigVersion = 1;
-        private const string DefaultConnectionPage = "https://dragonfruit.network/onionfruit/status";
+
+        public static readonly string DefaultConnectionPage = "https://dragonfruit.network/onionfruit/status";
 
         private readonly ILogger<OnionFruitSettingsStore> _logger;
         private readonly List<Action<OnionFruitConfigFile>> _valueApplicators = [];

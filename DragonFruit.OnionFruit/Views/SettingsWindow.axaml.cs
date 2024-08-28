@@ -47,15 +47,16 @@ public partial class SettingsWindow : AppWindow
 
     public IEnumerable<SettingsTabInfo> Tabs { get; } =
     [
-        new("Connection", Symbol.Globe, () => new ConnectionSettingsTabView
+        new SettingsTabInfo("Connection", Symbol.Globe, () => new ConnectionSettingsTabView
         {
             DataContext = ActivatorUtilities.CreateInstance<ConnectionSettingsTabViewModel>(App.Instance.Services)
-        })
+        }),
+        new SettingsTabInfo("Landing Pages", Symbol.Go, () => new WebsiteSettingsTabView())
     ];
 
     public IEnumerable<SettingsTabInfo> FooterTabs { get; } =
     [
-        new("About OnionFruit", Symbol.Go, () => new ContentPresenter())
+        new SettingsTabInfo("About OnionFruit", Symbol.Help, () => new ContentPresenter())
     ];
 
     protected override void OnUnloaded(RoutedEventArgs e)
