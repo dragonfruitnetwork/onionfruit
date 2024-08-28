@@ -6,4 +6,10 @@ message OnionFruitConfigFile {
 
   optional string entryCountryCode = 3;
   optional string exitCountryCode = 4;
+  
+  bool enableWebsiteLaunchOnConnect = 5;
+  bool enableWebsiteLaunchOnDisconnect = 6;
+  
+  optional string launchWebsiteOnConnect = 7;
+  optional string launchWebsiteOnDisconnect = 8;
 }

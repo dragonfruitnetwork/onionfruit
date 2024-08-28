@@ -13,6 +13,7 @@ namespace DragonFruit.OnionFruit.Configuration
     public class OnionFruitSettingsStore : SettingsStore<OnionFruitSetting>
     {
         private const int ConfigVersion = 1;
+        private const string DefaultConnectionPage = "https://dragonfruit.network/onionfruit/status";
 
         private readonly ILogger<OnionFruitSettingsStore> _logger;
         private readonly List<Action<OnionFruitConfigFile>> _valueApplicators = [];
@@ -36,8 +37,15 @@ namespace DragonFruit.OnionFruit.Configuration
         protected override void RegisterSettings()
         {
             // todo use the Has* property to determine if it's been set, if so use getter otherwise use default
+            // todo look into creating a special register method that takes the enum, default value and property name, then work the rest out...
             RegisterOption(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode, static c => c.EntryCountryCode, static (c, val) => c.EntryCountryCode = val ?? IOnionDatabase.TorCountryCode);
             RegisterOption(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode, static c => c.ExitCountryCode, static (c, val) => c.ExitCountryCode = val ?? IOnionDatabase.TorCountryCode);
+
+            RegisterOption(OnionFruitSetting.EnableWebsiteLaunchConnect, true, static c => c.EnableWebsiteLaunchOnConnect, static (c, val) => c.EnableWebsiteLaunchOnConnect = val);
+            RegisterOption(OnionFruitSetting.EnableWebsiteLaunchDisconnect, false, static c => c.EnableWebsiteLaunchOnDisconnect, static (c, val) => c.EnableWebsiteLaunchOnDisconnect = val);
+
+            RegisterOption(OnionFruitSetting.WebsiteLaunchConnect, DefaultConnectionPage, static c => c.LaunchWebsiteOnConnect, static (c, val) => SetOptionalValue(c, val, nameof(OnionFruitConfigFile.LaunchWebsiteOnConnect)));
+            RegisterOption(OnionFruitSetting.WebsiteLaunchDisconnect, DefaultConnectionPage, static c => c.LaunchWebsiteOnDisconnect, static (c, val) => SetOptionalValue(c, val, nameof(OnionFruitConfigFile.LaunchWebsiteOnDisconnect)));
         }
 
         protected override void LoadConfiguration()
@@ -49,7 +57,7 @@ namespace DragonFruit.OnionFruit.Configuration
             }
             else
             {
-                _configFile = new OnionFruitConfigFile()
+                _configFile = new OnionFruitConfigFile
                 {
                     ConfigVersion = ConfigVersion
                 };
@@ -97,11 +105,29 @@ namespace DragonFruit.OnionFruit.Configuration
                 setter.Invoke(_configFile, value);
             }));
         }
+
+        private static void SetOptionalValue<T>(OnionFruitConfigFile config, T value, string propertyName)
+        {
+            if (value != null)
+            {
+                typeof(OnionFruitConfigFile).GetProperty(propertyName)!.SetValue(config, value);
+                return;
+            }
+
+            // run clear method instead of setting null
+            typeof(OnionFruitConfigFile).GetMethod($"Clear{propertyName}")!.Invoke(config, null);
+        }
     }
 
     public enum OnionFruitSetting
     {
         TorEntryCountryCode,
-        TorExitCountryCode
+        TorExitCountryCode,
+
+        EnableWebsiteLaunchConnect,
+        EnableWebsiteLaunchDisconnect,
+
+        WebsiteLaunchConnect,
+        WebsiteLaunchDisconnect,
     }
 }
