@@ -28,23 +28,20 @@
                     <TextBlock Text="OnionFruit Settings" />
                 </StackPanel>
                 
-                <controls:NavigationView MenuItemsSource="{Binding Tabs}"
+                <controls:NavigationView ContentTemplate="{Binding TabTemplate, Mode=OneTime}"
+                                         MenuItemsSource="{Binding Tabs}"
                                          FooterMenuItemsSource="{Binding FooterTabs}"
                                          SelectedItem="{Binding SelectedTab}"
                                          Content="{Binding SelectedTab}"
                                          PaneDisplayMode="LeftCompact"
-                                         OpenPaneLength="200"
+                                         IsBackButtonVisible="False"
                                          IsSettingsVisible="False"
-                                         IsBackButtonVisible="False">
+                                         OpenPaneLength="225">
                     <controls:NavigationView.MenuItemTemplate>
                         <DataTemplate DataType="{x:Type views:SettingsTabInfo}">
                             <controls:NavigationViewItem Content="{CompiledBinding Name}" IconSource="{CompiledBinding Icon}" />
                         </DataTemplate>
                     </controls:NavigationView.MenuItemTemplate>
-
-                    <controls:NavigationView.ContentTemplate>
-                        <views:SettingTabViewTemplate />
-                    </controls:NavigationView.ContentTemplate>
                 </controls:NavigationView>
             </DockPanel>
         </Panel>

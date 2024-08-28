@@ -9,6 +9,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
+using Avalonia.Interactivity;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Views.Settings;
 using FluentAvalonia.UI.Controls;
@@ -41,6 +42,8 @@ public partial class SettingsWindow : AppWindow
         set => SetValue(SelectedTabProperty, value);
     }
 
+    public IDataTemplate TabTemplate { get; } = new SettingTabViewTemplate();
+
     public IEnumerable<SettingsTabInfo> Tabs { get; } =
     [
         new("Connection", Symbol.Globe, () => new ConnectionSettingsTabView
@@ -53,6 +56,12 @@ public partial class SettingsWindow : AppWindow
     [
         new("About OnionFruit", Symbol.Go, () => new ContentPresenter())
     ];
+
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
+        base.OnUnloaded(e);
+        (TabTemplate as IDisposable)?.Dispose();
+    }
 }
 
 public class SettingTabViewTemplate : IDataTemplate, IDisposable
