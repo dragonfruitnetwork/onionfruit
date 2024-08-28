@@ -18,8 +18,6 @@ namespace DragonFruit.OnionFruit.Configuration
     {
         private const int ConfigVersion = 1;
 
-        public static readonly string DefaultConnectionPage = "https://dragonfruit.network/onionfruit/status";
-
         private readonly ILogger<OnionFruitSettingsStore> _logger;
 
         private OnionFruitConfigFile _configFile;
@@ -55,8 +53,8 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterOption(OnionFruitSetting.EnableWebsiteLaunchConnect, true, nameof(OnionFruitConfigFile.EnableWebsiteLaunchOnConnect));
             RegisterOption(OnionFruitSetting.EnableWebsiteLaunchDisconnect, false, nameof(OnionFruitConfigFile.EnableWebsiteLaunchOnDisconnect));
 
-            RegisterOption(OnionFruitSetting.WebsiteLaunchConnect, DefaultConnectionPage, nameof(OnionFruitConfigFile.LaunchWebsiteOnConnect));
-            RegisterOption(OnionFruitSetting.WebsiteLaunchDisconnect, DefaultConnectionPage, nameof(OnionFruitConfigFile.LaunchWebsiteOnDisconnect));
+            RegisterOption<string>(OnionFruitSetting.WebsiteLaunchConnect, null, nameof(OnionFruitConfigFile.LaunchWebsiteOnConnect));
+            RegisterOption<string>(OnionFruitSetting.WebsiteLaunchDisconnect, null, nameof(OnionFruitConfigFile.LaunchWebsiteOnDisconnect));
 
             // freeze to prevent further changes, improve performance
             _storeEntries = _storeEntries.ToFrozenDictionary();
