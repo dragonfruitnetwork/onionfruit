@@ -17,6 +17,7 @@ namespace DragonFruit.OnionFruit;
 public partial class App(IHost host) : Application
 {
     private IDisposable _startupCallback;
+    private IHost _host = host;
 
     internal static string StoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit");
 
@@ -25,16 +26,20 @@ public partial class App(IHost host) : Application
         Directory.CreateDirectory(StoragePath);
 
         var assemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
-
         Version = assemblyVersion!.ToString(assemblyVersion.Minor > 0 ? 3 : 2);
+
+#if DEBUG
+        Title = "OnionFruit\u2122 Development Edition";
+#else
         Title = $"OnionFruit\u2122 {Version}";
+#endif
 
         // enable mica effect on Windows 11 and above
         TransparencyLevels = OperatingSystem.IsWindowsVersionAtLeast(10, 22000) ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
     }
 
     public static App Instance => (App)Current;
-    public IServiceProvider Services => host.Services;
+    public IServiceProvider Services => _host.Services;
 
     public static string Title { get; }
     public static string Version { get; }
@@ -58,10 +63,10 @@ public partial class App(IHost host) : Application
             // handle closing event
             desktop.Exit += delegate
             {
-                host.StopAsync(TimeSpan.FromSeconds(10)).GetAwaiter().GetResult();
-                host.Dispose();
+                _host.StopAsync(TimeSpan.FromSeconds(10)).GetAwaiter().GetResult();
+                _host.Dispose();
 
-                host = null;
+                _host = null;
             };
         }
 
@@ -69,7 +74,7 @@ public partial class App(IHost host) : Application
         // using the IHostApplicationLifetime, we can be notified when the windows are ready to be shown.
         _startupCallback = Services.GetRequiredService<IHostApplicationLifetime>().ApplicationStarted.Register(StartApp);
 
-        _ = host.StartAsync();
+        _ = _host.StartAsync();
     }
 
     private void StartApp()
