@@ -3,8 +3,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
-             xmlns:configuration="clr-namespace:DragonFruit.OnionFruit.Configuration"
              xmlns:viewModels="clr-namespace:DragonFruit.OnionFruit.ViewModels"
+             xmlns:services="clr-namespace:DragonFruit.OnionFruit.Services"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="DragonFruit.OnionFruit.Views.Settings.LandingPageSettingsTabView"
              x:DataType="viewModels:LandingPageSettingsTabViewModel">
@@ -25,7 +25,7 @@
                 </controls:SettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableConnectedPage}">
                     <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding ConnectedPage}" Command="{Binding LaunchUrl}"/>
-                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding ConnectedPage}" Watermark="{Binding Source={x:Static configuration:OnionFruitSettingsStore.DefaultConnectionPage}}"/>
+                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding ConnectedPage}" Watermark="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
                 </DockPanel>
             </controls:SettingsExpander>
             
@@ -35,7 +35,7 @@
                 </controls:SettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableDisconnectedPage}">
                     <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding DisconnectedPage}" Command="{Binding LaunchUrl}"/>
-                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding DisconnectedPage}" Watermark="{Binding Source={x:Static configuration:OnionFruitSettingsStore.DefaultConnectionPage}}"/>
+                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding DisconnectedPage}" Watermark="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
                 </DockPanel>
             </controls:SettingsExpander>
 
