@@ -29,7 +29,7 @@ namespace DragonFruit.OnionFruit.Models
                 if (y is null) return 1;
                 if (x is null) return -1;
 
-                return string.Compare(x.CountryCode, y.CountryCode, StringComparison.Ordinal);
+                return string.Compare(x.CountryName, y.CountryName, StringComparison.Ordinal);
             }
         }
     }
