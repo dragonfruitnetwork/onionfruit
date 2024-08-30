@@ -6,10 +6,15 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Reflection;
 using DragonFruit.OnionFruit.Database;
+using DynamicData;
+using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
+using ReactiveUI;
 using CodedOutputStream = Google.Protobuf.CodedOutputStream;
 
 namespace DragonFruit.OnionFruit.Configuration
@@ -21,7 +26,9 @@ namespace DragonFruit.OnionFruit.Configuration
         private readonly ILogger<OnionFruitSettingsStore> _logger;
 
         private OnionFruitConfigFile _configFile;
+
         private IDictionary<OnionFruitSetting, SettingsStoreEntry> _storeEntries = new Dictionary<OnionFruitSetting, SettingsStoreEntry>();
+        private IDictionary<OnionFruitSetting, SettingsCollectionEntry> _storeCollections = new Dictionary<OnionFruitSetting, SettingsCollectionEntry>();
 
         private string ConfigurationFile => Path.Combine(App.StoragePath, "onionfruit.cfg");
 
@@ -36,12 +43,21 @@ namespace DragonFruit.OnionFruit.Configuration
         }
 
         /// <summary>
-        /// Stores Information about a stored settings value.
+        /// Stores information about a collection of values held in the configuration file
+        /// </summary>
+        /// <remarks>
+        /// Because repeated field properties cannot be replaced (unlike <see cref="SettingsStoreEntry"/>) and have common interfaces regardless of the underlying type,
+        /// a <see cref="Func{TResult}"/> can be used to access the underlying value over reflection-based access.
+        /// </remarks>
+        private record SettingsCollectionEntry(Action<OnionFruitConfigFile> SetFromConfig, Action<OnionFruitConfigFile> SetDefaultValues);
+
+        /// <summary>
+        /// Stores information about the accessibility of a setting in the configuration file
         /// </summary>
         /// <param name="DefaultValue">The default value, should be stored if the configuration is new or being reset</param>
         /// <param name="Accessor">The <see cref="PropertyInfo"/> to use when getting or setting the underlying value</param>
         /// <param name="ValueClearMethod">Method to use the clear the underlying value in <see cref="Accessor"/>. If this is set, the underlying value can is nullable</param>
-        private record SettingsStoreEntry([MaybeNull] object DefaultValue, PropertyInfo Accessor, [MaybeNull] MethodInfo ValueClearMethod, Action<OnionFruitConfigFile> FetchFromConfig);
+        private record SettingsStoreEntry([MaybeNull] object DefaultValue, PropertyInfo Accessor, [MaybeNull] MethodInfo ValueClearMethod, Action<OnionFruitConfigFile> SetFromConfig);
 
         public Version PreviousClientVersion { get; private set; }
 
@@ -56,8 +72,12 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterOption<string>(OnionFruitSetting.WebsiteLaunchConnect, null, nameof(OnionFruitConfigFile.LaunchWebsiteOnConnect));
             RegisterOption<string>(OnionFruitSetting.WebsiteLaunchDisconnect, null, nameof(OnionFruitConfigFile.LaunchWebsiteOnDisconnect));
 
-            // freeze to prevent further changes, improve performance
+            RegisterOption(OnionFruitSetting.EnableFirewallPortRestrictions, false, nameof(OnionFruitConfigFile.LimitOutboundConnectionPorts));
+            RegisterCollection<uint>(OnionFruitSetting.AllowedFirewallPorts, [80, 443], c => c.AllowedFirewallPorts);
+
+            // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
+            _storeCollections = _storeCollections.ToFrozenDictionary();
         }
 
         protected override void LoadConfiguration()
@@ -65,13 +85,20 @@ namespace DragonFruit.OnionFruit.Configuration
             // todo handle backup file if original is corrupt
             if (File.Exists(ConfigurationFile))
             {
-                using var fs = File.OpenRead(ConfigurationFile);
-                _configFile = OnionFruitConfigFile.Parser.ParseFrom(fs);
+                using (var fs = File.OpenRead(ConfigurationFile))
+                {
+                    _configFile = OnionFruitConfigFile.Parser.ParseFrom(fs);
+                }
 
                 // read values from config file
                 foreach (var entry in _storeEntries.Values)
                 {
-                    entry.FetchFromConfig.Invoke(_configFile);
+                    entry.SetFromConfig.Invoke(_configFile);
+                }
+
+                foreach (var entry in _storeCollections.Values)
+                {
+                    entry.SetFromConfig.Invoke(_configFile);
                 }
             }
             else
@@ -82,16 +109,14 @@ namespace DragonFruit.OnionFruit.Configuration
                 };
 
                 // write default values to config file
-                foreach (var entry in _storeEntries.Values)
+                foreach (var (key, entry) in _storeEntries)
                 {
-                    if (entry.DefaultValue == null && entry.ValueClearMethod != null)
-                    {
-                        entry.ValueClearMethod.Invoke(_configFile, null);
-                    }
-                    else
-                    {
-                        entry.Accessor.SetValue(_configFile, entry.DefaultValue);
-                    }
+                    SetValue(key, entry.DefaultValue);
+                }
+
+                foreach (var collectionEntry in _storeCollections.Values)
+                {
+                    collectionEntry.SetDefaultValues.Invoke(_configFile);
                 }
             }
 
@@ -121,16 +146,16 @@ namespace DragonFruit.OnionFruit.Configuration
             _configFile.WriteTo(codedOutputStream);
         }
 
-        private void RegisterOption<T>(OnionFruitSetting key, T defaultValue, string propertyName)
+        private void RegisterOption<T>(OnionFruitSetting key, T defaultValue, string targetPropertyName)
         {
             var observable = RegisterOption(key, defaultValue, out var subject);
 
-            var accessor = typeof(OnionFruitConfigFile).GetProperty(propertyName);
-            var accessorClearMethod = typeof(OnionFruitConfigFile).GetMethod($"Clear{propertyName}");
+            var accessor = typeof(OnionFruitConfigFile).GetProperty(targetPropertyName);
+            var accessorClearMethod = typeof(OnionFruitConfigFile).GetMethod($"Clear{targetPropertyName}");
 
             if (accessor == null)
             {
-                throw new ArgumentException("Invalid property name", nameof(propertyName));
+                throw new ArgumentException("Invalid property name", nameof(targetPropertyName));
             }
 
             if (defaultValue == null && accessorClearMethod == null)
@@ -139,25 +164,57 @@ namespace DragonFruit.OnionFruit.Configuration
             }
 
             _storeEntries[key] = new SettingsStoreEntry(defaultValue, accessor, accessorClearMethod, c => subject.OnNext((T)accessor.GetValue(c, null)));
+            observable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(value =>
+                {
+                    if (value == null && _storeEntries[key].ValueClearMethod != null)
+                    {
+                        _logger.LogDebug("Configuration value {key} cleared", key);
+                        _storeEntries[key].ValueClearMethod.Invoke(_configFile, null);
+                    }
+                    else if (value == null)
+                    {
+                        _logger.LogDebug("Configuration value {key} reset to default value ('{val}')", key, defaultValue);
+                        _storeEntries[key].Accessor.SetValue(_configFile, defaultValue);
 
-            observable.Subscribe(value =>
+                        subject.OnNext(defaultValue);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("Configuration value {key} set to '{val}'", key, value);
+                        _storeEntries[key].Accessor.SetValue(_configFile, value);
+                    }
+
+                    _ = QueueSave();
+                })
+                .DisposeWith(Subscriptions);
+        }
+
+        private void RegisterCollection<T>(OnionFruitSetting key, IEnumerable<T> defaultValue, Func<OnionFruitConfigFile, RepeatedField<T>> rfAccessor)
+        {
+            var observer = RegisterCollection<T>(key, out var list);
+            _storeCollections[key] = new SettingsCollectionEntry(c => list.AddRange(rfAccessor.Invoke(c)), c =>
             {
-                if (value == null && _storeEntries[key].ValueClearMethod != null)
+                var collection = rfAccessor.Invoke(c);
+
+                collection.Clear();
+                collection.AddRange(defaultValue);
+            });
+
+            observer.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(cs =>
                 {
-                    _logger.LogDebug("Configuration value {key} cleared", key);
-                    _storeEntries[key].ValueClearMethod.Invoke(_configFile, null);
-                }
-                else if (value == null)
-                {
-                    _logger.LogDebug("Configuration value {key} reset to default value ('{val}')", key, defaultValue);
-                    subject.OnNext(defaultValue);
-                }
-                else
-                {
-                    _logger.LogDebug("Configuration value {key} set to '{val}'", key, value);
-                    _storeEntries[key].Accessor.SetValue(_configFile, value);
-                }
-            }).DisposeWith(Subscriptions);
+                    var collection = rfAccessor.Invoke(_configFile);
+
+                    using (list.Connect().Bind(out var clonedList).Subscribe())
+                    {
+                        collection.Clear();
+                        collection.AddRange(clonedList.ToList());
+
+                        _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", list, clonedList));
+                    }
+
+                    _ = QueueSave();
+                })
+                .DisposeWith(Subscriptions);
         }
     }
 
@@ -171,5 +228,8 @@ namespace DragonFruit.OnionFruit.Configuration
 
         WebsiteLaunchConnect,
         WebsiteLaunchDisconnect,
+
+        EnableFirewallPortRestrictions,
+        AllowedFirewallPorts
     }
 }

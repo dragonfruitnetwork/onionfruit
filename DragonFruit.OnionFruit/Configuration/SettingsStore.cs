@@ -11,7 +11,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using ReactiveUI;
+using DynamicData;
 
 namespace DragonFruit.OnionFruit.Configuration
 {
@@ -35,6 +35,11 @@ namespace DragonFruit.OnionFruit.Configuration
         /// Gets the current value of a specified configuration key
         /// </summary>
         public TValue GetValue<TValue>(TKey key) => GetRootSubject<TValue>(key).Value;
+
+        /// <summary>
+        /// Gets the collection held in the configuration store with the provided key
+        /// </summary>
+        public SourceList<TValue> GetCollection<TValue>(TKey key) => GetRootCollection<TValue>(key);
 
         /// <summary>
         /// Gets a source for observing changes to a configuration value
@@ -62,38 +67,33 @@ namespace DragonFruit.OnionFruit.Configuration
             subject.OnNext(value);
         }
 
-        private BehaviorSubject<TValue> GetRootSubject<TValue>(TKey key)
-        {
-            if (!ConfigStore.TryGetValue(key, out var subject))
-            {
-                return null;
-            }
-
-            if (subject is BehaviorSubject<TValue> typedSubject)
-            {
-                return typedSubject;
-            }
-
-            throw new InvalidCastException($"Subject is not of the expected type. Expected <{subject.GetType().GetGenericParameterConstraints().Single().Name}>, got <{typeof(TValue).Name}>");
-        }
-
         protected IObservable<TValue> RegisterOption<TValue>(TKey key, TValue defaultValue, out BehaviorSubject<TValue> subject)
         {
-            if (ConfigStore.TryGetValue(key, out var cachedSubject) && cachedSubject is BehaviorSubject<TValue>)
+            if (ConfigStore.ContainsKey(key))
             {
                 throw new ArgumentException($"Key {key} already exists in the configuration store");
             }
 
             subject = new BehaviorSubject<TValue>(defaultValue);
-            var watcher = subject.CombineLatest(IsLoaded).Where(x => x.Second).Select(x => x.First).DistinctUntilChanged();
-
             ConfigStore.Add(key, subject);
-            watcher.ObserveOn(RxApp.TaskpoolScheduler).Select(_ => QueueSave()).Subscribe().DisposeWith(Subscriptions);
 
-            return watcher;
+            return subject.Where(_ => IsLoaded.Value).DistinctUntilChanged();
         }
 
-        private async Task<Unit> QueueSave()
+        protected IObservable<IChangeSet<TValue>> RegisterCollection<TValue>(TKey key, out SourceList<TValue> collection)
+        {
+            if (ConfigStore.ContainsKey(key))
+            {
+                throw new ArgumentException($"Key {key} already exists in the configuration store");
+            }
+
+            collection = new SourceList<TValue>();
+            ConfigStore.Add(key, collection);
+
+            return collection.Connect().SkipInitial().Where(_ => IsLoaded.Value);
+        }
+
+        protected async Task<Unit> QueueSave()
         {
             var lastSave = Interlocked.Increment(ref _lastSaveValue);
 
@@ -108,6 +108,24 @@ namespace DragonFruit.OnionFruit.Configuration
             }
 
             return Unit.Default;
+        }
+
+        private BehaviorSubject<TValue> GetRootSubject<TValue>(TKey key) => GetRoot<BehaviorSubject<TValue>>(key);
+        private SourceList<TValue> GetRootCollection<TValue>(TKey key) => GetRoot<SourceList<TValue>>(key);
+
+        private TRoot GetRoot<TRoot>(TKey key) where TRoot : class
+        {
+            if (!ConfigStore.TryGetValue(key, out var subject))
+            {
+                return null;
+            }
+
+            if (subject is TRoot typedSubject)
+            {
+                return typedSubject;
+            }
+
+            throw new InvalidCastException($"Subject is not of the expected type. Expected <{subject.GetType().GetGenericParameterConstraints().Single().Name}>, got <{typeof(TRoot).Name}>");
         }
 
         public void Dispose()

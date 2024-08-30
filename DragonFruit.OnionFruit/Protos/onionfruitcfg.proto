@@ -12,4 +12,10 @@ message OnionFruitConfigFile {
   
   optional string launchWebsiteOnConnect = 7;
   optional string launchWebsiteOnDisconnect = 8;
+  
+  // indicates the user is behind a firewall that only allows connections on specific ports
+  bool limitOutboundConnectionPorts = 9;
+  
+  // list of ports the user can connect to, used in conjunction with limitOutboundConnectionPorts
+  repeated uint32 allowedFirewallPorts = 10;
 }
