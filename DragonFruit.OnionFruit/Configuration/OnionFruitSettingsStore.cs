@@ -209,7 +209,7 @@ namespace DragonFruit.OnionFruit.Configuration
                         collection.Clear();
                         collection.AddRange(clonedList.ToList());
 
-                        _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", list, clonedList));
+                        _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", clonedList.AsEnumerable()));
                     }
 
                     _ = QueueSave();
