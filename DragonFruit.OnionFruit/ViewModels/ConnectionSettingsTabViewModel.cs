@@ -3,12 +3,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
+using DynamicData;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -18,10 +21,16 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly OnionDbService _database;
         private readonly OnionFruitSettingsStore _settings;
 
+        private ushort? _firewallPortValue;
+
         private readonly IDisposable _databaseStateReaction;
+        private readonly IDisposable _allowedFirewallPortsSubscription;
 
         private readonly ObservableAsPropertyHelper<bool> _databaseLoaded;
         private readonly ObservableAsPropertyHelper<DatabaseState> _databaseState;
+
+        private readonly ObservableAsPropertyHelper<bool> _enableFirewallRestrictions;
+        private readonly ReadOnlyObservableCollection<uint> _allowedFirewallPorts;
 
         private readonly ObservableAsPropertyHelper<string> _selectedEntryCountryFlag, _selectedExitCountryFlag;
         private readonly ObservableAsPropertyHelper<TorNodeCountry> _selectedEntryCountry, _selectedExitCountry;
@@ -98,11 +107,17 @@ namespace DragonFruit.OnionFruit.ViewModels
                 this.RaisePropertyChanged(nameof(DatabaseLicense));
             });
 
+            _enableFirewallRestrictions = settings.GetObservableValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions).ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.EnableRestrictedFirewallMode);
+            _allowedFirewallPortsSubscription = settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts).Connect().Sort(Comparer<uint>.Default).Bind(out _allowedFirewallPorts).Subscribe();
+
             _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry);
             _selectedExitCountry = exitCountry.ToProperty(this, x => x.SelectedExitCountry);
 
             _selectedEntryCountryFlag = entryCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedEntryCountryFlag);
             _selectedExitCountryFlag = exitCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedExitCountryFlag);
+
+            AddFirewallPort = ReactiveCommand.Create(AddFirewallPortImpl, this.WhenAnyValue(x => x.FirewallPort).Select(x => x.HasValue));
+            RemoveFirewallPort = ReactiveCommand.Create<uint>(RemoveFirewallPortImpl);
         }
 
         /// <summary>
@@ -110,6 +125,9 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public bool DatabaseLoaded => _databaseLoaded.Value;
 
+        /// <summary>
+        /// More verbose state of the database
+        /// </summary>
         public DatabaseState DatabaseState => _databaseState.Value;
 
         public string DatabaseVersion => _database.DisplayVersion;
@@ -124,6 +142,26 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// The currently available exit nodes, grouped by residing country
         /// </summary>
         public IEnumerable<TorNodeCountry> ExitCountries => _exitCountries.Value;
+
+        /// <summary>
+        /// Publicly exposed binding for the allowed firewall ports
+        /// </summary>
+        public ReadOnlyObservableCollection<uint> AllowedFirewallPorts => _allowedFirewallPorts;
+
+        public ICommand AddFirewallPort { get; }
+        public ICommand RemoveFirewallPort { get; }
+
+        public ushort? FirewallPort
+        {
+            get => _firewallPortValue;
+            set => this.RaiseAndSetIfChanged(ref _firewallPortValue, value);
+        }
+
+        public bool EnableRestrictedFirewallMode
+        {
+            get => _enableFirewallRestrictions.Value;
+            set => _settings.SetValue(OnionFruitSetting.EnableFirewallPortRestrictions, value);
+        }
 
         public TorNodeCountry SelectedEntryCountry
         {
@@ -154,7 +192,6 @@ namespace DragonFruit.OnionFruit.ViewModels
         }
 
         public string SelectedEntryCountryFlag => _selectedEntryCountryFlag.Value;
-
         public string SelectedExitCountryFlag => _selectedExitCountryFlag.Value;
 
         private static string GetFlagEmoji(TorNodeCountry country)
@@ -173,12 +210,42 @@ namespace DragonFruit.OnionFruit.ViewModels
             return char.ConvertFromUtf32(firstCodePoint) + char.ConvertFromUtf32(secondCodePoint);
         }
 
+        private void AddFirewallPortImpl()
+        {
+            var port = FirewallPort ?? 0;
+
+            if (port == 0)
+            {
+                return;
+            }
+
+            _settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts).Edit(list =>
+            {
+                if (list.Contains(port))
+                {
+                    return;
+                }
+
+                list.Add(port);
+            });
+
+            FirewallPort = null;
+        }
+
+        private void RemoveFirewallPortImpl(uint port)
+        {
+            _settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts).Remove(port);
+        }
+
         public void Dispose()
         {
             _databaseStateReaction.Dispose();
 
             _databaseLoaded.Dispose();
             _databaseState.Dispose();
+
+            _enableFirewallRestrictions.Dispose();
+            _allowedFirewallPortsSubscription.Dispose();
 
             _selectedEntryCountryFlag.Dispose();
             _selectedExitCountryFlag.Dispose();

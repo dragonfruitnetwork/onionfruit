@@ -97,5 +97,39 @@
                 </DataTemplate>
             </controls1:SwitchingControl.SwitchTrue>
         </controls1:SwitchingControl>
+        
+        <controls:SettingsExpander IconSource="MapDrive" Description="Restricted Firewall Mode">
+            <controls:SettingsExpander.Footer>
+                <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableRestrictedFirewallMode}"/>
+            </controls:SettingsExpander.Footer>
+
+            <DockPanel HorizontalAlignment="Right">
+                <NumericUpDown DockPanel.Dock="Right" VerticalAlignment="Top"
+                               Margin="15,0,0,0" MinHeight="35"
+                               Minimum="1" Maximum="65535" FormatString="0"
+                               Watermark="Allowed Port (1-65535)"
+                               Value="{Binding FirewallPort}">
+                    <Interaction.Behaviors>
+                        <controls1:EnterKeyBehavior Command="{Binding AddFirewallPort}"/>
+                    </Interaction.Behaviors>
+                </NumericUpDown>
+                
+                <controls:ItemsRepeater DockPanel.Dock="Right" ItemsSource="{Binding AllowedFirewallPorts}" HorizontalAlignment="Right">
+                    <controls:ItemsRepeater.Layout>
+                        <controls:FlowLayout Orientation="Horizontal" LineAlignment="End" MinColumnSpacing="10" MinRowSpacing="10"/>
+                    </controls:ItemsRepeater.Layout>
+                    <controls:ItemsRepeater.ItemTemplate>
+                        <DataTemplate DataType="system:UInt32">
+                            <Button MinHeight="35" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:ConnectionSettingsTabViewModel)DataContext).RemoveFirewallPort}" CommandParameter="{Binding}">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
+                                    <Label Content="{Binding StringFormat=':{0}'}"/>
+                                    <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="13" Width="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </controls:ItemsRepeater.ItemTemplate>
+                </controls:ItemsRepeater>
+            </DockPanel>
+        </controls:SettingsExpander>
     </StackPanel>
 </UserControl>
