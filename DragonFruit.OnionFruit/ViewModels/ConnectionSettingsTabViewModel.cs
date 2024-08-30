@@ -253,6 +253,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             _databaseLoaded.Dispose();
             _databaseState.Dispose();
 
+            _showFirewallPortsList.Dispose();
             _enableFirewallRestrictions.Dispose();
             _allowedFirewallPortsSubscription.Dispose();
 
