@@ -29,8 +29,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly ObservableAsPropertyHelper<bool> _databaseLoaded;
         private readonly ObservableAsPropertyHelper<DatabaseState> _databaseState;
 
-        private readonly ObservableAsPropertyHelper<bool> _enableFirewallRestrictions;
         private readonly ReadOnlyObservableCollection<uint> _allowedFirewallPorts;
+        private readonly ObservableAsPropertyHelper<bool> _enableFirewallRestrictions, _showFirewallPortsList;
 
         private readonly ObservableAsPropertyHelper<string> _selectedEntryCountryFlag, _selectedExitCountryFlag;
         private readonly ObservableAsPropertyHelper<TorNodeCountry> _selectedEntryCountry, _selectedExitCountry;
@@ -95,6 +95,8 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Select(x => x.First?.SingleOrDefault(y => y.CountryCode == x.Second))
                 .ObserveOn(RxApp.MainThreadScheduler);
 
+            var firewallPorts = settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts);
+
             // versions/licenses are updated when the database state changes
             _databaseStateReaction = databaseState.Subscribe(s =>
             {
@@ -107,8 +109,10 @@ namespace DragonFruit.OnionFruit.ViewModels
                 this.RaisePropertyChanged(nameof(DatabaseLicense));
             });
 
+            _showFirewallPortsList = firewallPorts.CountChanged.Select(x => x > 0).ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.ShouldShowFirewallPortList);
+            _allowedFirewallPortsSubscription = firewallPorts.Connect().Sort(Comparer<uint>.Default).ObserveOn(RxApp.MainThreadScheduler).Bind(out _allowedFirewallPorts).Subscribe();
+
             _enableFirewallRestrictions = settings.GetObservableValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions).ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.EnableRestrictedFirewallMode);
-            _allowedFirewallPortsSubscription = settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts).Connect().Sort(Comparer<uint>.Default).Bind(out _allowedFirewallPorts).Subscribe();
 
             _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry);
             _selectedExitCountry = exitCountry.ToProperty(this, x => x.SelectedExitCountry);
@@ -142,6 +146,11 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// The currently available exit nodes, grouped by residing country
         /// </summary>
         public IEnumerable<TorNodeCountry> ExitCountries => _exitCountries.Value;
+
+        /// <summary>
+        /// Whether the firewall ports list should be shown (i.e. it has items to present)
+        /// </summary>
+        public bool ShouldShowFirewallPortList => _showFirewallPortsList.Value;
 
         /// <summary>
         /// Publicly exposed binding for the allowed firewall ports
