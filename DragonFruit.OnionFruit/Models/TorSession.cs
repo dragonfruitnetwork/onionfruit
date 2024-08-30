@@ -14,6 +14,7 @@ using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Config;
 using DragonFruit.OnionFruit.Core.Network;
 using DragonFruit.OnionFruit.Database;
+using DynamicData;
 using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Models
@@ -209,6 +210,17 @@ namespace DragonFruit.OnionFruit.Models
                     var exitCountry = settings.GetValue<string>(OnionFruitSetting.TorExitCountryCode);
                     if (exitCountry != IOnionDatabase.TorCountryCode)
                         nodeSelectionConfig.ExitNodes = [new NodeCountryFilter(exitCountry)];
+                }
+            }
+
+            // handle firewall settings
+            if (settings.GetValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions))
+            {
+                basicConfig.FascistFirewall = true;
+
+                using (settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts).Connect().Bind(out var ports).Subscribe())
+                {
+                    basicConfig.FirewallPorts = ports.Select(x => (int)x).ToList();
                 }
             }
 

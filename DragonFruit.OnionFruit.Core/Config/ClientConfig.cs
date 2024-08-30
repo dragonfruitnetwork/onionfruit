@@ -117,10 +117,10 @@ namespace DragonFruit.OnionFruit.Core.Config
         /// Whether the client is behind a firewall that only allows traffic on specific ports.
         /// By setting this to <c>true</c>, the client will select nodes that are available on ports specified by <see cref="FirewallPorts"/>
         /// </summary>
-        public bool FacistFirewall { get; set; }
+        public bool FascistFirewall { get; set; }
 
         /// <summary>
-        /// Gets or sets a list of ports that the client should use when <see cref="FacistFirewall"/> is <c>true</c>
+        /// Gets or sets a list of ports that the client should use when <see cref="FascistFirewall"/> is <c>true</c>
         /// </summary>
         public ICollection<int> FirewallPorts { get; set; } = null;
 
@@ -131,9 +131,9 @@ namespace DragonFruit.OnionFruit.Core.Config
 
         public override IEnumerable<ConfigEntryValidationResult> PerformValidation()
         {
-            if (FirewallPorts?.Count > 0 && !FacistFirewall)
+            if (FirewallPorts?.Count > 0 && !FascistFirewall)
             {
-                yield return new ConfigEntryValidationResult(false, $"{nameof(FirewallPorts)} is redundant when {nameof(FacistFirewall)} is not enabled");
+                yield return new ConfigEntryValidationResult(false, $"{nameof(FirewallPorts)} is redundant when {nameof(FascistFirewall)} is not enabled");
             }
 
             if (FirewallPorts?.Any(x => x is < 0 or > 65535) == true)
@@ -190,13 +190,13 @@ namespace DragonFruit.OnionFruit.Core.Config
                 await writer.WriteLineAsync($"RejectPlaintextPorts {string.Join(',', RejectPlaintextPorts)}").ConfigureAwait(false);
             }
 
-            if (FacistFirewall)
+            if (FascistFirewall)
             {
-                await writer.WriteLineAsync("FacistFirewall 1").ConfigureAwait(false);
+                await writer.WriteLineAsync("FascistFirewall 1").ConfigureAwait(false);
 
                 if (FirewallPorts?.Count > 0)
                 {
-                    await writer.WriteLineAsync($"FirewallPorts {string.Join(',', FirewallPorts)}").ConfigureAwait(false);
+                    await writer.WriteLineAsync($"ReachableAddresses {string.Join(',', FirewallPorts.Select(x => $"*:{x}"))}").ConfigureAwait(false);
                 }
             }
         }
