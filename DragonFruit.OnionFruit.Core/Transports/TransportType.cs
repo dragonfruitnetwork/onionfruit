@@ -7,27 +7,27 @@ namespace DragonFruit.OnionFruit.Core.Transports
 {
     public enum TransportType
     {
-        Plain,
+        Plain = 0,
 
         [TransportInfo("meek_lite", "lyrebird", DefaultBridgeKey = "meek-azure")]
-        meek,
+        meek = 1,
 
         [TransportInfo("obfs4", "lyrebird", DefaultBridgeKey = "obfs4")]
-        obfs4,
+        obfs4 = 2,
 
         [TransportInfo("obfs3", "lyrebird")]
-        obfs3,
+        obfs3 = 3,
 
         [TransportInfo("scramblesuit", "lyrebird")]
-        scramblesuit,
+        scramblesuit = 4,
 
         [TransportInfo("webtunnel", "lyrebird")]
-        webtunnel,
+        webtunnel = 5,
 
         [TransportInfo("snowflake", DefaultBridgeKey = "snowflake")]
-        snowflake,
+        snowflake = 6,
 
         [TransportInfo("conjure")]
-        conjure
+        conjure = 7
     }
 }
