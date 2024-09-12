@@ -105,20 +105,20 @@ namespace DragonFruit.OnionFruit.Core.Config
 
         public override async Task WriteAsync(StreamWriter writer)
         {
+            foreach (var transport in Transports ?? Enumerable.Empty<PluggableTransport>())
+            {
+                await writer.WriteLineAsync($"ClientTransportPlugin {transport.Type} exec {transport.ExecutablePathAndArgs}").ConfigureAwait(false);
+            }
+
             if (Bridges?.Count > 0)
             {
-                await writer.WriteLineAsync("UseBridges 1");
+                await writer.WriteLineAsync("UseBridges 1").ConfigureAwait(false);
 
                 foreach (var bridge in Bridges)
                 {
                     await writer.WriteAsync("Bridge ").ConfigureAwait(false);
                     await writer.WriteLineAsync(bridge.ToString()).ConfigureAwait(false);
                 }
-            }
-
-            foreach (var transport in Transports ?? Enumerable.Empty<PluggableTransport>())
-            {
-                await writer.WriteLineAsync($"ClientTransportPlugin {transport.Type} exec {transport.ExecutablePathAndArgs}").ConfigureAwait(false);
             }
         }
     }
