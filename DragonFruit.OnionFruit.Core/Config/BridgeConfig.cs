@@ -36,7 +36,7 @@ namespace DragonFruit.OnionFruit.Core.Config
         /// <returns>Whether the parse was successful</returns>
         public static bool TryParse(string line, out BridgeEntry entry)
         {
-            var match = BridgeLineRegex().Match(line);
+            var match = ValidationRegex().Match(line);
 
             if (!match.Success)
             {
@@ -84,7 +84,7 @@ namespace DragonFruit.OnionFruit.Core.Config
         }
 
         [GeneratedRegex(@"^(?:(?<type>\w+) )?(?<address>[\[0-9a-f:\.\]]+) (?<fingerprint>[0-9a-f]{40})(?: (?<options>.+))?$", RegexOptions.IgnoreCase, "en-US")]
-        private static partial Regex BridgeLineRegex();
+        public static partial Regex ValidationRegex();
     }
 
     /// <summary>
