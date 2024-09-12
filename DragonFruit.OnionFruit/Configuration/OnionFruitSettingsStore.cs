@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reflection;
+using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
 using DynamicData;
 using Google.Protobuf.Collections;
@@ -55,9 +55,7 @@ namespace DragonFruit.OnionFruit.Configuration
         /// Stores information about the accessibility of a setting in the configuration file
         /// </summary>
         /// <param name="DefaultValue">The default value, should be stored if the configuration is new or being reset</param>
-        /// <param name="Accessor">The <see cref="PropertyInfo"/> to use when getting or setting the underlying value</param>
-        /// <param name="ValueClearMethod">Method to use the clear the underlying value in <see cref="Accessor"/>. If this is set, the underlying value can is nullable</param>
-        private record SettingsStoreEntry([MaybeNull] object DefaultValue, PropertyInfo Accessor, [MaybeNull] MethodInfo ValueClearMethod, Action<OnionFruitConfigFile> SetFromConfig);
+        private record SettingsStoreEntry([MaybeNull] object DefaultValue, Action<OnionFruitConfigFile> SetFromConfig);
 
         public Version PreviousClientVersion { get; private set; }
 
@@ -75,6 +73,19 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterOption(OnionFruitSetting.EnableFirewallPortRestrictions, false, nameof(OnionFruitConfigFile.LimitOutboundConnectionPorts));
             RegisterCollection<uint>(OnionFruitSetting.AllowedFirewallPorts, [80, 443], c => c.AllowedFirewallPorts);
 
+            RegisterCollection(OnionFruitSetting.UserDefinedBridges, [], c => c.UserDefinedBridges);
+            RegisterOption<TransportType?>(OnionFruitSetting.SelectedTransportType, null, x => x.HasSelectedTransportType ? (TransportType)x.SelectedTransportType : null, (t, c) =>
+            {
+                if (t == null)
+                {
+                    c.ClearSelectedTransportType();
+                }
+                else
+                {
+                    c.SelectedTransportType = (TRANSPORT_TYPES)t;
+                }
+            });
+
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
             _storeCollections = _storeCollections.ToFrozenDictionary();
@@ -90,15 +101,16 @@ namespace DragonFruit.OnionFruit.Configuration
                     _configFile = OnionFruitConfigFile.Parser.ParseFrom(fs);
                 }
 
-                // read values from config file
-                foreach (var entry in _storeEntries.Values)
-                {
-                    entry.SetFromConfig.Invoke(_configFile);
-                }
+                // perform config loading
+                IEnumerable<Action<OnionFruitConfigFile>> loaders =
+                [
+                    .._storeEntries.Values.Select(x => x.SetFromConfig),
+                    .._storeCollections.Values.Select(x => x.SetFromConfig)
+                ];
 
-                foreach (var entry in _storeCollections.Values)
+                foreach (var loader in loaders)
                 {
-                    entry.SetFromConfig.Invoke(_configFile);
+                    loader.Invoke(_configFile);
                 }
             }
             else
@@ -153,36 +165,65 @@ namespace DragonFruit.OnionFruit.Configuration
             var accessor = typeof(OnionFruitConfigFile).GetProperty(targetPropertyName);
             var accessorClearMethod = typeof(OnionFruitConfigFile).GetMethod($"Clear{targetPropertyName}");
 
+            var accessorNullCheck = typeof(OnionFruitConfigFile).GetProperty($"Has{targetPropertyName}");
+
             if (accessor == null)
             {
                 throw new ArgumentException("Invalid property name", nameof(targetPropertyName));
             }
 
-            if (defaultValue == null && accessorClearMethod == null)
+            if (defaultValue == null && (accessorClearMethod == null || !accessor.PropertyType.IsClass))
             {
                 throw new ArgumentException("Cannot have a null default value without a clear method", nameof(defaultValue));
             }
 
-            _storeEntries[key] = new SettingsStoreEntry(defaultValue, accessor, accessorClearMethod, c => subject.OnNext((T)accessor.GetValue(c, null)));
-            observable.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(value =>
+            // action derived on a per-config-item basis.
+            // null checks are performed to ensure default values are not set.
+            Action<OnionFruitConfigFile> setFromConfigAction = c =>
+            {
+                if ((bool?)accessorNullCheck?.GetValue(c) != false)
                 {
-                    if (value == null && _storeEntries[key].ValueClearMethod != null)
+                    subject.OnNext((T)accessor.GetValue(c, null));
+                }
+            };
+
+            _storeEntries[key] = new SettingsStoreEntry(defaultValue, setFromConfigAction);
+            observable.ObserveOn(RxApp.TaskpoolScheduler)
+                .Subscribe(value =>
+                {
+                    if (value == null && accessorClearMethod != null)
                     {
                         _logger.LogDebug("Configuration value {key} cleared", key);
-                        _storeEntries[key].ValueClearMethod.Invoke(_configFile, null);
+                        accessorClearMethod.Invoke(_configFile, null);
                     }
                     else if (value == null)
                     {
                         _logger.LogDebug("Configuration value {key} reset to default value ('{val}')", key, defaultValue);
-                        _storeEntries[key].Accessor.SetValue(_configFile, defaultValue);
+                        accessor.SetValue(_configFile, defaultValue);
 
                         subject.OnNext(defaultValue);
                     }
                     else
                     {
                         _logger.LogDebug("Configuration value {key} set to '{val}'", key, value);
-                        _storeEntries[key].Accessor.SetValue(_configFile, value);
+                        accessor.SetValue(_configFile, value);
                     }
+
+                    _ = QueueSave();
+                })
+                .DisposeWith(Subscriptions);
+        }
+
+        private void RegisterOption<T>(OnionFruitSetting key, T defaultValue, Func<OnionFruitConfigFile, T> getter, Action<T, OnionFruitConfigFile> setter)
+        {
+            var observable = RegisterOption(key, defaultValue, out var subject);
+
+            _storeEntries[key] = new SettingsStoreEntry(defaultValue, c => subject.OnNext(getter.Invoke(c)));
+            observable.ObserveOn(RxApp.TaskpoolScheduler)
+                .Subscribe(value =>
+                {
+                    _logger.LogDebug("Configuration value {key} set to '{val}'", key, value);
+                    setter.Invoke(value, _configFile);
 
                     _ = QueueSave();
                 })
@@ -230,6 +271,9 @@ namespace DragonFruit.OnionFruit.Configuration
         WebsiteLaunchDisconnect,
 
         EnableFirewallPortRestrictions,
-        AllowedFirewallPorts
+        AllowedFirewallPorts,
+
+        SelectedTransportType,
+        UserDefinedBridges
     }
 }
