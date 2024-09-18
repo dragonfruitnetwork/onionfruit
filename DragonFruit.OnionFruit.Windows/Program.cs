@@ -64,6 +64,7 @@ public static class Program
             // register core services
             services.AddSingleton<TorSession>();
             services.AddSingleton<OnionDbService>();
+            services.AddSingleton<TransportManager>();
             services.AddSingleton<ApiClient, OnionFruitClient>();
             services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
 
