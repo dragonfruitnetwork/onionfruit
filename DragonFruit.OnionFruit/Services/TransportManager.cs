@@ -8,13 +8,14 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Transports;
 using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Services
 {
-    public class TransportManager
+    public partial class TransportManager
     {
         public TransportManager(ExecutableLocator locator, ILogger<TransportManager> logger)
         {
@@ -63,10 +64,10 @@ namespace DragonFruit.OnionFruit.Services
                 logger.LogWarning("Cannot use transport {TransportType} as the required engine {Engine} is not available", transport, metadata.TransportEngine);
             }
 
-            var ptPath = Path.GetDirectoryName(ptConfigLocation)!.TrimEnd('/') + '/';
+            var ptPath = Path.GetDirectoryName(ptConfigLocation);
 
             AvailableTransports = availableTransports.ToFrozenDictionary();
-            TransportConfigLines = config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => x.Value.Replace("${pt_path}", ptPath));
+            TransportConfigLines = config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => TransportExecRegex().Replace(x.Value, m => $"\"{Path.Combine(ptPath, m.Groups["exeName"].Value)}\""));
 
             if (recommendedTransport.HasValue && !availableTransports.ContainsKey(recommendedTransport.Value))
             {
@@ -97,5 +98,8 @@ namespace DragonFruit.OnionFruit.Services
         /// Gets a list of the available transports and info about them on the current system
         /// </summary>
         public IReadOnlyDictionary<TransportType, TransportInfo> AvailableTransports { get; private set; }
+
+        [GeneratedRegex(@"\${pt_path}(?<exeName>[^ ]+)")]
+        private partial Regex TransportExecRegex();
     }
 }
