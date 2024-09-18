@@ -56,14 +56,18 @@ namespace DragonFruit.OnionFruit.Services
 
                 if (metadata?.TransportEngine == null || config.PluggableTransports.ContainsKey(metadata.TransportEngine))
                 {
-                    availableTransports.Add(transport, new TransportInfo(string.Empty));
+                    availableTransports.Add(transport, new TransportInfo(null));
                     continue;
                 }
 
                 logger.LogWarning("Cannot use transport {TransportType} as the required engine {Engine} is not available", transport, metadata.TransportEngine);
             }
 
+            var ptPath = Path.GetDirectoryName(ptConfigLocation)!.TrimEnd('/') + '/';
+
             AvailableTransports = availableTransports.ToFrozenDictionary();
+            TransportConfigLines = config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => x.Value.Replace("${pt_path}", ptPath));
+
             if (recommendedTransport.HasValue && !availableTransports.ContainsKey(recommendedTransport.Value))
             {
                 RecommendedTransport = null;
@@ -78,6 +82,11 @@ namespace DragonFruit.OnionFruit.Services
         /// Gets the recommended transport type
         /// </summary>
         public TransportType? RecommendedTransport { get; private set; }
+
+        /// <summary>
+        /// Gets a dictionary of the transport configuration lines for each transport
+        /// </summary>
+        public IReadOnlyDictionary<string, string> TransportConfigLines { get; private set; }
 
         /// <summary>
         /// Gets a list of the available transports with support on the current system
