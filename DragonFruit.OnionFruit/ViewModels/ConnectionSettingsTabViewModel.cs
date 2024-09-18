@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
@@ -23,8 +24,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private ushort? _firewallPortValue;
 
-        private readonly IDisposable _databaseStateReaction;
-        private readonly IDisposable _allowedFirewallPortsSubscription;
+        private readonly CompositeDisposable _disposables = new();
 
         private readonly ObservableAsPropertyHelper<bool> _databaseLoaded;
         private readonly ObservableAsPropertyHelper<DatabaseState> _databaseState;
@@ -76,11 +76,11 @@ namespace DragonFruit.OnionFruit.ViewModels
                 })
                 .ObserveOn(RxApp.MainThreadScheduler);
 
-            _entryCountries = countries.Select(x => x.entryCountries).ToProperty(this, x => x.EntryCountries);
-            _exitCountries = countries.Select(x => x.exitCountries).ToProperty(this, x => x.ExitCountries);
+            _entryCountries = countries.Select(x => x.entryCountries).ToProperty(this, x => x.EntryCountries).DisposeWith(_disposables);
+            _exitCountries = countries.Select(x => x.exitCountries).ToProperty(this, x => x.ExitCountries).DisposeWith(_disposables);
 
-            _databaseState = databaseState.Select(x => x.EventArgs).ToProperty(this, x => x.DatabaseState);
-            _databaseLoaded = databaseState.Select(x => x.EventArgs == DatabaseState.Ready).ToProperty(this, x => x.DatabaseLoaded);
+            _databaseState = databaseState.Select(x => x.EventArgs).ToProperty(this, x => x.DatabaseState).DisposeWith(_disposables);
+            _databaseLoaded = databaseState.Select(x => x.EventArgs == DatabaseState.Ready).ToProperty(this, x => x.DatabaseLoaded).DisposeWith(_disposables);
 
             // settings binding
             var entryCountry = this.WhenAnyValue(x => x.EntryCountries)
@@ -98,7 +98,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             var firewallPorts = settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts);
 
             // versions/licenses are updated when the database state changes
-            _databaseStateReaction = databaseState.Subscribe(s =>
+            databaseState.Subscribe(s =>
             {
                 if (s.EventArgs != DatabaseState.Ready)
                 {
@@ -107,18 +107,30 @@ namespace DragonFruit.OnionFruit.ViewModels
 
                 this.RaisePropertyChanged(nameof(DatabaseVersion));
                 this.RaisePropertyChanged(nameof(DatabaseLicense));
-            });
+            }).DisposeWith(_disposables);
 
-            _showFirewallPortsList = firewallPorts.CountChanged.Select(x => x > 0).ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.ShouldShowFirewallPortList);
-            _allowedFirewallPortsSubscription = firewallPorts.Connect().Sort(Comparer<uint>.Default).ObserveOn(RxApp.MainThreadScheduler).Bind(out _allowedFirewallPorts).Subscribe();
+            _showFirewallPortsList = firewallPorts.CountChanged.Select(x => x > 0)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.ShouldShowFirewallPortList)
+                .DisposeWith(_disposables);
 
-            _enableFirewallRestrictions = settings.GetObservableValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions).ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.EnableRestrictedFirewallMode);
+            firewallPorts.Connect()
+                .Sort(Comparer<uint>.Default)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Bind(out _allowedFirewallPorts)
+                .Subscribe()
+                .DisposeWith(_disposables);
 
-            _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry);
-            _selectedExitCountry = exitCountry.ToProperty(this, x => x.SelectedExitCountry);
+            _enableFirewallRestrictions = settings.GetObservableValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.EnableRestrictedFirewallMode)
+                .DisposeWith(_disposables);
 
-            _selectedEntryCountryFlag = entryCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedEntryCountryFlag);
-            _selectedExitCountryFlag = exitCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedExitCountryFlag);
+            _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry).DisposeWith(_disposables);
+            _selectedExitCountry = exitCountry.ToProperty(this, x => x.SelectedExitCountry).DisposeWith(_disposables);
+
+            _selectedEntryCountryFlag = entryCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedEntryCountryFlag).DisposeWith(_disposables);
+            _selectedExitCountryFlag = exitCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedExitCountryFlag).DisposeWith(_disposables);
 
             AddFirewallPort = ReactiveCommand.Create(AddFirewallPortImpl, this.WhenAnyValue(x => x.FirewallPort).Select(x => x.HasValue));
             RemoveFirewallPort = ReactiveCommand.Create<uint>(RemoveFirewallPortImpl);
@@ -248,23 +260,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         public void Dispose()
         {
-            _databaseStateReaction.Dispose();
-
-            _databaseLoaded.Dispose();
-            _databaseState.Dispose();
-
-            _showFirewallPortsList.Dispose();
-            _enableFirewallRestrictions.Dispose();
-            _allowedFirewallPortsSubscription.Dispose();
-
-            _selectedEntryCountryFlag.Dispose();
-            _selectedExitCountryFlag.Dispose();
-
-            _selectedEntryCountry.Dispose();
-            _selectedExitCountry.Dispose();
-
-            _entryCountries.Dispose();
-            _exitCountries.Dispose();
+            _disposables.Dispose();
         }
     }
 }

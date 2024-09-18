@@ -1,6 +1,8 @@
 ﻿// OnionFruit Copyright DragonFruit Network <inbox@dragonfruit.network>
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
+using System;
+using System.Reactive.Disposables;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Services;
@@ -8,9 +10,10 @@ using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {
-    public class LandingPageSettingsTabViewModel : ReactiveObject
+    public class LandingPageSettingsTabViewModel : ReactiveObject, IDisposable
     {
         private readonly OnionFruitSettingsStore _settings;
+        private readonly CompositeDisposable _disposables = new();
 
         private readonly ObservableAsPropertyHelper<bool> _connectedPageEnabled, _disconnectedPageEnabled;
         private readonly ObservableAsPropertyHelper<string> _connectedPage, _disconnectedPage;
@@ -19,11 +22,11 @@ namespace DragonFruit.OnionFruit.ViewModels
         {
             _settings = settings;
 
-            _connectedPage = settings.GetObservableValue<string>(OnionFruitSetting.WebsiteLaunchConnect).ToProperty(this, x => x.ConnectedPage);
-            _disconnectedPage = settings.GetObservableValue<string>(OnionFruitSetting.WebsiteLaunchDisconnect).ToProperty(this, x => x.DisconnectedPage);
+            _connectedPage = settings.GetObservableValue<string>(OnionFruitSetting.WebsiteLaunchConnect).ToProperty(this, x => x.ConnectedPage).DisposeWith(_disposables);
+            _disconnectedPage = settings.GetObservableValue<string>(OnionFruitSetting.WebsiteLaunchDisconnect).ToProperty(this, x => x.DisconnectedPage).DisposeWith(_disposables);
 
-            _connectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchConnect).ToProperty(this, x => x.EnableConnectedPage);
-            _disconnectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchDisconnect).ToProperty(this, x => x.EnableDisconnectedPage);
+            _connectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchConnect).ToProperty(this, x => x.EnableConnectedPage).DisposeWith(_disposables);
+            _disconnectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchDisconnect).ToProperty(this, x => x.EnableDisconnectedPage).DisposeWith(_disposables);
 
             LaunchUrl = ReactiveCommand.Create<string>(url => App.Launch(string.IsNullOrWhiteSpace(url) ? LandingPageLaunchService.DefaultConnectionPage : url), outputScheduler: RxApp.TaskpoolScheduler);
         }
@@ -54,5 +57,10 @@ namespace DragonFruit.OnionFruit.ViewModels
         }
 
         public ICommand LaunchUrl { get; }
+
+        public void Dispose()
+        {
+            _disposables?.Dispose();
+        }
     }
 }
