@@ -33,15 +33,13 @@ namespace DragonFruit.OnionFruit.Services
                 return;
             }
 
-            // load the pt_config.json file (currently sync, could be async?)
-            PluggableTransportConfig config;
-
             TransportType? recommendedTransport = null;
             Dictionary<TransportType, TransportInfo> availableTransports = [];
 
+            // load the pt_config.json file (currently sync, could be async?)
             using (var readStream = File.OpenRead(ptConfigLocation))
             {
-                config = JsonSerializer.Deserialize<PluggableTransportConfig>(readStream);
+                Config = JsonSerializer.Deserialize<PluggableTransportConfig>(readStream);
             }
 
             // get all transports that can be used
@@ -50,12 +48,12 @@ namespace DragonFruit.OnionFruit.Services
                 var transportName = transport.ToString();
                 var metadata = typeof(TransportType).GetMember(transportName)[0].GetCustomAttribute<TransportInfo>();
 
-                if (transportName == config.RecommendedDefault)
+                if (transportName == Config.RecommendedDefault)
                 {
                     recommendedTransport = transport;
                 }
 
-                if (metadata?.TransportEngine == null || config.PluggableTransports.ContainsKey(metadata.TransportEngine))
+                if (metadata?.TransportEngine == null || Config.PluggableTransports.ContainsKey(metadata.TransportEngine))
                 {
                     availableTransports.Add(transport, new TransportInfo(null));
                     continue;
@@ -67,7 +65,7 @@ namespace DragonFruit.OnionFruit.Services
             var ptPath = Path.GetDirectoryName(ptConfigLocation);
 
             AvailableTransports = availableTransports.ToFrozenDictionary();
-            TransportConfigLines = config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => TransportExecRegex().Replace(x.Value, m => $"\"{Path.Combine(ptPath, m.Groups["exeName"].Value)}\""));
+            TransportConfigLines = Config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => TransportExecRegex().Replace(x.Value, m => $"\"{Path.Combine(ptPath, m.Groups["exeName"].Value)}\""));
 
             if (recommendedTransport.HasValue && !availableTransports.ContainsKey(recommendedTransport.Value))
             {
@@ -78,6 +76,8 @@ namespace DragonFruit.OnionFruit.Services
                 RecommendedTransport = recommendedTransport;
             }
         }
+
+        internal PluggableTransportConfig Config { get; private set; }
 
         /// <summary>
         /// Gets the recommended transport type

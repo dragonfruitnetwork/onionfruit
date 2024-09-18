@@ -13,7 +13,9 @@ using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Config;
 using DragonFruit.OnionFruit.Core.Network;
+using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
+using DragonFruit.OnionFruit.Services;
 using DynamicData;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +24,7 @@ namespace DragonFruit.OnionFruit.Models
     /// <summary>
     /// Combines user configuration, control port access and the underlying tor process lifetime management into a single location
     /// </summary>
-    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, IOnionDatabase database, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory)
+    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, IOnionDatabase database, TransportManager transportManager, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory)
     {
         private const int DefaultSocksPort = 9050;
         private const int DefaultControlPort = 9051;
@@ -224,8 +226,58 @@ namespace DragonFruit.OnionFruit.Models
                 }
             }
 
-            // todo add onionfruit -> torrc config converters, country handling + control port monitoring
-            sessionConfig = [basicConfig, controlPortConfig, nodeSelectionConfig];
+            // bridge settings
+            var bridgeConfig = new CustomConfig();
+            var selectedTransport = settings.GetValue<TransportType?>(OnionFruitSetting.SelectedTransportType);
+
+            if (selectedTransport.HasValue && transportManager.AvailableTransports.TryGetValue(selectedTransport.Value, out var transportInfo))
+            {
+                List<string> configLines =
+                [
+                    "UseBridges 1",
+                    ..transportManager.TransportConfigLines.Values
+                ];
+
+                IEnumerable<string> bridgeLines;
+                bool atLeastOneBridgeAdded = false;
+
+                using (settings.GetCollection<string>(OnionFruitSetting.UserDefinedBridges).Connect().Bind(out var lines).Subscribe())
+                {
+                    // clone list to avoid concurrency issues
+                    bridgeLines = lines.ToList();
+                }
+
+                foreach (var line in bridgeLines.ToList())
+                {
+                    var lineInfo = BridgeEntry.ValidationRegex().Match(line);
+
+                    if (!lineInfo.Success)
+                    {
+                        // todo remove invalid lines?
+                        continue;
+                    }
+
+                    var typeId = lineInfo.Groups["type"].Success ? lineInfo.Groups["type"].Value : null;
+                    if (typeId != transportInfo.Id)
+                    {
+                        continue;
+                    }
+
+                    configLines.Add($"Bridge {line}");
+                    atLeastOneBridgeAdded = true;
+                }
+
+                // handle default bridges fallback
+                if (!atLeastOneBridgeAdded && transportManager.Config.Bridges.TryGetValue(transportInfo.DefaultBridgeKey ?? string.Empty, out var defaults))
+                {
+                    configLines.AddRange(defaults);
+                }
+
+                bridgeConfig.Lines = configLines;
+            }
+
+            // todo add onionfruit -> torrc config converters, control port monitoring
+            sessionConfig = [basicConfig, controlPortConfig, nodeSelectionConfig, bridgeConfig];
             return true;
         }
 
