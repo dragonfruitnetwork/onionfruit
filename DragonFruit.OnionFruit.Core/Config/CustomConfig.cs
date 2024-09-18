@@ -17,7 +17,7 @@ namespace DragonFruit.OnionFruit.Core.Config
 
         public override async Task WriteAsync(StreamWriter writer)
         {
-            foreach (var line in Lines)
+            foreach (var line in Lines ?? [])
             {
                 await writer.WriteLineAsync(line);
             }
