@@ -78,19 +78,30 @@
                     <StackPanel Orientation="Vertical" Spacing="10">
                         <controls:SettingsExpander IconSource="World" Description="Entry Location">
                             <controls:SettingsExpander.Footer>
-                                <ComboBox MinWidth="300"
-                                          SelectedItem="{Binding SelectedEntryCountry}"
-                                          ItemsSource="{Binding EntryCountries}"
-                                          DisplayMemberBinding="{Binding CountryName}" />
+                                <StackPanel Spacing="20" Orientation="Horizontal">
+                                    <lucideAvalonia:Lucide Icon="TriangleAlert" StrokeBrush="Orange"
+                                                           Height="20" Width="20" IsVisible="{Binding !CanSelectEntryCountry}"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                                           ToolTip.Tip="Entry Location is ignored when Bridges are enabled"
+                                                           ToolTip.HorizontalOffset="-15"
+                                                           ToolTip.VerticalOffset="0"
+                                                           ToolTip.Placement="Left"/>
+
+                                    <ComboBox MinWidth="200" VerticalAlignment="Center"
+                                              IsEnabled="{Binding CanSelectEntryCountry}"
+                                              SelectedItem="{Binding SelectedEntryCountry}"
+                                              ItemsSource="{Binding EntryCountries}"
+                                              DisplayMemberBinding="{Binding CountryName}" />
+                                </StackPanel>
                             </controls:SettingsExpander.Footer>
                         </controls:SettingsExpander>
         
                         <controls:SettingsExpander IconSource="MapPin" Description="Exit Location">
                             <controls:SettingsExpander.Footer>
-                                <ComboBox MinWidth="300"
+                                <ComboBox MinWidth="200"
                                           SelectedItem="{Binding SelectedExitCountry}"
                                           ItemsSource="{Binding ExitCountries}"
-                                          DisplayMemberBinding="{Binding CountryName}" />
+                                          DisplayMemberBinding="{Binding CountryName}"/>
                             </controls:SettingsExpander.Footer>
                         </controls:SettingsExpander>
                     </StackPanel>

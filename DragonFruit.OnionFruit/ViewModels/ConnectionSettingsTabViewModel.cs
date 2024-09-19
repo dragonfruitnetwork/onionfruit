@@ -10,6 +10,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
+using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using DynamicData;
@@ -32,6 +33,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly ReadOnlyObservableCollection<uint> _allowedFirewallPorts;
         private readonly ObservableAsPropertyHelper<bool> _enableFirewallRestrictions, _showFirewallPortsList;
 
+        private readonly ObservableAsPropertyHelper<bool> _canSelectEntryCountry;
         private readonly ObservableAsPropertyHelper<string> _selectedEntryCountryFlag, _selectedExitCountryFlag;
         private readonly ObservableAsPropertyHelper<TorNodeCountry> _selectedEntryCountry, _selectedExitCountry;
         private readonly ObservableAsPropertyHelper<IEnumerable<TorNodeCountry>> _entryCountries, _exitCountries;
@@ -97,6 +99,12 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             var firewallPorts = settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts);
 
+            _canSelectEntryCountry = settings.GetObservableValue<TransportType>(OnionFruitSetting.SelectedTransportType)
+                .Select(x => x == TransportType.None)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.CanSelectEntryCountry)
+                .DisposeWith(_disposables);
+
             // versions/licenses are updated when the database state changes
             databaseState.Subscribe(s =>
             {
@@ -159,6 +167,11 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public IEnumerable<TorNodeCountry> ExitCountries => _exitCountries.Value;
 
+        /// <summary>
+        /// Whether an entry country can be selected (bridges are not in use)
+        /// </summary>
+        public bool CanSelectEntryCountry => _canSelectEntryCountry.Value;
+        
         /// <summary>
         /// Whether the firewall ports list should be shown (i.e. it has items to present)
         /// </summary>
