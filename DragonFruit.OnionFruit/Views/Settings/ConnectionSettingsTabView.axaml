@@ -98,7 +98,7 @@
             </controls1:SwitchingControl.SwitchTrue>
         </controls1:SwitchingControl>
         
-        <controls:SettingsExpander IconSource="MapDrive" Description="Restricted Firewall Mode">
+        <controls:SettingsExpander IconSource="MapDrive" Description="Restricted Firewall Mode" IsExpanded="{Binding EnableRestrictedFirewallMode, Mode=OneWay}">
             <controls:SettingsExpander.Footer>
                 <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableRestrictedFirewallMode}"/>
             </controls:SettingsExpander.Footer>

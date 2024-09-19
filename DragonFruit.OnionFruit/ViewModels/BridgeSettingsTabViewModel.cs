@@ -19,21 +19,21 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private readonly CompositeDisposable _disposables = new();
 
-        private readonly ObservableAsPropertyHelper<TransportType?> _selectedTransport;
+        private readonly ObservableAsPropertyHelper<TransportType> _selectedTransport;
 
         public BridgeSettingsTabViewModel(OnionFruitSettingsStore settings, TransportManager transports)
         {
             _settings = settings;
             _transports = transports;
 
-            _selectedTransport = settings.GetObservableValue<TransportType?>(OnionFruitSetting.SelectedTransportType)
+            _selectedTransport = settings.GetObservableValue<TransportType>(OnionFruitSetting.SelectedTransportType)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, x => x.SelectedTransport)
                 .DisposeWith(_disposables);
 
-            var transportOptions = new Dictionary<TransportType?, string>
+            var transportOptions = new Dictionary<TransportType, string>
             {
-                [null] = "None"
+                [TransportType.None] = "Disabled"
             };
 
             foreach (var transport in transports.AvailableTransportTypes)
@@ -44,13 +44,13 @@ namespace DragonFruit.OnionFruit.ViewModels
             AvailableTransports = transportOptions;
         }
 
-        public TransportType? SelectedTransport
+        public TransportType SelectedTransport
         {
             get => _selectedTransport.Value;
             set => _settings.SetValue(OnionFruitSetting.SelectedTransportType, value);
         }
 
-        public IReadOnlyDictionary<TransportType?, string> AvailableTransports { get; }
+        public IReadOnlyDictionary<TransportType, string> AvailableTransports { get; }
 
         public void Dispose()
         {
