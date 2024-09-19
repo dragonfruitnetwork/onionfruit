@@ -90,7 +90,7 @@ namespace DragonFruit.OnionFruit.Configuration
             collection = new SourceList<TValue>();
             ConfigStore.Add(key, collection);
 
-            return collection.Connect().SkipInitial().Where(_ => IsLoaded.Value);
+            return collection.Connect().Where(_ => IsLoaded.Value);
         }
 
         protected async Task<Unit> QueueSave()

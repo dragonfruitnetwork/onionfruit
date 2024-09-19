@@ -73,11 +73,11 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterOption(OnionFruitSetting.EnableFirewallPortRestrictions, false, nameof(OnionFruitConfigFile.LimitOutboundConnectionPorts));
             RegisterCollection<uint>(OnionFruitSetting.AllowedFirewallPorts, [80, 443], c => c.AllowedFirewallPorts);
 
-            RegisterCollection(OnionFruitSetting.UserDefinedBridges, [], c => c.UserDefinedBridges);
             RegisterOption(OnionFruitSetting.SelectedTransportType, TransportType.None, x => (TransportType)x.SelectedTransportType, (t, c) =>
             {
                 c.SelectedTransportType = (TRANSPORT_TYPES)t;
             });
+            RegisterCollection(OnionFruitSetting.UserDefinedBridges, [], c => c.UserDefinedBridges);
 
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
@@ -234,6 +234,11 @@ namespace DragonFruit.OnionFruit.Configuration
                 collection.AddRange(defaultValue);
             });
 
+            if (defaultValue.Any())
+            {
+                observer = observer.SkipInitial();
+            }
+
             observer.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(cs =>
                 {
                     var collection = rfAccessor.Invoke(_configFile);
@@ -242,7 +247,7 @@ namespace DragonFruit.OnionFruit.Configuration
                     {
                         collection.Clear();
                         collection.AddRange(clonedList.ToList());
-
+ 
                         _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", clonedList.AsEnumerable()));
                     }
 
