@@ -31,21 +31,58 @@
             </controls:SettingsExpander>
 
             <controls:SettingsExpander Description="Bridge Lines" IconSource="List" IsVisible="{Binding CanAddBridgeLines, Mode=OneWay}" IsExpanded="True" IsClickEnabled="False">
-                <controls:ItemsRepeater>
-                    <controls:ItemsRepeater.Layout>
-                        <controls:StackLayout Spacing="10"/>
-                    </controls:ItemsRepeater.Layout>
-                    <controls:ItemsRepeater.ItemTemplate>
-                        <DataTemplate DataType="system:String">
-                            <Grid ColumnDefinitions="*, 10, *" VerticalAlignment="Center">
-                                <TextBlock Grid.Column="0" TextWrapping="Wrap" Text="{Binding}"/>
-                                <Button Grid.Column="2" CommandParameter="{Binding}">
-                                    <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Button>
-                            </Grid>
-                        </DataTemplate>
-                    </controls:ItemsRepeater.ItemTemplate>
-                </controls:ItemsRepeater>
+                <controls:SettingsExpander.Footer>
+                    <Label Content="{Binding CurrentBridgeLineCount, StringFormat='{}{0} Entries'}"/>
+                </controls:SettingsExpander.Footer>
+                <StackPanel Orientation="Vertical" Spacing="20" Margin="0,10,0,0">
+                    <DockPanel>
+                        <Button Content="Add" Command="{Binding AddBridgeLines}" TabIndex="1" DockPanel.Dock="Right"/>
+                        <TextBox Text="{Binding NewBridgeLines}"
+                                 Watermark="{Binding BridgeLineWatermark}"
+                                 FontFamily="{StaticResource JetBrainsMono}"
+                                 TextWrapping="NoWrap"
+                                 AcceptsReturn="True"
+                                 MaxLines="5"
+                                 TabIndex="0"
+                                 DockPanel.Dock="Left"/>
+                    </DockPanel>
+                    
+                    <Border Background="Gray" Height="1" />
+                    
+                    <StackPanel Orientation="Horizontal" Spacing="15" IsVisible="{Binding ShowEmptyBridgeListMessage}">
+                        <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue" Height="20" Width="20"/>
+                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                            No bridge lines have been added yet.
+                        </TextBlock>
+                    </StackPanel>
+                    
+                    <StackPanel Orientation="Horizontal" Spacing="15" IsVisible="{Binding ShowDefaultsPresetMessage}">
+                        <lucideAvalonia:Lucide Icon="CircleCheck" StrokeBrush="LimeGreen" Height="20" Width="20"/>
+                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                            One or more default entries are automatically provided.
+                        </TextBlock>
+                    </StackPanel>
+                    
+                    <controls:ItemsRepeater ItemsSource="{Binding CurrentBridgeLines}">
+                        <controls:ItemsRepeater.Layout>
+                            <controls:StackLayout Spacing="15"/>
+                        </controls:ItemsRepeater.Layout>
+                        <controls:ItemsRepeater.ItemTemplate>
+                            <DataTemplate DataType="system:String">
+                                <Grid ColumnDefinitions="*, 10, 30" VerticalAlignment="Center">
+                                    <TextBlock Grid.Column="0" 
+                                               TextWrapping="Wrap"
+                                               Text="{Binding}"
+                                               VerticalAlignment="Center"
+                                               FontFamily="{StaticResource JetBrainsMono}"/>
+                                    <Button Grid.Column="2" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:BridgeSettingsTabViewModel)DataContext).RemoveBridgeLine}" CommandParameter="{Binding}">
+                                        <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </controls:ItemsRepeater.ItemTemplate>
+                    </controls:ItemsRepeater>
+                </StackPanel>
             </controls:SettingsExpander>
         </StackPanel>
     </StackPanel>
