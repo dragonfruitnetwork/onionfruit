@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:viewModels="clr-namespace:DragonFruit.OnionFruit.ViewModels"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="DragonFruit.OnionFruit.Views.Settings.BridgeSettingsTabView"
              x:DataType="viewModels:BridgeSettingsTabViewModel">
@@ -28,8 +30,22 @@
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
 
-            <controls:SettingsExpander Description="Bridge Lines" IconSource="List" IsExpanded="True" IsClickEnabled="False">
-                
+            <controls:SettingsExpander Description="Bridge Lines" IconSource="List" IsVisible="{Binding CanAddBridgeLines, Mode=OneWay}" IsExpanded="True" IsClickEnabled="False">
+                <controls:ItemsRepeater>
+                    <controls:ItemsRepeater.Layout>
+                        <controls:StackLayout Spacing="10"/>
+                    </controls:ItemsRepeater.Layout>
+                    <controls:ItemsRepeater.ItemTemplate>
+                        <DataTemplate DataType="system:String">
+                            <Grid ColumnDefinitions="*, 10, *" VerticalAlignment="Center">
+                                <TextBlock Grid.Column="0" TextWrapping="Wrap" Text="{Binding}"/>
+                                <Button Grid.Column="2" CommandParameter="{Binding}">
+                                    <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </controls:ItemsRepeater.ItemTemplate>
+                </controls:ItemsRepeater>
             </controls:SettingsExpander>
         </StackPanel>
     </StackPanel>
