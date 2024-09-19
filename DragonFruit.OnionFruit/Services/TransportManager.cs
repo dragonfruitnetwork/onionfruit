@@ -61,7 +61,7 @@ namespace DragonFruit.OnionFruit.Services
                     recommendedTransport = transport;
                 }
 
-                if (metadata.TransportEngine == null || Config.PluggableTransports.ContainsKey(metadata.TransportEngine))
+                if (string.IsNullOrEmpty(metadata.TransportEngine) || Config.PluggableTransports.ContainsKey(metadata.TransportEngine))
                 {
                     allowedPrefixes.Add(metadata.Id);
                     availableTransports.Add(transport, metadata);

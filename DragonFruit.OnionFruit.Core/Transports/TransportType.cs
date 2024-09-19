@@ -9,7 +9,7 @@ namespace DragonFruit.OnionFruit.Core.Transports
     {
         None = 0,
 
-        [TransportInfo(null)]
+        [TransportInfo("")]
         Plain = 1,
 
         [TransportInfo("meek_lite", "lyrebird", DefaultBridgeKey = "meek-azure")]
