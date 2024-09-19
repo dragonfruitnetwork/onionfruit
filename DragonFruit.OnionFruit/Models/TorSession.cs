@@ -228,9 +228,9 @@ namespace DragonFruit.OnionFruit.Models
 
             // bridge settings
             var bridgeConfig = new CustomConfig();
-            var selectedTransport = settings.GetValue<TransportType?>(OnionFruitSetting.SelectedTransportType);
+            var selectedTransport = settings.GetValue<TransportType>(OnionFruitSetting.SelectedTransportType);
 
-            if (selectedTransport.HasValue && transportManager.AvailableTransports.TryGetValue(selectedTransport.Value, out var transportInfo))
+            if (selectedTransport != TransportType.None && transportManager.AvailableTransports.TryGetValue(selectedTransport, out var transportInfo))
             {
                 List<string> configLines =
                 [
@@ -257,8 +257,7 @@ namespace DragonFruit.OnionFruit.Models
                         continue;
                     }
 
-                    var typeId = lineInfo.Groups["type"].Success ? lineInfo.Groups["type"].Value : null;
-                    if (typeId != transportInfo.Id)
+                    if (lineInfo.Groups["type"].Value != transportInfo.Id)
                     {
                         continue;
                     }
@@ -270,10 +269,13 @@ namespace DragonFruit.OnionFruit.Models
                 // handle default bridges fallback
                 if (!atLeastOneBridgeAdded && transportManager.Config.Bridges.TryGetValue(transportInfo.DefaultBridgeKey ?? string.Empty, out var defaults))
                 {
-                    configLines.AddRange(defaults);
+                    configLines.AddRange(defaults.Select(x => $"Bridge {x}"));
                 }
 
                 bridgeConfig.Lines = configLines;
+
+                // cannot use bridges and entry nodes at the same time
+                nodeSelectionConfig.EntryNodes?.Clear();
             }
 
             // todo add onionfruit -> torrc config converters, control port monitoring
