@@ -51,15 +51,20 @@ namespace DragonFruit.OnionFruit.Services
                 var transportName = transport.ToString();
                 var metadata = typeof(TransportType).GetMember(transportName)[0].GetCustomAttribute<TransportInfo>();
 
+                if (metadata == null)
+                {
+                    continue;
+                }
+
                 if (transportName == Config.RecommendedDefault)
                 {
                     recommendedTransport = transport;
                 }
 
-                if (metadata?.TransportEngine == null || Config.PluggableTransports.ContainsKey(metadata.TransportEngine))
+                if (metadata.TransportEngine == null || Config.PluggableTransports.ContainsKey(metadata.TransportEngine))
                 {
-                    allowedPrefixes.Add(metadata?.Id);
-                    availableTransports.Add(transport, metadata ?? new TransportInfo(null));
+                    allowedPrefixes.Add(metadata.Id);
+                    availableTransports.Add(transport, metadata);
 
                     continue;
                 }

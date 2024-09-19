@@ -19,17 +19,18 @@ message OnionFruitConfigFile {
   // list of ports the user can connect to, used in conjunction with limitOutboundConnectionPorts
   repeated uint32 allowedFirewallPorts = 10;
   
-  optional TRANSPORT_TYPES SelectedTransportType = 11;
+  TRANSPORT_TYPES SelectedTransportType = 11;
   repeated string UserDefinedBridges = 12;
 }
 
 enum TRANSPORT_TYPES {
-  Plain = 0;
-  meek = 1;
-  obfs4 = 2;
-  obfs3 = 3;
-  scramblesuit = 4;
-  webtunnel = 5;
-  snowflake = 6;
-  conjure = 7;
+  None = 0;
+  Plain = 1;
+  meek = 2;
+  obfs4 = 3;
+  obfs3 = 4;
+  scramblesuit = 5;
+  webtunnel = 6;
+  snowflake = 7;
+  conjure = 8;
 }

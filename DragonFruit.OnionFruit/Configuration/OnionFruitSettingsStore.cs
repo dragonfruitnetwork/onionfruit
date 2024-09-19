@@ -74,16 +74,9 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterCollection<uint>(OnionFruitSetting.AllowedFirewallPorts, [80, 443], c => c.AllowedFirewallPorts);
 
             RegisterCollection(OnionFruitSetting.UserDefinedBridges, [], c => c.UserDefinedBridges);
-            RegisterOption<TransportType?>(OnionFruitSetting.SelectedTransportType, null, x => x.HasSelectedTransportType ? (TransportType)x.SelectedTransportType : null, (t, c) =>
+            RegisterOption(OnionFruitSetting.SelectedTransportType, TransportType.None, x => (TransportType)x.SelectedTransportType, (t, c) =>
             {
-                if (t == null)
-                {
-                    c.ClearSelectedTransportType();
-                }
-                else
-                {
-                    c.SelectedTransportType = (TRANSPORT_TYPES)t;
-                }
+                c.SelectedTransportType = (TRANSPORT_TYPES)t;
             });
 
             // freeze to prevent further changes
