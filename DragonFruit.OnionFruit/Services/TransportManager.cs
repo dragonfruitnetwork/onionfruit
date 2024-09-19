@@ -8,21 +8,21 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using DragonFruit.OnionFruit.Core;
-using DragonFruit.OnionFruit.Core.Config;
 using DragonFruit.OnionFruit.Core.Transports;
 using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Services
 {
-    public partial class TransportManager
+    public class TransportManager
     {
+        private const string TransportsDirectory = "pluggable_transports";
+
         public TransportManager(ExecutableLocator locator, ILogger<TransportManager> logger)
         {
             // locate and read pt_config.json in pluggable_transports
             var ptConfigLocation = locator.LocateExecutableInstancesOf("tor")
-                .Select(x => Path.Combine(Path.GetDirectoryName(x), "pluggable_transports", "pt_config.json"))
+                .Select(x => Path.Combine(Path.GetDirectoryName(x), TransportsDirectory, "pt_config.json"))
                 .FirstOrDefault(File.Exists);
 
             if (string.IsNullOrEmpty(ptConfigLocation))
@@ -35,8 +35,6 @@ namespace DragonFruit.OnionFruit.Services
             }
 
             TransportType? recommendedTransport = null;
-
-            HashSet<string> allowedPrefixes = [];
             Dictionary<TransportType, TransportInfo> availableTransports = [];
 
             // load the pt_config.json file (currently sync, could be async?)
@@ -63,7 +61,6 @@ namespace DragonFruit.OnionFruit.Services
 
                 if (string.IsNullOrEmpty(metadata.TransportEngine) || Config.PluggableTransports.ContainsKey(metadata.TransportEngine))
                 {
-                    allowedPrefixes.Add(metadata.Id);
                     availableTransports.Add(transport, metadata);
 
                     continue;
@@ -72,14 +69,9 @@ namespace DragonFruit.OnionFruit.Services
                 logger.LogWarning("Cannot use transport {TransportType} as the required engine {Engine} is not available", transport, metadata.TransportEngine);
             }
 
-            var ptPath = Path.GetDirectoryName(ptConfigLocation);
-
-            allowedPrefixes.TrimExcess();
-
             // set properties
-            AllowedPrefixes = allowedPrefixes;
             AvailableTransports = availableTransports.ToFrozenDictionary();
-            TransportConfigLines = Config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => TransportExecRegex().Replace(x.Value, m => $"\"{Path.Combine(ptPath, m.Groups["exeName"].Value)}\""));
+            TransportConfigLines = Config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => x.Value.Replace("${pt_path}", $"{TransportsDirectory}{Path.DirectorySeparatorChar}"));
 
             if (recommendedTransport.HasValue && !availableTransports.ContainsKey(recommendedTransport.Value))
             {
@@ -99,11 +91,6 @@ namespace DragonFruit.OnionFruit.Services
         public TransportType? RecommendedTransport { get; }
 
         /// <summary>
-        /// Gets a set with the allowed prefixes for a bridge line (the value of "type" in <see cref="BridgeEntry.ValidationRegex"/>
-        /// </summary>
-        public IReadOnlySet<string> AllowedPrefixes { get; }
-
-        /// <summary>
         /// Gets a dictionary of the transport configuration lines for each transport
         /// </summary>
         public IReadOnlyDictionary<string, string> TransportConfigLines { get; }
@@ -117,8 +104,5 @@ namespace DragonFruit.OnionFruit.Services
         /// Gets a list of the available transports and info about them on the current system
         /// </summary>
         public IReadOnlyDictionary<TransportType, TransportInfo> AvailableTransports { get; }
-
-        [GeneratedRegex(@"\${pt_path}(?<exeName>[^ ]+)")]
-        private partial Regex TransportExecRegex();
     }
 }

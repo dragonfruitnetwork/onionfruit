@@ -145,6 +145,8 @@ namespace DragonFruit.OnionFruit.Core
                 EnableRaisingEvents = true,
                 StartInfo = new ProcessStartInfo(torPath)
                 {
+                    WorkingDirectory = Path.GetDirectoryName(torPath),
+
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     RedirectStandardInput = true,
