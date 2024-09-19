@@ -75,7 +75,7 @@
         <controls1:SwitchingControl Switch="{Binding DatabaseLoaded}">
             <controls1:SwitchingControl.SwitchTrue>
                 <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
-                    <StackPanel Orientation="Vertical" Spacing="5">
+                    <StackPanel Orientation="Vertical" Spacing="10">
                         <controls:SettingsExpander IconSource="World" Description="Entry Location">
                             <controls:SettingsExpander.Footer>
                                 <ComboBox MinWidth="300"
