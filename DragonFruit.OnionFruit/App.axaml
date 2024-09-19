@@ -7,5 +7,6 @@
     </Application.Styles>
     <Application.Resources>
         <FontFamily x:Key="TwemojiFont">avares://DragonFruit.OnionFruit/Assets/Twemoji.Mozilla.ttf#Twemoji Mozilla</FontFamily>
+        <FontFamily x:Key="JetBrainsMono">avares://DragonFruit.OnionFruit/Assets/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
     </Application.Resources>
 </Application>
