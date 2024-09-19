@@ -171,7 +171,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// Whether an entry country can be selected (bridges are not in use)
         /// </summary>
         public bool CanSelectEntryCountry => _canSelectEntryCountry.Value;
-        
+
         /// <summary>
         /// Whether the firewall ports list should be shown (i.e. it has items to present)
         /// </summary>
@@ -260,7 +260,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                     return;
                 }
 
-                list.Add(port);
+                list.AddRange([port]);
             });
 
             FirewallPort = null;
