@@ -20,7 +20,7 @@
                 </Style>
             </StackPanel.Styles>
             
-            <controls:SettingsExpander Description="Bridge Type" IconSource="DarkTheme">
+            <controls:SettingsExpander Description="Bridge Type" IconSource="{Binding BridgeTypeIcon}">
                 <controls:SettingsExpander.Footer>
                     <ComboBox MinWidth="150"
                               ItemsSource="{Binding AvailableTransports}"
@@ -30,7 +30,7 @@
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
 
-            <controls:SettingsExpander Description="Bridge Lines" IconSource="List" IsVisible="{Binding CanAddBridgeLines, Mode=OneWay}" IsExpanded="True" IsClickEnabled="False">
+            <controls:SettingsExpander Description="Bridge Lines" IconSource="{Binding BridgeLinesIcon}" IsVisible="{Binding CanAddBridgeLines, Mode=OneWay}" IsExpanded="True" IsClickEnabled="False">
                 <controls:SettingsExpander.Footer>
                     <Label Content="{Binding CurrentBridgeLineCount, StringFormat='{}{0} Entries'}"/>
                 </controls:SettingsExpander.Footer>

@@ -19,7 +19,7 @@
                 </Style>
             </StackPanel.Styles>
 
-            <controls:SettingsExpander Description="Connected Page" IconSource="Admin"  IsExpanded="{Binding EnableConnectedPage, Mode=OneWay}" IsClickEnabled="False">
+            <controls:SettingsExpander Description="Connected Page" IconSource="{Binding ConnectedPageIcon}" IsExpanded="{Binding EnableConnectedPage, Mode=OneWay}" IsClickEnabled="False">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableConnectedPage}"/>
                 </controls:SettingsExpander.Footer>
@@ -29,7 +29,7 @@
                 </DockPanel>
             </controls:SettingsExpander>
             
-            <controls:SettingsExpander Description="Disconnected Page" IconSource="OtherUser" IsExpanded="{Binding EnableDisconnectedPage, Mode=OneWay}" IsClickEnabled="False">
+            <controls:SettingsExpander Description="Disconnected Page" IconSource="{Binding DisconnectedPageIcon}" IsExpanded="{Binding EnableDisconnectedPage, Mode=OneWay}" IsClickEnabled="False">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableDisconnectedPage}"/>
                 </controls:SettingsExpander.Footer>

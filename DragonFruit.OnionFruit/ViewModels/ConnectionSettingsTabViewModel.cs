@@ -14,6 +14,8 @@ using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using DynamicData;
+using FluentAvalonia.UI.Controls;
+using LucideAvalonia.Enum;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -150,6 +152,12 @@ namespace DragonFruit.OnionFruit.ViewModels
             AddFirewallPort = ReactiveCommand.Create(AddFirewallPortImpl, this.WhenAnyValue(x => x.FirewallPort).Select(x => x.HasValue));
             RemoveFirewallPort = ReactiveCommand.Create<uint>(RemoveFirewallPortImpl);
         }
+
+        public IconSource DatabaseStateIcon => App.GetIcon(LucideIconNames.DatabaseZap);
+        public IconSource EntryLocationIcon => App.GetIcon(LucideIconNames.LandPlot);
+        public IconSource ExitLocationIcon => App.GetIcon(LucideIconNames.Earth);
+        public IconSource FirewallIcon => App.GetIcon(LucideIconNames.Construction);
+        public IconSource KillswitchIcon => App.GetIcon(LucideIconNames.Unplug);
 
         /// <summary>
         /// Gets whether the countries database has been loaded and <see cref="TorNodeCountry"/> items have been created.

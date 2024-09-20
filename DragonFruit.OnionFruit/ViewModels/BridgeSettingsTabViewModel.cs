@@ -15,6 +15,8 @@ using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Services;
 using DynamicData;
 using DynamicData.Kernel;
+using FluentAvalonia.UI.Controls;
+using LucideAvalonia.Enum;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -78,6 +80,9 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Subscribe(_ => UpdateListMessageVisibility())
                 .DisposeWith(_disposables);
         }
+
+        public IconSource BridgeTypeIcon => App.GetIcon(LucideIconNames.ChevronsLeftRightEllipsis);
+        public IconSource BridgeLinesIcon => App.GetIcon(LucideIconNames.ScanText);
 
         /// <summary>
         /// <see cref="TransportType"/> collection that can be selected by the user

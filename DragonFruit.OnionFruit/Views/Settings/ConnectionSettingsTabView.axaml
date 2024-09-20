@@ -57,7 +57,7 @@
             <Label Grid.Row="1" Grid.Column="8" Content="Internet" />
         </Grid>
         
-        <controls:SettingsExpander IconSource="Cloud" Description="Database Status">
+        <controls:SettingsExpander IconSource="{Binding DatabaseStateIcon}" Description="Database Status">
             <controls:SettingsExpander.Footer>
                 <Label Content="{Binding DatabaseState}"/>
             </controls:SettingsExpander.Footer>
@@ -76,7 +76,7 @@
             <controls1:SwitchingControl.SwitchTrue>
                 <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
                     <StackPanel Orientation="Vertical" Spacing="10">
-                        <controls:SettingsExpander IconSource="World" Description="Entry Location">
+                        <controls:SettingsExpander IconSource="{Binding EntryLocationIcon}" Description="Entry Location">
                             <controls:SettingsExpander.Footer>
                                 <StackPanel Spacing="20" Orientation="Horizontal">
                                     <lucideAvalonia:Lucide Icon="TriangleAlert" StrokeBrush="Orange"
@@ -96,7 +96,7 @@
                             </controls:SettingsExpander.Footer>
                         </controls:SettingsExpander>
         
-                        <controls:SettingsExpander IconSource="MapPin" Description="Exit Location">
+                        <controls:SettingsExpander IconSource="{Binding ExitLocationIcon}" Description="Exit Location">
                             <controls:SettingsExpander.Footer>
                                 <ComboBox MinWidth="200"
                                           SelectedItem="{Binding SelectedExitCountry}"
@@ -109,7 +109,7 @@
             </controls1:SwitchingControl.SwitchTrue>
         </controls1:SwitchingControl>
         
-        <controls:SettingsExpander IconSource="MapDrive" Description="Restricted Firewall Mode" IsExpanded="{Binding EnableRestrictedFirewallMode, Mode=OneWay}">
+        <controls:SettingsExpander Description="Restricted Firewall Mode" IconSource="{Binding FirewallIcon}" IsExpanded="{Binding EnableRestrictedFirewallMode, Mode=OneWay}">
             <controls:SettingsExpander.Footer>
                 <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableRestrictedFirewallMode}"/>
             </controls:SettingsExpander.Footer>
@@ -155,7 +155,7 @@
             </DockPanel>
         </controls:SettingsExpander>
         
-        <controls:SettingsExpander IconSource="WifiWarning" Description="Auto-disconnect if Tor is closed externally">
+        <controls:SettingsExpander IconSource="{Binding KillswitchIcon}" Description="Auto-disconnect if Tor is closed externally">
             <controls:SettingsExpander.Footer>
                 <StackPanel Orientation="Horizontal" Spacing="20">
                     <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue"

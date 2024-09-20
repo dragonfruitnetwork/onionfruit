@@ -3,10 +3,16 @@
              x:Class="DragonFruit.OnionFruit.App"
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia">
     <Application.Styles>
-        <styling:FluentAvaloniaTheme PreferSystemTheme="True" UseSystemFontOnWindows="True" />
+        <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" />
     </Application.Styles>
     <Application.Resources>
-        <FontFamily x:Key="TwemojiFont">avares://DragonFruit.OnionFruit/Assets/Twemoji.Mozilla.ttf#Twemoji Mozilla</FontFamily>
-        <FontFamily x:Key="JetBrainsMono">avares://DragonFruit.OnionFruit/Assets/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
+        <ResourceDictionary>
+            <FontFamily x:Key="TwemojiFont">avares://DragonFruit.OnionFruit/Assets/Twemoji.Mozilla.ttf#Twemoji Mozilla</FontFamily>
+            <FontFamily x:Key="JetBrainsMono">avares://DragonFruit.OnionFruit/Assets/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
+
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="avares://LucideAvalonia/Lucide/ResourcesIcons.axaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

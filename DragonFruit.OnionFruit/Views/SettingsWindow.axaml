@@ -27,7 +27,7 @@
                     <!-- <Image Source="avares://DragonFruit.OnionFruit/Assets/icon.ico" Height="16" Width="16" /> -->
                     <TextBlock Text="OnionFruit Settings" />
                 </StackPanel>
-                
+
                 <controls:NavigationView ContentTemplate="{Binding TabTemplate, Mode=OneTime}"
                                          MenuItemsSource="{Binding Tabs}"
                                          FooterMenuItemsSource="{Binding FooterTabs}"
@@ -39,7 +39,7 @@
                                          OpenPaneLength="225">
                     <controls:NavigationView.MenuItemTemplate>
                         <DataTemplate DataType="{x:Type views:SettingsTabInfo}">
-                            <controls:NavigationViewItem Content="{CompiledBinding Name}" IconSource="{CompiledBinding Icon}" />
+                            <controls:NavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}" />
                         </DataTemplate>
                     </controls:NavigationView.MenuItemTemplate>
                 </controls:NavigationView>

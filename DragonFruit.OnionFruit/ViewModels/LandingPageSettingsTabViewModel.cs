@@ -6,6 +6,8 @@ using System.Reactive.Disposables;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Services;
+using FluentAvalonia.UI.Controls;
+using LucideAvalonia.Enum;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -30,6 +32,9 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             LaunchUrl = ReactiveCommand.Create<string>(url => App.Launch(string.IsNullOrWhiteSpace(url) ? LandingPageLaunchService.DefaultConnectionPage : url), outputScheduler: RxApp.TaskpoolScheduler);
         }
+
+        public IconSource ConnectedPageIcon => App.GetIcon(LucideIconNames.ShieldCheck);
+        public IconSource DisconnectedPageIcon => App.GetIcon(LucideIconNames.ShieldBan);
 
         public bool EnableConnectedPage
         {

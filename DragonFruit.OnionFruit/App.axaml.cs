@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Views;
+using FluentAvalonia.UI.Controls;
+using LucideAvalonia.Enum;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -108,5 +112,26 @@ public partial class App(IHost host) : Application
         };
 
         return Process.Start(psi) != null;
+    }
+
+    public static IconSource GetIcon(LucideIconNames icon, IImmutableSolidColorBrush brush = null, double thickness = 1.5)
+    {
+        var resource = Instance.Resources.MergedDictionaries.FirstOrDefault() as ResourceDictionary;
+        var drawingImage = resource?[icon.ToString()] as DrawingImage;
+
+        // set the icon color to white
+        foreach (var drawing in (drawingImage?.Drawing as DrawingGroup)?.Children ?? [])
+        {
+            if (drawing is GeometryDrawing {Pen: Pen pen})
+            {
+                pen.Brush = brush ?? Brushes.White;
+                pen.Thickness = thickness;
+            }
+        }
+
+        return new ImageIconSource
+        {
+            Source = drawingImage
+        };
     }
 }
