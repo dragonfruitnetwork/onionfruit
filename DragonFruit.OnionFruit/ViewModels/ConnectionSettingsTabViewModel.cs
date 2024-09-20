@@ -33,6 +33,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly ReadOnlyObservableCollection<uint> _allowedFirewallPorts;
         private readonly ObservableAsPropertyHelper<bool> _enableFirewallRestrictions, _showFirewallPortsList;
 
+        private readonly ObservableAsPropertyHelper<bool> _disconnectOnTorFailure;
+
         private readonly ObservableAsPropertyHelper<bool> _canSelectEntryCountry;
         private readonly ObservableAsPropertyHelper<string> _selectedEntryCountryFlag, _selectedExitCountryFlag;
         private readonly ObservableAsPropertyHelper<TorNodeCountry> _selectedEntryCountry, _selectedExitCountry;
@@ -134,6 +136,11 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .ToProperty(this, x => x.EnableRestrictedFirewallMode)
                 .DisposeWith(_disposables);
 
+            _disconnectOnTorFailure = settings.GetObservableValue<bool>(OnionFruitSetting.DisconnectOnTorFailure)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.DisconnectOnTorFailure)
+                .DisposeWith(_disposables);
+
             _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry).DisposeWith(_disposables);
             _selectedExitCountry = exitCountry.ToProperty(this, x => x.SelectedExitCountry).DisposeWith(_disposables);
 
@@ -195,6 +202,12 @@ namespace DragonFruit.OnionFruit.ViewModels
         {
             get => _enableFirewallRestrictions.Value;
             set => _settings.SetValue(OnionFruitSetting.EnableFirewallPortRestrictions, value);
+        }
+
+        public bool DisconnectOnTorFailure
+        {
+            get => _disconnectOnTorFailure.Value;
+            set => _settings.SetValue(OnionFruitSetting.DisconnectOnTorFailure, value);
         }
 
         public TorNodeCountry SelectedEntryCountry

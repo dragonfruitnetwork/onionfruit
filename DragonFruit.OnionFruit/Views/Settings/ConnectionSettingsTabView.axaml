@@ -154,5 +154,20 @@
                 </controls1:SwitchingControl>
             </DockPanel>
         </controls:SettingsExpander>
+        
+        <controls:SettingsExpander IconSource="WifiWarning" Description="Auto-disconnect if Tor is closed externally">
+            <controls:SettingsExpander.Footer>
+                <StackPanel Orientation="Horizontal" Spacing="20">
+                    <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue"
+                                           IsVisible="{Binding DisconnectOnTorFailure}"
+                                           Height="20" Width="20" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                           ToolTip.Tip="This will result in OnionFruit automatically disconnecting in the event Tor crashes or is killed by another program on your PC."
+                                           ToolTip.HorizontalOffset="-15"
+                                           ToolTip.VerticalOffset="0"
+                                           ToolTip.Placement="Left"/>
+                    <ToggleSwitch IsChecked="{Binding DisconnectOnTorFailure}" OnContent="Enabled" OffContent="Disabled" VerticalAlignment="Center"/>
+                </StackPanel>
+            </controls:SettingsExpander.Footer>
+        </controls:SettingsExpander>
     </StackPanel>
 </UserControl>

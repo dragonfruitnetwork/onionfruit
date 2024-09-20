@@ -323,13 +323,14 @@ namespace DragonFruit.OnionFruit.Models
                     break;
                 }
 
-                // todo handle killed when killswitch option is enabled
-                case TorProcess.State.Killed:
+                case TorProcess.State.Killed when settings.GetValue<bool>(OnionFruitSetting.DisconnectOnTorFailure):
                 {
-                    goto case TorProcess.State.Stopped;
+                    State = TorSessionState.KillSwitchTriggered;
+                    break;
                 }
 
                 // clear proxies
+                case TorProcess.State.Killed:
                 case TorProcess.State.Stopped:
                 {
                     await proxyManager.SetProxy();

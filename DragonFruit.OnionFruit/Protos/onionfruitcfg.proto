@@ -21,6 +21,9 @@ message OnionFruitConfigFile {
   
   TRANSPORT_TYPES SelectedTransportType = 11;
   repeated string UserDefinedBridges = 12;
+  
+  // aka the "killswitch" feature
+  bool disconnectOnProxyFailure = 13;
 }
 
 enum TRANSPORT_TYPES {
