@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Interactivity;
@@ -56,7 +55,10 @@ public partial class SettingsWindow : AppWindow
 
         FooterTabs =
         [
-            new("About OnionFruit", App.GetIcon(LucideIconNames.Info), () => new ContentPresenter())
+            new("About OnionFruit", App.GetIcon(LucideIconNames.Info), () => new AboutPageTabView
+            {
+                DataContext = ActivatorUtilities.CreateInstance<AboutPageTabViewModel>(App.Instance.Services)
+            })
         ];
 
         SelectedTab = Tabs.First();
