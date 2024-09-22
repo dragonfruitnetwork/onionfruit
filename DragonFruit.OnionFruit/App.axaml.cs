@@ -35,7 +35,7 @@ public partial class App(IHost host) : Application
 #if DEBUG
         Title = "OnionFruit\u2122 Development Edition";
 #else
-        Title = $"OnionFruit\u2122 {Version}";
+        Title = $"OnionFruit\u2122";
 #endif
 
         // enable mica effect on Windows 11 and above

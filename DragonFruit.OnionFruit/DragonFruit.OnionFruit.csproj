@@ -34,6 +34,7 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="LucideAvalonia" Version="1.6.1" />
+        <PackageReference Include="Material.Icons.Avalonia" Version="2.1.10" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0"/>
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0"/>
     </ItemGroup>
