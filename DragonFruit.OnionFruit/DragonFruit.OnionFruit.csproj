@@ -8,9 +8,7 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\*.ttf"/>
-    </ItemGroup>
-
-    <ItemGroup>
+        <EmbeddedResource Include="Assets\*.json"/>
         <Protobuf Include="Protos\*.proto">
             <GrpcServices>Both</GrpcServices>
             <Access>Public</Access>
