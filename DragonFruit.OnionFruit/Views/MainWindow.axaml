@@ -9,7 +9,7 @@
                      mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
                      x:Class="DragonFruit.OnionFruit.Views.MainWindow"
                      x:DataType="vm:MainWindowViewModel"
-                     Background="{x:Null}"
+                     Background="{x:Null}" Icon="/Assets/icon.ico"
                      Width="600" Height="175" CanResize="False"
                      TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
                      Title="{Binding Source={x:Static onionFruit:App.Title}}">

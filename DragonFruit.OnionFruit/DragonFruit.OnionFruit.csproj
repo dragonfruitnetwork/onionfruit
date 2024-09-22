@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <AvaloniaResource Include="Assets\*.ico"/>
         <AvaloniaResource Include="Assets\*.ttf"/>
         <EmbeddedResource Include="Assets\*.json"/>
         <Protobuf Include="Protos\*.proto">

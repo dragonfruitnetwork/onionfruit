@@ -4,6 +4,7 @@
         <OutputType>Exe</OutputType>
         <TargetFramework>net8.0-windows</TargetFramework>
         <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

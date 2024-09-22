@@ -16,8 +16,7 @@
             <avalonia:MaterialIcon Kind="WifiStrength4Lock" Foreground="MediumVioletRed" Height="100" Width="100" />
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                 <Label FontSize="26" FontWeight="SemiBold" Content="{x:Static onionFruit:App.Title}" />
-                <Label FontSize="21" Foreground="LightGray"
-                       Content="{Binding Source={x:Static onionFruit:App.Version}, StringFormat='Version {0}'}" />
+                <Label FontSize="21" Foreground="LightGray" Content="{Binding Source={x:Static onionFruit:App.Version}, StringFormat='Version {0}'}" />
             </StackPanel>
         </StackPanel>
 
