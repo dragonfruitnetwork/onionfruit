@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
@@ -14,6 +15,9 @@ using DragonFruit.OnionFruit.Windows.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace DragonFruit.OnionFruit.Windows;
 
@@ -25,6 +29,40 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
+
+        if (File.Exists(fileLog))
+        {
+            using var stream = File.OpenWrite(fileLog);
+            stream.SetLength(0);
+        }
+
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.File(fileLog, LogEventLevel.Debug)
+            .WriteTo.EventLog("OnionFruit", "Application")
+            .WriteTo.Console(LogEventLevel.Debug, theme: AnsiConsoleTheme.Literate)
+            .WriteTo.Sentry(o =>
+            {
+                o.Dsn = "https://f63ab85d7581988829e9f47d329d83d5@o97031.ingest.us.sentry.io/4508002219917312";
+
+                o.MaxBreadcrumbs = 100;
+                o.SendDefaultPii = false;
+                o.Release = typeof(App).Assembly.GetName().Version!.ToString(3);
+
+#if DEBUG
+                o.SetBeforeSend(_ => null);
+#else
+                // enable error reporting only in release builds and when the user hasn't opted out.
+                // launch failures are always reported as settings can't be loaded to check if the user has opted out.
+                o.SetBeforeSend(e => App.Instance.Services?.GetService<OnionFruitSettingsStore>().GetValue<bool>(OnionFruitSetting.EnableErrorReporting) == false ? null : e);
+#endif
+
+                o.MinimumEventLevel = LogEventLevel.Error;
+                o.MinimumBreadcrumbLevel = LogEventLevel.Debug;
+            })
+            .CreateLogger();
+
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
@@ -39,18 +77,7 @@ public static class Program
         .ConfigureLogging(logging =>
         {
             logging.ClearProviders();
-            logging.SetMinimumLevel(LogLevel.Debug).AddSimpleConsole(o =>
-            {
-                o.SingleLine = true;
-                o.IncludeScopes = false;
-                o.TimestampFormat = "[dd/MM/yyyy hh:mm:ss] ";
-            });
-
-            logging.AddEventLog(o =>
-            {
-                o.Filter = (_, level) => level > LogLevel.Information;
-                o.SourceName = $"OnionFruit/v{typeof(Program).Assembly.GetName().Version!.ToString(3)}";
-            });
+            logging.AddSerilog();
         })
         .ConfigureServices((context, services) =>
         {

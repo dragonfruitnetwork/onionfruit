@@ -80,6 +80,7 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterCollection(OnionFruitSetting.UserDefinedBridges, [], c => c.UserDefinedBridges);
 
             RegisterOption(OnionFruitSetting.DisconnectOnTorFailure, false, nameof(OnionFruitConfigFile.DisconnectOnProxyFailure));
+            RegisterOption(OnionFruitSetting.EnableErrorReporting, true, nameof(OnionFruitConfigFile.EnableErrorReporting));
 
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
@@ -276,6 +277,7 @@ namespace DragonFruit.OnionFruit.Configuration
         SelectedTransportType,
         UserDefinedBridges,
 
-        DisconnectOnTorFailure
+        DisconnectOnTorFailure,
+        EnableErrorReporting
     }
 }

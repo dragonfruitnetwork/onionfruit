@@ -12,4 +12,12 @@
       <ProjectReference Include="..\DragonFruit.OnionFruit\DragonFruit.OnionFruit.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Sentry.Serilog" Version="4.11.0" />
+      <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+      <PackageReference Include="Serilog.Sinks.EventLog" Version="4.0.0" />
+      <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    </ItemGroup>
+
 </Project>

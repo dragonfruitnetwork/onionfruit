@@ -41,4 +41,8 @@
     <ItemGroup>
         <ProjectReference Include="..\DragonFruit.OnionFruit.Core\DragonFruit.OnionFruit.Core.csproj"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="DragonFruit.OnionFruit.Windows"/>
+    </ItemGroup>
 </Project>
