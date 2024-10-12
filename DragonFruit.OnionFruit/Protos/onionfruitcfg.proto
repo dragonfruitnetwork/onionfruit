@@ -25,6 +25,8 @@ message OnionFruitConfigFile {
   // aka the "killswitch" feature
   bool disconnectOnProxyFailure = 13;
   bool enableErrorReporting = 14;
+  
+  bool enableDiscordRpc = 15;
 }
 
 enum TRANSPORT_TYPES {

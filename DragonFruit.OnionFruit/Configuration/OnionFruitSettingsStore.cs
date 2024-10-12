@@ -82,6 +82,8 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterOption(OnionFruitSetting.DisconnectOnTorFailure, false, nameof(OnionFruitConfigFile.DisconnectOnProxyFailure));
             RegisterOption(OnionFruitSetting.EnableErrorReporting, true, nameof(OnionFruitConfigFile.EnableErrorReporting));
 
+            RegisterOption(OnionFruitSetting.EnableDiscordRpc, false, nameof(OnionFruitConfigFile.EnableDiscordRpc));
+
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
             _storeCollections = _storeCollections.ToFrozenDictionary();
@@ -278,6 +280,8 @@ namespace DragonFruit.OnionFruit.Configuration
         UserDefinedBridges,
 
         DisconnectOnTorFailure,
-        EnableErrorReporting
+        EnableErrorReporting,
+
+        EnableDiscordRpc
     }
 }
