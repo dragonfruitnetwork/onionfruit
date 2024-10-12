@@ -201,7 +201,7 @@ namespace DragonFruit.OnionFruit.Database
             DateTimeOffset? fileLastModified = _currentDb == null ? null : DateTimeOffset.FromUnixTimeSeconds(_currentDb.DbVersion);
 
             // re-download if file is 0-length or is older than 12 hours
-            if (fileLastModified - DateTimeOffset.Now < TimeSpan.FromHours(12))
+            if (DateTimeOffset.Now - fileLastModified < TimeSpan.FromHours(12))
             {
                 return;
             }
@@ -209,7 +209,7 @@ namespace DragonFruit.OnionFruit.Database
             State = DatabaseState.Downloading;
             _logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
 
-            using var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None, 8192, FileOptions.Asynchronous);
+            using var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan);
 
             try
             {
@@ -220,7 +220,8 @@ namespace DragonFruit.OnionFruit.Database
 
                 if (downloadRequestStatus == HttpStatusCode.OK)
                 {
-                    LoadLocalDatabase();
+                    databaseStream.Seek(0, SeekOrigin.Begin);
+                    LoadLocalDatabase(databaseStream);
                 }
             }
             catch (HttpRequestException e)
@@ -230,20 +231,12 @@ namespace DragonFruit.OnionFruit.Database
             }
         }
 
-        private void LoadLocalDatabase()
+        private void LoadLocalDatabase(Stream stream)
         {
-            if (!File.Exists(_databasePath))
-            {
-                _currentDb = null;
-                return;
-            }
-
             try
             {
-                using var localReadStream = new FileStream(_databasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan);
-
                 State = DatabaseState.Processing;
-                _currentDb = OnionDb.Parser.ParseFrom(localReadStream);
+                _currentDb = OnionDb.Parser.ParseFrom(stream);
             }
             catch // todo detect if protobuf is corrupt, delete the file and restart the download
             {
@@ -277,7 +270,7 @@ namespace DragonFruit.OnionFruit.Database
             {
                 case OnionFruitSetting.TorExitCountryCode when country?.ExitNodeCount is null or 0:
                 case OnionFruitSetting.TorEntryCountryCode when country?.EntryNodeCount is null or 0:
-                    _settings.SetValue<string>(key, null);
+                    _settings.SetValue(key, IOnionDatabase.TorCountryCode);
                     break;
             }
         }
@@ -298,9 +291,13 @@ namespace DragonFruit.OnionFruit.Database
             _cancellation?.Dispose();
             _cancellation = new CancellationTokenSource();
 
-            LoadLocalDatabase();
+            if (File.Exists(_databasePath))
+            {
+                using var localReadStream = new FileStream(_databasePath, FileMode.Open, FileAccess.Read, FileShare.Read, 8192, FileOptions.SequentialScan);
+                LoadLocalDatabase(localReadStream);
+            }
 
-            // start timer after loading database
+            // start timer to reload database at regular intervals
             _checkTimer = new Timer(_ => TimerPinged(), null, TimeSpan.Zero, Timeout.InfiniteTimeSpan);
 
             return Task.CompletedTask;
