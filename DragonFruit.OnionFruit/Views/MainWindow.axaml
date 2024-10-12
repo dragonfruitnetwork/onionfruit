@@ -6,6 +6,7 @@
                      xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
                      xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
                      xmlns:controls="clr-namespace:DragonFruit.OnionFruit.Controls"
+                     xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
                      mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
                      x:Class="DragonFruit.OnionFruit.Views.MainWindow"
                      x:DataType="vm:MainWindowViewModel"
@@ -77,7 +78,10 @@
                     <controls:SwitchingControl DockPanel.Dock="Left" Switch="{Binding CountriesDatabaseReady}" Margin="15, 0" VerticalAlignment="Center">
                         <controls:SwitchingControl.SwitchFalse>
                             <DataTemplate>
-                                <Label>Loading Database...</Label>
+                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                    <lucideAvalonia:Lucide Icon="LoaderPinwheel" StrokeThickness="2" Width="16" Height="16"/>
+                                    <Label VerticalAlignment="Center">Loading GeoDB...</Label>
+                                </StackPanel>
                             </DataTemplate>
                         </controls:SwitchingControl.SwitchFalse>
                         <controls:SwitchingControl.SwitchTrue>
