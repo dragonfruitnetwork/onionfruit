@@ -22,7 +22,7 @@ namespace DragonFruit.OnionFruit.Services
     {
         private const string FlagImageFormat = "flag-{0}";
 
-        private static readonly IReadOnlySet<string> SupportedFlags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        private static readonly HashSet<string> SupportedFlags = new(StringComparer.OrdinalIgnoreCase)
         {
             "AD", "AE", "AF", "AM", "AO", "AR", "AT", "AU", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BI", "BJ", "BO",
             "BR", "BS", "BW", "BY", "CA", "CG", "CH", "CI", "CL", "CM", "CN", "CO", "CR",
