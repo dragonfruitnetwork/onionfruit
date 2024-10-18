@@ -97,6 +97,18 @@ public partial class App(IHost host) : Application
         };
     }
 
+    public void ShowMainWindow()
+    {
+        var window = ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime)!.MainWindow;
+        if (window == null)
+        {
+            return;
+        }
+
+        window.WindowState = WindowState.Normal;
+        window.Activate();
+    }
+
     /// <summary>
     /// Launches a URL in the default browser
     /// </summary>

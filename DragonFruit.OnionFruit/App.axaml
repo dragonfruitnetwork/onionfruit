@@ -2,7 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DragonFruit.OnionFruit.App"
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
-             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia">
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit">
     <Application.Styles>
         <avalonia:MaterialIconStyles />
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" />
@@ -17,4 +18,12 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
+    
+    <TrayIcon.Icons>
+        <TrayIcons>
+            <TrayIcon Icon="/Assets/icon.ico"
+                      ToolTipText="{Binding Source={x:Static onionFruit:App.Title}}"
+                      Command="{Binding ShowMainWindow, Source={x:Static onionFruit:App.Instance}}"/>
+        </TrayIcons>
+    </TrayIcon.Icons>
 </Application>
