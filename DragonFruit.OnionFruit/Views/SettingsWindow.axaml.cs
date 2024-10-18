@@ -39,7 +39,7 @@ public partial class SettingsWindow : AppWindow
 
         Tabs =
         [
-            new("Connection", App.GetIcon(LucideIconNames.Router), () => new ConnectionSettingsTabView
+            new("Connection", App.GetIcon(LucideIconNames.EthernetPort), () => new ConnectionSettingsTabView
             {
                 DataContext = ActivatorUtilities.CreateInstance<ConnectionSettingsTabViewModel>(App.Instance.Services)
             }),
@@ -50,6 +50,10 @@ public partial class SettingsWindow : AppWindow
             new("Bridges", App.GetIcon(LucideIconNames.Castle), () => new BridgeSettingsTabView
             {
                 DataContext = ActivatorUtilities.CreateInstance<BridgeSettingsTabViewModel>(App.Instance.Services)
+            }),
+            new("External Connections", App.GetIcon(LucideIconNames.Sparkles), () => new ExternalConnectionsSettingsTabView
+            {
+                DataContext = ActivatorUtilities.CreateInstance<ExternalConnectionsSettingsTabViewModel>(App.Instance.Services)
             })
         ];
 
