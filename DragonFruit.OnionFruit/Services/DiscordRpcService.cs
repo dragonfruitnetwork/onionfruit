@@ -14,13 +14,15 @@ using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.Services
 {
-    public class DiscordRpcService(OnionFruitSettingsStore settings, TorSession session, OnionDbService geoDb) : IHostedService, IDisposable
+    public class DiscordRpcService(OnionFruitSettingsStore settings, TorSession session, OnionDbService geoDb, ILogger<DiscordRpcClient> logger) : IHostedService, IDisposable
     {
         private const string FlagImageFormat = "flag-{0}";
+        private const string DiscordAppId = "662238768136323102";
 
         private static readonly HashSet<string> SupportedFlags = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -36,34 +38,33 @@ namespace DragonFruit.OnionFruit.Services
             "ZW"
         };
 
-        private readonly DiscordRpcClient _rpcClient = new("662238768136323102");
-
         private CompositeDisposable _observables;
+        private DiscordRpcClient _rpcClient;
+
         private RichPresence _currentPresence;
 
         private RichPresence CreatePresence(TorSession.TorSessionState state, string currentExitLocation)
         {
             var status = new RichPresence
             {
-                Assets = new Assets(),
-                Timestamps = new Timestamps()
+                Assets = new Assets()
             };
 
             switch (state)
             {
                 case TorSession.TorSessionState.Disconnected:
                     status.Assets.LargeImageKey = "disconnected";
+                    status.Assets.LargeImageText = "Disconnected";
                     break;
 
                 case TorSession.TorSessionState.Connected:
-                    status.Timestamps.Start = DateTime.UtcNow;
+                    status.Timestamps = Timestamps.Now;
 
                     status.Assets.LargeImageKey = "connected";
                     status.Assets.LargeImageText = "Connected";
 
                     // lookup the country in the local cache
                     var countryInfo = geoDb.Countries.SingleOrDefault(x => x.CountryCode.Equals(currentExitLocation));
-
                     if (countryInfo != null)
                     {
                         status.Assets.SmallImageKey = SupportedFlags.Contains(currentExitLocation) ? string.Format(FlagImageFormat, countryInfo.CountryCode.ToLowerInvariant()) : string.Empty;
@@ -81,19 +82,34 @@ namespace DragonFruit.OnionFruit.Services
 
         private void HandleRpcStateChange(bool enabled)
         {
-            if (enabled && !_rpcClient.IsInitialized)
+            switch (enabled)
             {
-                _rpcClient.Initialize();
-
-                if (_currentPresence != null)
+                case true:
                 {
-                    _rpcClient.SetPresence(_currentPresence);
+                    if (_rpcClient?.IsDisposed == false)
+                    {
+                        _rpcClient.Dispose();
+                    }
+
+                    _rpcClient = new DiscordRpcClient(DiscordAppId)
+                    {
+                        Logger = new DiscordRpcLogger(logger)
+                    };
+
+                    _rpcClient.OnReady += (sender, args) =>
+                    {
+                        logger.LogInformation("Discord RPC client ready (version {v})", args.Version);
+                        (sender as DiscordRpcClient)?.SetPresence(_currentPresence);
+                    };
+
+                    _rpcClient.Initialize();
+                    break;
                 }
-            }
-            else if (!enabled && _rpcClient.IsInitialized)
-            {
-                _rpcClient.ClearPresence();
-                _rpcClient.Deinitialize();
+
+                case false when _rpcClient?.IsInitialized == true:
+                    _rpcClient.ClearPresence();
+                    _rpcClient.Dispose();
+                    break;
             }
         }
 
@@ -102,7 +118,7 @@ namespace DragonFruit.OnionFruit.Services
             _currentPresence = p;
 
             // push the presence if enabled
-            if (_rpcClient.IsInitialized)
+            if (_rpcClient?.IsInitialized == true)
             {
                 _rpcClient.SetPresence(p);
             }
@@ -127,6 +143,7 @@ namespace DragonFruit.OnionFruit.Services
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .Where(x => x.Third) // only generate the presence if the rpc is enabled
                 .Select(x => CreatePresence(x.First.EventArgs, x.Second)) // generate the presence
+                .Where(x => x != null) // filter out null presences
                 .Subscribe(UpdatePresence) // push the presence
                 .DisposeWith(_observables);
 
@@ -139,6 +156,19 @@ namespace DragonFruit.OnionFruit.Services
         {
             _rpcClient?.Dispose();
             _observables?.Dispose();
+        }
+
+        /// <summary>
+        /// A Discord RPC logger that writes to the application logger
+        /// </summary>
+        private class DiscordRpcLogger(ILogger logger) : DiscordRPC.Logging.ILogger
+        {
+            public DiscordRPC.Logging.LogLevel Level { get; set; }
+
+            public void Trace(string message, params object[] args) => logger.LogTrace(message, args);
+            public void Info(string message, params object[] args) => logger.LogInformation(message, args);
+            public void Warning(string message, params object[] args) => logger.LogWarning(message, args);
+            public void Error(string message, params object[] args) => logger.LogError(message, args);
         }
     }
 }
