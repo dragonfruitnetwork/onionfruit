@@ -323,7 +323,7 @@ namespace DragonFruit.OnionFruit.Models
                     break;
                 }
 
-                case TorProcess.State.Killed when settings.GetValue<bool>(OnionFruitSetting.DisconnectOnTorFailure):
+                case TorProcess.State.Killed when !settings.GetValue<bool>(OnionFruitSetting.DisconnectOnTorFailure):
                 {
                     State = TorSessionState.KillSwitchTriggered;
                     break;
