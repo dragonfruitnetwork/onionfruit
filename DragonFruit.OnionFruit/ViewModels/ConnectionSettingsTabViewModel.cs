@@ -52,7 +52,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler);
 
             var countries = Observable.FromEventPattern<EventHandler<IReadOnlyCollection<TorNodeCountry>>, IReadOnlyCollection<TorNodeCountry>>(handler => database.CountriesChanged += handler, handler => database.CountriesChanged -= handler)
-                .StartWith(new EventPattern<IReadOnlyCollection<TorNodeCountry>>(this, database.Countries))
+                .StartWith(new EventPattern<IReadOnlyCollection<TorNodeCountry>>(this, database.Countries ?? []))
                 .Select(x =>
                 {
                     // split into two lists, ones with more than one entry server and ones with more than one exit server
