@@ -3,7 +3,7 @@
              x:Class="DragonFruit.OnionFruit.App"
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit">
+             xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit" RequestedThemeVariant="Dark">
     <Application.Styles>
         <avalonia:MaterialIconStyles />
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" />

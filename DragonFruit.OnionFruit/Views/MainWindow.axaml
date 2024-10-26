@@ -79,7 +79,7 @@
                         <controls:SwitchingControl.SwitchFalse>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Spacing="5">
-                                    <lucideAvalonia:Lucide Icon="LoaderPinwheel" StrokeThickness="2" Width="16" Height="16"/>
+                                    <lucideAvalonia:Lucide Icon="LoaderPinwheel" StrokeBrush="White" StrokeThickness="2" Width="16" Height="16"/>
                                     <Label VerticalAlignment="Center">Loading GeoDB...</Label>
                                 </StackPanel>
                             </DataTemplate>
