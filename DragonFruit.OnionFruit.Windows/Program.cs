@@ -24,8 +24,6 @@ namespace DragonFruit.OnionFruit.Windows;
 
 public static class Program
 {
-    internal const string RpcPipeName = "dragonfruit-onionfruit-fd860267d5d4";
-
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -99,6 +97,7 @@ public static class Program
             services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
 
             services.AddHostedService<DiscordRpcService>();
+            services.AddHostedService<OnionRpcServer>();
             services.AddHostedService<LandingPageLaunchService>();
             services.AddHostedService(s => s.GetRequiredService<OnionDbService>());
 
