@@ -13,11 +13,20 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Sentry.Serilog" Version="4.12.1" />
-      <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
-      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-      <PackageReference Include="Serilog.Sinks.EventLog" Version="4.0.0" />
-      <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.28.3"/>
+        <PackageReference Include="Grpc" Version="2.46.6"/>
+        <PackageReference Include="Grpc.Core.Api" Version="2.66.0"/>
+        <PackageReference Include="Grpc.Tools" Version="2.67.0" PrivateAssets="All"/>
+        <PackageReference Include="GrpcDotNetNamedPipes" Version="3.0.0" />
+        <PackageReference Include="Sentry.Serilog" Version="4.12.1"/>
+        <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0"/>
+        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
+        <PackageReference Include="Serilog.Sinks.EventLog" Version="4.0.0"/>
+        <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="Rpc\onionrpc.proto"/>
     </ItemGroup>
 
 </Project>

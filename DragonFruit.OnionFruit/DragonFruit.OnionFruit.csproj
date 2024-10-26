@@ -23,14 +23,12 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.4" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.1.4" />
-        <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.1.0.4" />
+        <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.1.0.5" />
         <PackageReference Include="DragonFruit.Data" Version="4.1.1" />
         <PackageReference Include="DragonFruit.Data.Roslyn" Version="4.1.1" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
-        <PackageReference Include="DragonFruit.Data" Version="4.1.1" />
-        <PackageReference Include="DragonFruit.Data.Roslyn" Version="4.1.1" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.1.0" />
-        <PackageReference Include="Google.Protobuf" Version="3.28.2" />
+        <PackageReference Include="Google.Protobuf" Version="3.28.3" />
         <PackageReference Include="Grpc.Tools" Version="2.67.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>

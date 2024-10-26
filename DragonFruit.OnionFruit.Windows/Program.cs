@@ -11,6 +11,7 @@ using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Services;
 using DragonFruit.OnionFruit.ViewModels;
+using DragonFruit.OnionFruit.Windows.Rpc;
 using DragonFruit.OnionFruit.Windows.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,8 @@ namespace DragonFruit.OnionFruit.Windows;
 
 public static class Program
 {
+    internal const string RpcPipeName = "dragonfruit-onionfruit-fd860267d5d4";
+
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.

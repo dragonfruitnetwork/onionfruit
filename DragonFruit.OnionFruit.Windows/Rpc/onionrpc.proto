@@ -1,0 +1,9 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package DragonFruit.OnionFruit.Rpc;
+
+service OnionRpc {
+  rpc SecondInstanceLaunched (google.protobuf.Empty) returns (google.protobuf.Empty) {}
+}
