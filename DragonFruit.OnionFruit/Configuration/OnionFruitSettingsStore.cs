@@ -54,8 +54,8 @@ namespace DragonFruit.OnionFruit.Configuration
         /// <summary>
         /// Stores information about the accessibility of a setting in the configuration file
         /// </summary>
-        /// <param name="DefaultValue">The default value, should be stored if the configuration is new or being reset</param>
-        private record SettingsStoreEntry([MaybeNull] object DefaultValue, Action<OnionFruitConfigFile> SetFromConfig);
+        /// <param name="SetDefaultValue">A setter for applying the default value, should be stored if the configuration is new or being reset</param>
+        private record SettingsStoreEntry([MaybeNull] Action<OnionFruitSettingsStore> SetDefaultValue, Action<OnionFruitConfigFile> SetFromConfig);
 
         public Version PreviousClientVersion { get; private set; }
 
@@ -119,9 +119,9 @@ namespace DragonFruit.OnionFruit.Configuration
                 };
 
                 // write default values to config file
-                foreach (var (key, entry) in _storeEntries)
+                foreach (var entry in _storeEntries.Values)
                 {
-                    SetValue(key, entry.DefaultValue);
+                    entry.SetDefaultValue.Invoke(this);
                 }
 
                 foreach (var collectionEntry in _storeCollections.Values)
@@ -185,7 +185,7 @@ namespace DragonFruit.OnionFruit.Configuration
                 }
             };
 
-            _storeEntries[key] = new SettingsStoreEntry(defaultValue, setFromConfigAction);
+            _storeEntries[key] = new SettingsStoreEntry(o => o.SetValue(key, defaultValue), setFromConfigAction);
             observable.ObserveOn(RxApp.TaskpoolScheduler)
                 .Subscribe(value =>
                 {
@@ -216,7 +216,7 @@ namespace DragonFruit.OnionFruit.Configuration
         {
             var observable = RegisterOption(key, defaultValue, out var subject);
 
-            _storeEntries[key] = new SettingsStoreEntry(defaultValue, c => subject.OnNext(getter.Invoke(c)));
+            _storeEntries[key] = new SettingsStoreEntry(o => o.SetValue(key, defaultValue), c => subject.OnNext(getter.Invoke(c)));
             observable.ObserveOn(RxApp.TaskpoolScheduler)
                 .Subscribe(value =>
                 {
