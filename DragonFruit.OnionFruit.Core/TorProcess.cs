@@ -188,14 +188,19 @@ namespace DragonFruit.OnionFruit.Core
                 {
                     _process.Kill();
                 }
-                catch (ExternalException ext)
-                {
-                    logger?.Log(LogLevel.Error, ext, "Failed to kill tor process due to a system-level error: {message}", ext.Message);
-                }
                 catch (InvalidOperationException)
                 {
                     // the process no longer exists so there's nothing to kill...
                     logger?.Log(LogLevel.Information, "Could not kill tor process because it no longer exists");
+                }
+                catch (ExternalException ext)
+                {
+                    logger?.Log(LogLevel.Error, ext, "Failed to kill tor process due to a system-level error: {message}", ext.Message);
+                }
+                catch (Exception e)
+                {
+                    logger?.Log(LogLevel.Critical, e, "Failed to kill tor process: {message}", e.Message);
+                    throw;
                 }
             }
 
