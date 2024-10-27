@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
@@ -9,10 +10,14 @@ using DragonFruit.OnionFruit.Core.Network;
 using DragonFruit.OnionFruit.Core.Windows;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Rpc;
 using DragonFruit.OnionFruit.Services;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Windows.Rpc;
 using DragonFruit.OnionFruit.Windows.ViewModels;
+using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
+using GrpcDotNetNamedPipes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -30,6 +35,8 @@ public static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+        HandleSecondInstance();
+
         var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
 
         if (File.Exists(fileLog))
@@ -105,4 +112,24 @@ public static class Program
             services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
         })
         .Build();
+
+    private static void HandleSecondInstance()
+    {
+        var channel = new NamedPipeChannel(".", OnionRpcServer.RpcPipeName);
+        var client = new OnionRpc.OnionRpcClient(channel);
+
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+            client.SecondInstanceLaunched(new Empty(), cancellationToken: timeout.Token);
+        }
+        catch (RpcException)
+        {
+            // do nothing
+        }
+        catch (TimeoutException)
+        {
+            // do nothing
+        }
+    }
 }

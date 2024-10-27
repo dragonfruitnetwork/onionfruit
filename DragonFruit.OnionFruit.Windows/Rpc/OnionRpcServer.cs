@@ -21,12 +21,10 @@ namespace DragonFruit.OnionFruit.Windows.Rpc
     /// </summary>
     public class OnionRpcServer(ILogger<OnionRpcServer> logger) : IHostedService
     {
-        private static readonly SecurityIdentifier CurrentUser = WindowsIdentity.GetCurrent().User;
-
         /// <summary>
         /// Gets the name of the RPC pipe for the current user
         /// </summary>
-        internal static string RpcPipeName = $"onionfruit-rpc-{Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(CurrentUser.Value))).ToLowerInvariant()}";
+        internal static string RpcPipeName = $"onionfruit-rpc-{Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(Environment.UserName))).ToLowerInvariant()}";
 
         private NamedPipeServer _grpcServer;
 
@@ -34,7 +32,7 @@ namespace DragonFruit.OnionFruit.Windows.Rpc
         {
             var securityPolicy = new PipeSecurity();
 
-            securityPolicy.AddAccessRule(new PipeAccessRule(CurrentUser, PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
+            securityPolicy.AddAccessRule(new PipeAccessRule(WindowsIdentity.GetCurrent().User, PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
             securityPolicy.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
 
             // CurrentUserOnly won't work when running as admin vs non-admin
