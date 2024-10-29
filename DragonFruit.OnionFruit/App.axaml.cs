@@ -154,7 +154,7 @@ public partial class App(IHost host) : Application
 
         try
         {
-            // show the tray icon if we're 250ms into waiting and nothing has happened
+            // show the tray icon if we're 500ms into waiting and nothing has happened
             var waitTask = _shutdownSignal.WaitAsync(_shutdownSignalCancellation.Token);
             _ = waitTask.WaitAsync(TimeSpan.FromMilliseconds(500)).ContinueWith(t =>
             {
