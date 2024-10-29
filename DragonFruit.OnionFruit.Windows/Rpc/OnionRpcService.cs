@@ -12,7 +12,7 @@ namespace DragonFruit.OnionFruit.Windows.Rpc
     {
         public override Task<Empty> SecondInstanceLaunched(Empty request, ServerCallContext context)
         {
-            App.Instance.ShowMainWindow();
+            App.Instance.ActivateApp();
 
             return Task.FromResult(new Empty());
         }

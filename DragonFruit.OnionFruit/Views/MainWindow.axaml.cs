@@ -1,5 +1,6 @@
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.ViewModels.Interfaces;
@@ -37,5 +38,18 @@ public partial class MainWindow : ReactiveAppWindow<MainWindowViewModel>
         {
             Position = position.GetInitialPosition(Screens.Primary, ClientSize);
         }
+    }
+
+    private void HandleCloseRequest(object sender, WindowClosingEventArgs e)
+    {
+        if (e.CloseReason != WindowCloseReason.WindowClosing)
+        {
+            return;
+        }
+
+        _ = App.Instance.RequestAppShutdown();
+
+        // block default close behavior
+        e.Cancel = true;
     }
 }

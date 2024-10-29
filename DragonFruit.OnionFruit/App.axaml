@@ -21,9 +21,9 @@
     
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/Assets/icon.ico"
+            <TrayIcon Icon="/Assets/icon.ico" IsVisible="False"
                       ToolTipText="{Binding Source={x:Static onionFruit:App.Title}}"
-                      Command="{Binding ShowMainWindow, Source={x:Static onionFruit:App.Instance}}"/>
+                      Command="{Binding ActivateApp, Source={x:Static onionFruit:App.Instance}}"/>
         </TrayIcons>
     </TrayIcon.Icons>
 </Application>

@@ -37,6 +37,7 @@
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.10" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+        <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
     </ItemGroup>
 
     <ItemGroup>

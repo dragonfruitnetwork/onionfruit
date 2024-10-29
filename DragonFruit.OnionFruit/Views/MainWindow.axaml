@@ -11,7 +11,7 @@
                      x:Class="DragonFruit.OnionFruit.Views.MainWindow"
                      x:DataType="vm:MainWindowViewModel"
                      Background="{x:Null}" Icon="/Assets/icon.ico"
-                     Width="600" Height="175" CanResize="False"
+                     Width="600" Height="175" CanResize="False" Closing="HandleCloseRequest"
                      TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
                      Title="{Binding Source={x:Static onionFruit:App.Title}}">
     <Design.DataContext>
