@@ -100,14 +100,14 @@ public partial class App(IHost host) : Application
             // this will need updating when the updater is implemented
             switch (state)
             {
+                case TorSession.TorSessionState.Disconnected:
+                case TorSession.TorSessionState.BlockedProxy:
+                case TorSession.TorSessionState.BlockedProcess:
+                    _shutdownSignal.Set();
+                    goto case TorSession.TorSessionState.KillSwitchTriggered;
+
                 case TorSession.TorSessionState.KillSwitchTriggered:
                     ActivateApp();
-                    break;
-
-                case TorSession.TorSessionState.BlockedProcess:
-                case TorSession.TorSessionState.BlockedProxy:
-                case TorSession.TorSessionState.Disconnected:
-                    _shutdownSignal.Set();
                     break;
 
                 default:
