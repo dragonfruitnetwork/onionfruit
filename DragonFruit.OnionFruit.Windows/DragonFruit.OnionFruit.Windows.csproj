@@ -23,6 +23,7 @@
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
         <PackageReference Include="Serilog.Sinks.EventLog" Version="4.0.0"/>
         <PackageReference Include="Serilog.Sinks.File" Version="6.0.0"/>
+        <PackageReference Include="Velopack" Version="0.0.626" />
     </ItemGroup>
 
     <ItemGroup>

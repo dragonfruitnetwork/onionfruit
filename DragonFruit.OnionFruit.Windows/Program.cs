@@ -26,6 +26,7 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
+using Velopack;
 
 namespace DragonFruit.OnionFruit.Windows;
 
@@ -37,10 +38,12 @@ public static class Program
     [STAThread]
     public static async Task Main(string[] args)
     {
+        VelopackApp.Build().Run();
+
         await HandleSecondInstance();
 
+        // standard application startup
         var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
-
         if (File.Exists(fileLog))
         {
             using var stream = File.OpenWrite(fileLog);
