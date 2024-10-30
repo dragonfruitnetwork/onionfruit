@@ -88,7 +88,9 @@ namespace DragonFruit.OnionFruit.Models
                 }
                 catch (TimeoutException)
                 {
-                    // do nothing
+                    // reset user's country preferences to "random" if GeoIP files aren't available due to timeout
+                    settings.SetValue(OnionFruitSetting.TorEntryCountryCode, IOnionDatabase.TorCountryCode);
+                    settings.SetValue(OnionFruitSetting.TorExitCountryCode, IOnionDatabase.TorCountryCode);
                 }
                 catch (Exception e)
                 {
@@ -118,10 +120,10 @@ namespace DragonFruit.OnionFruit.Models
                 State = TorSessionState.Connecting;
                 await _process.StartProcessWithConfig(_sessionConfig);
             }
-            catch
+            catch (Exception e)
             {
-                // todo log error
                 State = TorSessionState.BlockedProcess;
+                loggerFactory.CreateLogger<TorSession>().LogWarning("Failed to start Tor process: {message}", e.Message);
                 return;
             }
 
@@ -239,7 +241,6 @@ namespace DragonFruit.OnionFruit.Models
                 ];
 
                 IEnumerable<string> bridgeLines;
-                bool atLeastOneBridgeAdded = false;
 
                 using (settings.GetCollection<string>(OnionFruitSetting.UserDefinedBridges).Connect().Bind(out var lines).Subscribe())
                 {
@@ -253,7 +254,7 @@ namespace DragonFruit.OnionFruit.Models
 
                     if (!lineInfo.Success)
                     {
-                        // todo remove invalid lines?
+                        // todo remove invalid lines from config?
                         continue;
                     }
 
@@ -263,11 +264,10 @@ namespace DragonFruit.OnionFruit.Models
                     }
 
                     configLines.Add($"Bridge {line}");
-                    atLeastOneBridgeAdded = true;
                 }
 
                 // handle default bridges fallback
-                if (!atLeastOneBridgeAdded && transportManager.Config.Bridges.TryGetValue(transportInfo.DefaultBridgeKey ?? string.Empty, out var defaults))
+                if (configLines.Count > 1 && transportManager.Config.Bridges.TryGetValue(transportInfo.DefaultBridgeKey ?? string.Empty, out var defaults))
                 {
                     configLines.AddRange(defaults.Select(x => $"Bridge {x}"));
                 }
@@ -278,7 +278,6 @@ namespace DragonFruit.OnionFruit.Models
                 nodeSelectionConfig.EntryNodes?.Clear();
             }
 
-            // todo add onionfruit -> torrc config converters, control port monitoring
             sessionConfig = [basicConfig, controlPortConfig, nodeSelectionConfig, bridgeConfig];
             return true;
         }
