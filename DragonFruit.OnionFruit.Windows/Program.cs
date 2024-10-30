@@ -50,7 +50,7 @@ public static class Program
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Debug()
             .WriteTo.File(fileLog, LogEventLevel.Debug)
-            .WriteTo.EventLog("OnionFruit", "Application")
+            .WriteTo.EventLog("OnionFruit", "Application", restrictedToMinimumLevel: LogEventLevel.Error)
             .WriteTo.Console(LogEventLevel.Debug, theme: AnsiConsoleTheme.Literate)
             .WriteTo.Sentry(o =>
             {
@@ -65,7 +65,7 @@ public static class Program
 #else
                 // enable error reporting only in release builds and when the user hasn't opted out.
                 // launch failures are always reported as settings can't be loaded to check if the user has opted out.
-                o.SetBeforeSend(e => App.Instance.Services?.GetService<OnionFruitSettingsStore>().GetValue<bool>(OnionFruitSetting.EnableErrorReporting) == false ? null : e);
+                o.SetBeforeSend(e => App.Instance.Services?.GetService<OnionFruitSettingsStore>()?.GetValue<bool>(OnionFruitSetting.EnableErrorReporting) == false ? null : e);
 #endif
 
                 o.MinimumEventLevel = LogEventLevel.Error;
