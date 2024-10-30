@@ -196,17 +196,20 @@ public partial class App(IHost host) : Application
         // cancel any pending shutdowns
         _shutdownSignalCancellation?.Cancel();
 
-        window.WindowState = WindowState.Normal;
-        window.ShowInTaskbar = true;
-        window.IsVisible = true;
-
-        var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
-        if (trayIcon != null)
+        Dispatcher.UIThread.Invoke(() =>
         {
-            trayIcon.IsVisible = false;
-        }
+            window.WindowState = WindowState.Normal;
+            window.ShowInTaskbar = true;
+            window.IsVisible = true;
 
-        window.Activate();
+            var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
+            if (trayIcon != null)
+            {
+                trayIcon.IsVisible = false;
+            }
+
+            window.Activate();
+        });
     }
 
     /// <summary>

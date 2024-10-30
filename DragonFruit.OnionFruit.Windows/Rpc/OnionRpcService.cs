@@ -10,11 +10,13 @@ namespace DragonFruit.OnionFruit.Windows.Rpc
 {
     public class OnionRpcService : OnionRpc.OnionRpcBase
     {
-        public override Task<Empty> SecondInstanceLaunched(Empty request, ServerCallContext context)
+        public override Task<SecondInstanceLaunchedResponse> SecondInstanceLaunched(Empty request, ServerCallContext context)
         {
             App.Instance.ActivateApp();
-
-            return Task.FromResult(new Empty());
+            return Task.FromResult(new SecondInstanceLaunchedResponse
+            {
+                ShouldClose = true
+            });
         }
     }
 }

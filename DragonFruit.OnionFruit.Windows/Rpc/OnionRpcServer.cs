@@ -11,15 +11,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using DragonFruit.OnionFruit.Rpc;
 using GrpcDotNetNamedPipes;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Windows.Rpc
 {
     /// <summary>
     /// Manages the gRPC server responsible for accepting and forwarding <see cref="OnionRpcService"/> requests
     /// </summary>
-    public class OnionRpcServer(ILogger<OnionRpcServer> logger) : IHostedService
+    public class OnionRpcServer(IServiceProvider provider) : IHostedService
     {
         /// <summary>
         /// Gets the name of the RPC pipe for the current user
@@ -42,9 +42,7 @@ namespace DragonFruit.OnionFruit.Windows.Rpc
                 PipeSecurity = securityPolicy
             });
 
-            OnionRpc.BindService(_grpcServer.ServiceBinder, new OnionRpcService());
-
-            _grpcServer.Error += ServerErrorHandler;
+            OnionRpc.BindService(_grpcServer.ServiceBinder, ActivatorUtilities.CreateInstance<OnionRpcService>(provider));
             _grpcServer.Start();
 
             return Task.CompletedTask;
@@ -53,14 +51,11 @@ namespace DragonFruit.OnionFruit.Windows.Rpc
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _grpcServer.Kill();
-            _grpcServer.Error -= ServerErrorHandler;
+            _grpcServer.Dispose();
+
+            _grpcServer = null;
 
             return Task.CompletedTask;
-        }
-
-        private void ServerErrorHandler(object sender, NamedPipeErrorEventArgs e)
-        {
-            logger.LogError(e.Error, "gRPC server error: {message}", e.Error.Message);
         }
     }
 }

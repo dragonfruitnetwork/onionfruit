@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
@@ -33,9 +35,9 @@ public static class Program
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        HandleSecondInstance();
+        await HandleSecondInstance();
 
         var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
 
@@ -113,7 +115,7 @@ public static class Program
         })
         .Build();
 
-    private static void HandleSecondInstance()
+    private static async Task HandleSecondInstance()
     {
         var channel = new NamedPipeChannel(".", OnionRpcServer.RpcPipeName);
         var client = new OnionRpc.OnionRpcClient(channel);
@@ -121,7 +123,18 @@ public static class Program
         try
         {
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-            client.SecondInstanceLaunched(new Empty(), cancellationToken: timeout.Token);
+            var response = await client.SecondInstanceLaunchedAsync(new Empty(), cancellationToken: timeout.Token).ConfigureAwait(false);
+
+            if (response.HasWaitForPidExit)
+            {
+                using var process = Process.GetProcessById(response.WaitForPidExit);
+                await process.WaitForExitAsync().ConfigureAwait(false);
+            }
+
+            if (response.ShouldClose)
+            {
+                Environment.Exit(0);
+            }
         }
         catch (RpcException)
         {
