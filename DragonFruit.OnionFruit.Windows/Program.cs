@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -14,6 +15,7 @@ using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Rpc;
 using DragonFruit.OnionFruit.Services;
+using DragonFruit.OnionFruit.Updater;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Windows.Rpc;
 using DragonFruit.OnionFruit.Windows.ViewModels;
@@ -38,9 +40,9 @@ public static class Program
     [STAThread]
     public static async Task Main(string[] args)
     {
-        VelopackApp.Build().Run();
-
         await HandleSecondInstance();
+
+        VelopackApp.Build().Run();
 
         // standard application startup
         var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
@@ -108,15 +110,21 @@ public static class Program
             services.AddSingleton<ApiClient, OnionFruitClient>();
             services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
 
-            services.AddHostedService<DiscordRpcService>();
+            services.AddSingleton(s =>
+            {
+                var settings = s.GetRequiredService<OnionFruitSettingsStore>();
+                return ActivatorUtilities.CreateInstance<VelopackUpdater>(s, GetUpdateOptions(settings));
+            });
+
             services.AddHostedService<OnionRpcServer>();
+            services.AddHostedService<DiscordRpcService>();
             services.AddHostedService<LandingPageLaunchService>();
             services.AddHostedService(s => s.GetRequiredService<OnionDbService>());
+            services.AddHostedService(s => s.GetRequiredService<VelopackUpdater>());
 
             // register view models
             services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
-        })
-        .Build();
+        }).Build();
 
     private static async Task HandleSecondInstance()
     {
@@ -147,5 +155,23 @@ public static class Program
         {
             // do nothing
         }
+    }
+
+    private static UpdateOptions GetUpdateOptions(OnionFruitSettingsStore settings)
+    {
+        var targetStream = settings.GetValue<UpdateStream?>(OnionFruitSetting.ExplicitUpdateStream);
+        var prefix = RuntimeInformation.OSArchitecture switch
+        {
+            Architecture.Arm64 => "arm64",
+            Architecture.X64 => null,
+
+            _ => throw new PlatformNotSupportedException()
+        };
+
+        return new UpdateOptions
+        {
+            AllowVersionDowngrade = true,
+            ExplicitChannel = VelopackUpdater.UpdateChannelName(prefix, targetStream)
+        };
     }
 }

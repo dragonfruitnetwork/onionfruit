@@ -27,6 +27,8 @@ message OnionFruitConfigFile {
   bool enableErrorReporting = 14;
   
   bool enableDiscordRpc = 15;
+
+  optional UPDATE_STREAM clientUpdateStream = 16;
 }
 
 enum TRANSPORT_TYPES {
@@ -39,4 +41,9 @@ enum TRANSPORT_TYPES {
   webtunnel = 6;
   snowflake = 7;
   conjure = 8;
+}
+
+enum UPDATE_STREAM {
+  Stable = 0;
+  Beta = 1;
 }

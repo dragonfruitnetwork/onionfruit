@@ -11,6 +11,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
+using DragonFruit.OnionFruit.Updater;
 using DynamicData;
 using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
@@ -83,6 +84,17 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterOption(OnionFruitSetting.EnableErrorReporting, true, nameof(OnionFruitConfigFile.EnableErrorReporting));
 
             RegisterOption(OnionFruitSetting.EnableDiscordRpc, false, nameof(OnionFruitConfigFile.EnableDiscordRpc));
+            RegisterOption(OnionFruitSetting.ExplicitUpdateStream, null, x => x.HasClientUpdateStream ? (UpdateStream?)x.ClientUpdateStream : null, (t, c) =>
+            {
+                if (t == null)
+                {
+                    c.ClearClientUpdateStream();
+                }
+                else
+                {
+                    c.ClientUpdateStream = (UPDATE_STREAM)t.Value;
+                }
+            });
 
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
@@ -282,6 +294,7 @@ namespace DragonFruit.OnionFruit.Configuration
         DisconnectOnTorFailure,
         EnableErrorReporting,
 
-        EnableDiscordRpc
+        EnableDiscordRpc,
+        ExplicitUpdateStream
     }
 }

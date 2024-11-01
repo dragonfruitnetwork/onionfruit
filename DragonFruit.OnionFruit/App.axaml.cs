@@ -13,6 +13,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Threading;
 using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Updater;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Views;
 using FluentAvalonia.UI.Controls;
@@ -28,7 +29,7 @@ public partial class App(IHost host) : Application
     internal static string StoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit");
 
     private readonly AsyncManualResetEvent _shutdownSignal = new(true);
-    private readonly AsyncSemaphore _shutdownQueue = new(1);
+    private readonly SemaphoreSlim _shutdownQueue = new(1, 1);
 
     private IDisposable _startupCallback;
     private CancellationTokenSource _shutdownSignalCancellation;
@@ -74,7 +75,11 @@ public partial class App(IHost host) : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            desktop.Exit += (_, _) => host.StopAsync().Wait();
+            desktop.Exit += (_, _) =>
+            {
+                Services.GetService<VelopackUpdater>()?.AppExitCallback(false);
+                host.StopAsync().Wait();
+            };
         }
 
         // because background services need to be started, StartAsync blocks until the app closes.

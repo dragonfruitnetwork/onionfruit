@@ -16,11 +16,6 @@ namespace DragonFruit.OnionFruit.Updater
         Downloading,
 
         /// <summary>
-        /// Updates downloaded, currently extracting and applying
-        /// </summary>
-        Applying,
-
-        /// <summary>
         /// Updates downloaded, pending restart to install
         /// </summary>
         PendingRestart,
