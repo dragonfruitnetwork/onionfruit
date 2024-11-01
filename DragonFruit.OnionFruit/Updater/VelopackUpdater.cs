@@ -55,7 +55,7 @@ namespace DragonFruit.OnionFruit.Updater
 
         public async Task TriggerUpdateCheck()
         {
-            if (!await _semaphore.WaitAsync(TimeSpan.FromSeconds(1)))
+            if (!await _semaphore.WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false))
             {
                 throw new InvalidOperationException("An update check is already in progress");
             }
@@ -68,18 +68,17 @@ namespace DragonFruit.OnionFruit.Updater
                 Status = OnionFruitUpdaterStatus.Checking;
 
                 var updateInfo = await _updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
-                if (updateInfo == null)
+                if (updateInfo != null)
                 {
-                    Status = OnionFruitUpdaterStatus.UpToDate;
-                    return;
+                    DownloadProgress = null;
+                    Status = OnionFruitUpdaterStatus.Downloading;
+
+                    await _updateManager.DownloadUpdatesAsync(updateInfo, p => DownloadProgress = p, cancelToken: _cancellation.Token).ConfigureAwait(false);
                 }
 
-                DownloadProgress = null;
-                Status = OnionFruitUpdaterStatus.Downloading;
-
-                await _updateManager.DownloadUpdatesAsync(updateInfo, p => DownloadProgress = p).ConfigureAwait(false);
-
-                Status = OnionFruitUpdaterStatus.PendingRestart;
+                Status = _updateManager.UpdatePendingRestart != null
+                    ? OnionFruitUpdaterStatus.PendingRestart
+                    : OnionFruitUpdaterStatus.UpToDate;
             }
             catch (Exception e)
             {
