@@ -92,14 +92,6 @@ namespace DragonFruit.OnionFruit.Updater
             }
         }
 
-        public async Task AppExitCallback(bool restart)
-        {
-            if (_updateManager.UpdatePendingRestart != null)
-            {
-                await _updateManager.WaitExitThenApplyUpdatesAsync(_updateManager.UpdatePendingRestart, true, restart).ConfigureAwait(false);
-            }
-        }
-
         /// <summary>
         /// Returns the update channel name for the current platform/selected release stream.
         /// </summary>
@@ -130,6 +122,11 @@ namespace DragonFruit.OnionFruit.Updater
         {
             _checkTimer?.Dispose();
             _cancellation?.Cancel();
+
+            if (_updateManager.UpdatePendingRestart != null)
+            {
+                _updateManager.WaitExitThenApplyUpdates(_updateManager.UpdatePendingRestart, true, false);
+            }
 
             return Task.CompletedTask;
         }

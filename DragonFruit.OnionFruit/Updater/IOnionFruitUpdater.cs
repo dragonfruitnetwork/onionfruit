@@ -35,10 +35,5 @@ namespace DragonFruit.OnionFruit.Updater
         /// A task that completes once the update check has been completed
         /// </returns>
         Task TriggerUpdateCheck();
-
-        /// <summary>
-        /// Method run on application exit. Can be used to trigger the full update.
-        /// </summary>
-        Task AppExitCallback(bool restart);
     }
 }

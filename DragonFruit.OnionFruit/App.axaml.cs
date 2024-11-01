@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +23,7 @@ using LucideAvalonia.Enum;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nito.AsyncEx;
+using ReactiveUI;
 
 namespace DragonFruit.OnionFruit;
 
@@ -31,7 +34,7 @@ public partial class App(IHost host) : Application
     private readonly AsyncManualResetEvent _shutdownSignal = new(true);
     private readonly SemaphoreSlim _shutdownQueue = new(1, 1);
 
-    private IDisposable _startupCallback;
+    private IDisposable _startupCallback, _shutdownSignalProcessor;
     private CancellationTokenSource _shutdownSignalCancellation;
 
     static App()
@@ -77,7 +80,7 @@ public partial class App(IHost host) : Application
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             desktop.Exit += (_, _) =>
             {
-                Services.GetService<VelopackUpdater>()?.AppExitCallback(false);
+                _shutdownSignalProcessor?.Dispose();
                 host.StopAsync().Wait();
             };
         }
@@ -100,16 +103,28 @@ public partial class App(IHost host) : Application
             throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
         }
 
-        Services.GetRequiredService<TorSession>().SessionStateChanged += (_, state) =>
+        var updater = Services.GetRequiredService<VelopackUpdater>();
+        var session = Services.GetRequiredService<TorSession>();
+
+        var sessionObservable = Observable.FromEventPattern<TorSession.TorSessionState>(h => session.SessionStateChanged += h, h => session.SessionStateChanged -= h).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State));
+        var updateStateObservable = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h).StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status));
+
+        _shutdownSignalProcessor = sessionObservable.CombineLatest(updateStateObservable).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x =>
         {
-            // this will need updating when the updater is implemented
-            switch (state)
+            var updateBlocked = x.Second.EventArgs is not (OnionFruitUpdaterStatus.Failed or OnionFruitUpdaterStatus.UpToDate);
+            switch (x.First.EventArgs)
             {
                 case TorSession.TorSessionState.Disconnected:
                 case TorSession.TorSessionState.BlockedProxy:
                 case TorSession.TorSessionState.BlockedProcess:
-                    _shutdownSignal.Set();
+                {
+                    if (!updateBlocked)
+                    {
+                        _shutdownSignal.Set();
+                    }
+
                     goto case TorSession.TorSessionState.KillSwitchTriggered;
+                }
 
                 case TorSession.TorSessionState.KillSwitchTriggered:
                     ActivateApp();
@@ -119,7 +134,7 @@ public partial class App(IHost host) : Application
                     _shutdownSignal.Reset();
                     break;
             }
-        };
+        });
 
         desktop.MainWindow = new MainWindow
         {
