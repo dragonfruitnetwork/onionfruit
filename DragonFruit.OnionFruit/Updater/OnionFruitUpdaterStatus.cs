@@ -28,6 +28,11 @@ namespace DragonFruit.OnionFruit.Updater
         /// <summary>
         /// No updates to apply
         /// </summary>
-        UpToDate
+        UpToDate,
+
+        /// <summary>
+        /// Update service is not available (development mode or portable install, etc.)
+        /// </summary>
+        Disabled
     }
 }

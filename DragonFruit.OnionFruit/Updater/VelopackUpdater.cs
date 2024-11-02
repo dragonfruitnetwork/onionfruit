@@ -114,7 +114,7 @@ namespace DragonFruit.OnionFruit.Updater
             }
             else
             {
-                Status = OnionFruitUpdaterStatus.UpToDate;
+                Status = OnionFruitUpdaterStatus.Disabled;
             }
 
             return Task.CompletedTask;

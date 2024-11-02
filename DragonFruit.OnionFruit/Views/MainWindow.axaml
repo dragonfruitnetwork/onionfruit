@@ -68,9 +68,9 @@
                         </Style>
                     </DockPanel.Styles>
 
-                    <Button DockPanel.Dock="Right"
-                            Content="Settings" Padding="30, 0" CornerRadius="0"
-                            Background="Transparent" BorderBrush="Transparent"
+                    <Button DockPanel.Dock="Right" Content="Settings"
+                            Padding="30, 0" CornerRadius="0"
+                            Background="{x:Null}" BorderBrush="Transparent"
                             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                             Command="{Binding OpenSettingsWindow}"/>
 

@@ -38,7 +38,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .StartWith(new EventPattern<int?>(this, updater.DownloadProgress))
                 .Select(x => x.EventArgs);
 
-            var canCheckForUpdates = updaterStatus.Select(x => x is not (OnionFruitUpdaterStatus.Checking or OnionFruitUpdaterStatus.Downloading))
+            var canCheckForUpdates = updaterStatus.Select(x => x is not (OnionFruitUpdaterStatus.Checking or OnionFruitUpdaterStatus.Downloading or OnionFruitUpdaterStatus.Disabled))
                 .ObserveOn(RxApp.MainThreadScheduler);
 
             updaterStatus.CombineLatest(updaterProgress)
@@ -55,6 +55,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
                     OnionFruitUpdaterStatus.UpToDate => "No updates available",
                     OnionFruitUpdaterStatus.PendingRestart => "Pending restart",
+                    OnionFruitUpdaterStatus.Disabled => "Updates disabled",
 
                     _ => throw new ArgumentOutOfRangeException()
                 })

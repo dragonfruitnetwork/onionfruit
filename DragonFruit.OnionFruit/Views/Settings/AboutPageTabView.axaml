@@ -23,7 +23,8 @@
         <controls:SettingsExpander Description="Updates" IconSource="{Binding UpdaterIcon, Mode=OneTime}">
             <controls:SettingsExpander.Footer>
                 <StackPanel Orientation="Horizontal" Spacing="15">
-                    <Label VerticalAlignment="Center">No updates available</Label>
+                    <Label VerticalAlignment="Center" Content="{Binding CurrentUpdaterProgress}"/>
+                    <Button VerticalAlignment="Center" Command="{Binding ManualUpdateTrigger}" Content="Check for updates"/>
                 </StackPanel>
             </controls:SettingsExpander.Footer>
         </controls:SettingsExpander>

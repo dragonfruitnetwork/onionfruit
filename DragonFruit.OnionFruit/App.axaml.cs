@@ -103,7 +103,7 @@ public partial class App(IHost host) : Application
             throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
         }
 
-        var updater = Services.GetRequiredService<VelopackUpdater>();
+        var updater = Services.GetRequiredService<IOnionFruitUpdater>();
         var session = Services.GetRequiredService<TorSession>();
 
         var sessionObservable = Observable.FromEventPattern<TorSession.TorSessionState>(h => session.SessionStateChanged += h, h => session.SessionStateChanged -= h).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State));
