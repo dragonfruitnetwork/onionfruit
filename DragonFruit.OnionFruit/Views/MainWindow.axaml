@@ -32,7 +32,7 @@
                         BackgroundSource="None"
                         TintColor="{DynamicResource SolidBackgroundFillColorBase}"
                         TintOpacity="0.85"
-                        MaterialOpacity="0.5" />
+                        MaterialOpacity="0.75" />
                 </ExperimentalAcrylicBorder.Material>
             </ExperimentalAcrylicBorder>
 
