@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:viewModels="clr-namespace:DragonFruit.OnionFruit.ViewModels"
              xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
@@ -13,7 +12,7 @@
              x:Class="DragonFruit.OnionFruit.Views.Settings.AboutPageTabView">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
         <StackPanel Orientation="Horizontal" Spacing="30" Margin="0, 20, 0, 20">
-            <avalonia:MaterialIcon Kind="WifiStrength4Lock" Foreground="MediumVioletRed" Height="100" Width="100" />
+            <Svg Path="/Assets/onionfruit.svg" Height="100" Width="100"/>
             <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                 <Label FontSize="26" FontWeight="SemiBold" Content="{x:Static onionFruit:App.Title}" />
                 <Label FontSize="21" Foreground="LightGray" Content="{Binding Source={x:Static onionFruit:App.Version}, StringFormat='Version {0}'}" />

@@ -86,6 +86,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private async Task ReadPackageLicenseFile()
         {
+            await Task.Yield();
+
             var filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location), "nuget-licenses.json");
 
             if (!File.Exists(filePath))

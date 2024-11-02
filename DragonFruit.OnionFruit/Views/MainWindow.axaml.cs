@@ -24,7 +24,7 @@ public partial class MainWindow : ReactiveAppWindow<MainWindowViewModel>
         this.WhenActivated(action => action(ViewModel!.SettingsWindowInteraction.RegisterHandler(OpenSettingsWindow)));
     }
 
-    private async Task OpenSettingsWindow(InteractionContext<Unit, Unit> ctx)
+    private async Task OpenSettingsWindow(IInteractionContext<Unit, Unit> ctx)
     {
         await new SettingsWindow().ShowDialog(this);
         ctx.SetOutput(Unit.Default);
