@@ -15,10 +15,10 @@ namespace DragonFruit.OnionFruit.Updater
     {
         private readonly ILogger<VelopackUpdater> _logger;
         private readonly UpdateManager _updateManager;
-        private readonly SemaphoreSlim _semaphore;
 
         private CancellationTokenSource _cancellation;
         private Timer _checkTimer;
+        private Task _updateTask;
 
         private OnionFruitUpdaterStatus _status;
         private int? _downloadProgress;
@@ -26,7 +26,6 @@ namespace DragonFruit.OnionFruit.Updater
         public VelopackUpdater(UpdateOptions options, ILogger<VelopackUpdater> logger)
         {
             _logger = logger;
-            _semaphore = new SemaphoreSlim(1, 1);
             _updateManager = new UpdateManager(new GithubSource("https://github.com/aspriddell/onionfruit-xplat", null, true), options);
         }
 
@@ -53,18 +52,26 @@ namespace DragonFruit.OnionFruit.Updater
         public event EventHandler<OnionFruitUpdaterStatus> StatusChanged;
         public event EventHandler<int?> DownloadProgressChanged;
 
-        public async Task TriggerUpdateCheck()
+        public Task TriggerUpdateCheck()
         {
-            if (!await _semaphore.WaitAsync(TimeSpan.FromSeconds(1)).ConfigureAwait(false))
+            lock (this)
             {
-                throw new InvalidOperationException("An update check is already in progress");
+                if (_updateTask?.IsCompleted != false)
+                {
+                    _updateTask = PerformUpdateCheckInternal();
+                }
+
+                return _updateTask;
             }
+        }
+
+        private async Task PerformUpdateCheckInternal()
+        {
+            _cancellation?.Dispose();
+            _cancellation = new CancellationTokenSource();
 
             try
             {
-                _cancellation?.Dispose();
-                _cancellation = new CancellationTokenSource();
-
                 Status = OnionFruitUpdaterStatus.Checking;
 
                 var updateInfo = await _updateManager.CheckForUpdatesAsync().ConfigureAwait(false);
@@ -85,10 +92,6 @@ namespace DragonFruit.OnionFruit.Updater
                 _logger.LogError(e, "Failed to perform updater: {message}", e.Message);
                 Status = OnionFruitUpdaterStatus.Failed;
             }
-            finally
-            {
-                _semaphore.Release();
-            }
         }
 
         /// <summary>
@@ -107,7 +110,7 @@ namespace DragonFruit.OnionFruit.Updater
         {
             if (_updateManager.IsInstalled)
             {
-                _checkTimer = new Timer(_ => TriggerUpdateCheck(), null, TimeSpan.Zero, TimeSpan.FromHours(12));
+                _checkTimer = new Timer(_ => TriggerUpdateCheck(), null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(12));
             }
             else
             {
@@ -117,23 +120,36 @@ namespace DragonFruit.OnionFruit.Updater
             return Task.CompletedTask;
         }
 
-        Task IHostedService.StopAsync(CancellationToken cancellationToken)
+        async Task IHostedService.StopAsync(CancellationToken cancellationToken)
         {
-            _checkTimer?.Dispose();
-            _cancellation?.Cancel();
+            if (_cancellation != null)
+            {
+                if (!_cancellation.IsCancellationRequested)
+                {
+                    await _cancellation.CancelAsync();
+                }
+
+                _cancellation.Dispose();
+            }
+
+            if (_checkTimer != null)
+            {
+                await _checkTimer.DisposeAsync();
+            }
+
+            _checkTimer = null;
+            _cancellation = null;
 
             if (_updateManager.UpdatePendingRestart != null)
             {
-                _updateManager.WaitExitThenApplyUpdates(_updateManager.UpdatePendingRestart, true, false);
+                await _updateManager.WaitExitThenApplyUpdatesAsync(_updateManager.UpdatePendingRestart, true, false);
             }
-
-            return Task.CompletedTask;
         }
 
         public void Dispose()
         {
             _checkTimer?.Dispose();
-            _semaphore?.Dispose();
+            _cancellation?.Dispose();
         }
     }
 }
