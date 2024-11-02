@@ -109,8 +109,7 @@ public static class Program
             services.AddSingleton<TransportManager>();
             services.AddSingleton<ApiClient, OnionFruitClient>();
             services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
-
-            services.AddSingleton(s =>
+            services.AddSingleton<IOnionFruitUpdater>(s =>
             {
                 var settings = s.GetRequiredService<OnionFruitSettingsStore>();
                 return ActivatorUtilities.CreateInstance<VelopackUpdater>(s, GetUpdateOptions(settings));
@@ -120,7 +119,7 @@ public static class Program
             services.AddHostedService<DiscordRpcService>();
             services.AddHostedService<LandingPageLaunchService>();
             services.AddHostedService(s => s.GetRequiredService<OnionDbService>());
-            services.AddHostedService(s => s.GetRequiredService<VelopackUpdater>());
+            services.AddHostedService(s => (VelopackUpdater)s.GetRequiredService<IOnionFruitUpdater>());
 
             // register view models
             services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
