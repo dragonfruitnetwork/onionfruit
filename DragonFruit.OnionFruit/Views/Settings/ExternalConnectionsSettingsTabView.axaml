@@ -11,13 +11,13 @@
         <controls:NavigationViewItemHeader Content="External Connections" VerticalAlignment="Top" FontSize="24" />
         
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
-            <controls:SettingsExpander Description="Enable Discord Status" IconSource="{Binding DiscordIcon}">
+            <controls:SettingsExpander Description="Discord Status" IconSource="{Binding DiscordIcon}">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding EnableDiscordRpc}" OnContent="Enabled" OffContent="Disabled"/>
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
             
-            <controls:SettingsExpander Description="Enable Error Reporting" IconSource="{Binding ErrorIcon}">
+            <controls:SettingsExpander Description="Error Reporting" IconSource="{Binding ErrorIcon}">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding EnableErrorReporting}" OnContent="Enabled" OffContent="Disabled"/>
                 </controls:SettingsExpander.Footer>
