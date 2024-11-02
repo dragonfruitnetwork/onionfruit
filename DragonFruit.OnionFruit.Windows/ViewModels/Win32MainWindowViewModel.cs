@@ -7,12 +7,14 @@ using Avalonia.Platform;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Updater;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.ViewModels.Interfaces;
 
 namespace DragonFruit.OnionFruit.Windows.ViewModels
 {
-    public class Win32MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, OnionFruitSettingsStore settings) : MainWindowViewModel(session, onionDatabase, settings), IHasCustomStartupPosition
+    public class Win32MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings)
+        : MainWindowViewModel(session, onionDatabase, updater, settings), IHasCustomStartupPosition
     {
         PixelPoint IHasCustomStartupPosition.GetInitialPosition(Screen screen, Size clientSize)
         {

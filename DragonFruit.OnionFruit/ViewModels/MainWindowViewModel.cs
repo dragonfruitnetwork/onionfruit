@@ -15,6 +15,7 @@ using Avalonia.Media.Immutable;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Updater;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -36,7 +37,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly OnionFruitSettingsStore _settings;
 
         private readonly ObservableAsPropertyHelper<bool> _countriesDbReady, _allowConfigurationChanges;
-        private readonly ObservableAsPropertyHelper<string> _exitNodeCountry;
+        private readonly ObservableAsPropertyHelper<string> _exitNodeCountry, _windowTitle;
         private readonly ObservableAsPropertyHelper<ToolbarContent> _ribbonContent;
         private readonly ObservableAsPropertyHelper<IEnumerable<TorNodeCountry>> _onionDbExitCountries;
 
@@ -48,10 +49,18 @@ namespace DragonFruit.OnionFruit.ViewModels
             }
         }
 
-        public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, OnionFruitSettingsStore settings)
+        public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings)
         {
             _session = session;
             _settings = settings;
+
+            var updaterStatus = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h)
+                .StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status))
+                .Select(x => x.EventArgs);
+
+            var updaterProgress = Observable.FromEventPattern<int?>(h => updater.DownloadProgressChanged += h, h => updater.DownloadProgressChanged -= h)
+                .StartWith(new EventPattern<int?>(this, updater.DownloadProgress))
+                .Select(x => x.EventArgs);
 
             // configure event-driven observables, ensuring correct disposal of subscriptions
             var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler)
@@ -72,23 +81,32 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Select(ProcessCountries)
                 .ObserveOn(RxApp.MainThreadScheduler);
 
-            _countriesDbReady = databaseReady.ToProperty(this, x => x.CountriesDatabaseReady).DisposeWith(_disposables);
-            _onionDbExitCountries = databaseCountries.ToProperty(this, x => x.ExitCountries).DisposeWith(_disposables);
-            _allowConfigurationChanges = sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ToProperty(this, x => x.AllowConfigurationChanges).DisposeWith(_disposables);
+            databaseReady.ToProperty(this, x => x.CountriesDatabaseReady, out _countriesDbReady).DisposeWith(_disposables);
+            databaseCountries.ToProperty(this, x => x.ExitCountries, out _onionDbExitCountries).DisposeWith(_disposables);
 
-            _ribbonContent = sessionState
+            sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected)
+                .ToProperty(this, x => x.AllowConfigurationChanges, out _allowConfigurationChanges)
+                .DisposeWith(_disposables);
+
+            sessionState
                 .CombineLatest(connectionProgress)
                 .Select(x => GetRibbonContent(x.First.EventArgs, x.Second.EventArgs))
-                .ToProperty(this, x => x.RibbonContent, scheduler: RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.RibbonContent, out _ribbonContent, scheduler: RxApp.MainThreadScheduler)
                 .DisposeWith(_disposables);
 
             // don't publish the settings value if the database isn't ready
-            _exitNodeCountry = settings.GetObservableValue<string>(OnionFruitSetting.TorExitCountryCode)
+            settings.GetObservableValue<string>(OnionFruitSetting.TorExitCountryCode)
                 .CombineLatest(databaseReady)
                 .Where(x => x.Second)
                 .Select(x => x.First)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToProperty(this, x => x.SelectedCountryCode)
+                .ToProperty(this, x => x.SelectedCountryCode, out _exitNodeCountry)
+                .DisposeWith(_disposables);
+
+            updaterStatus.CombineLatest(updaterProgress)
+                .Select(GetWindowTitle)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.WindowTitle, out _windowTitle)
                 .DisposeWith(_disposables);
 
             ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
@@ -104,6 +122,11 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// Command to open the settings page
         /// </summary>
         public ICommand OpenSettingsWindow { get; }
+
+        /// <summary>
+        /// The current window title (used to display update progress)
+        /// </summary>
+        public string WindowTitle => _windowTitle.Value;
 
         /// <summary>
         /// Gets the content of the ribbon (toggle state, text, background colour)
@@ -199,6 +222,16 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .OrderBy(x => x.CountryName, StringComparer.Ordinal)
                 .Prepend(TorNodeCountry.Random);
         }
+
+        private static string GetWindowTitle((OnionFruitUpdaterStatus Status, int? Progress) current) => current.Status switch
+        {
+            OnionFruitUpdaterStatus.Downloading when current.Progress.HasValue => $"{App.Title} - Downloading update ({current.Progress}%)",
+            OnionFruitUpdaterStatus.Downloading => $"{App.Title} - Downloading update",
+            OnionFruitUpdaterStatus.PendingRestart => $"{App.Title} - Update downloaded (pending restart)",
+            OnionFruitUpdaterStatus.Failed => $"{App.Title} - Update failed",
+
+            _ => App.Title
+        };
 
         public void Dispose()
         {
