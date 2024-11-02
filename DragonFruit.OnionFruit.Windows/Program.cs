@@ -2,6 +2,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
@@ -23,6 +26,7 @@ using GrpcDotNetNamedPipes;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Win32.SafeHandles;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -32,6 +36,8 @@ namespace DragonFruit.OnionFruit.Windows;
 
 public static class Program
 {
+    private static IHost _host;
+
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
@@ -76,11 +82,14 @@ public static class Program
             })
             .CreateLogger();
 
+        AppDomain.CurrentDomain.UnhandledException += PerformShutdown;
+
+        _host = BuildHost();
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(BuildHost()))
+    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost()))
         .UsePlatformDetect()
         .WithInterFont()
         .UseReactiveUI();
@@ -167,5 +176,26 @@ public static class Program
             AllowVersionDowngrade = true,
             ExplicitChannel = VelopackUpdater.UpdateChannelName(prefix, targetStream)
         };
+    }
+
+    private static void PerformShutdown(object sender, UnhandledExceptionEventArgs eventArgs)
+    {
+        if (!eventArgs.IsTerminating)
+        {
+            return;
+        }
+
+        // create a marker file to indicate that the application crashed
+        File.Create(Path.Combine(App.StoragePath, ".app-crash")).Dispose();
+        Log.Logger.Fatal("Unhandled exception: {message}", (eventArgs.ExceptionObject as Exception)?.Message);
+
+        PInvoke.ShellMessageBox(SafeAccessTokenHandle.InvalidHandle,
+            HWND.Null,
+            "OnionFruit has encountered an unrecoverable error and must close. After clicking OK, Tor will attempt to disconnect gracefully and the application will close.",
+            "OnionFruit",
+            MESSAGEBOX_STYLE.MB_OK);
+
+        // shutdown any ongoing session
+        _host?.Services.GetService<TorSession>().StopSession().AsTask().Wait();
     }
 }
