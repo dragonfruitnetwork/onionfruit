@@ -19,16 +19,22 @@ namespace DragonFruit.OnionFruit.Windows.ViewModels
         PixelPoint IHasCustomStartupPosition.GetInitialPosition(Screen screen, Size clientSize)
         {
             var screenSize = screen.WorkingArea.Size;
+            var scaling = screen.Scaling;
 
-            var padding = (int)(10 * screen.Scaling);
-            var windowSize = PixelSize.FromSize(clientSize, screen.Scaling);
+            var padding = (int)(10 * scaling);
+            var windowSize = PixelSize.FromSize(clientSize, scaling);
 
-            // account for when scaling != 1: the taskbar is scaled, but the workingarea doesn't account for that.
-            var scaledOffsetX = (int)Math.Ceiling((screen.Bounds.Width - screenSize.Width) * (1 / screen.Scaling));
-            var scaledOffsetY = (int)Math.Ceiling((screen.Bounds.Height - screenSize.Height) * (1 / screen.Scaling));
+            var scaledOffsetX = (int)Math.Ceiling((screen.Bounds.Width - screenSize.Width) * (1 / scaling));
+            var scaledOffsetY = (int)Math.Ceiling((screen.Bounds.Height - screenSize.Height) * (1 / scaling));
 
-            // apply padding to x axis only - the title bar is merged with the window so it gets its own padding
-            return new PixelPoint(screenSize.Width - windowSize.Width - scaledOffsetX - padding, screenSize.Height - windowSize.Height - scaledOffsetY + padding);
+            var xPosition = screenSize.Width - windowSize.Width - (padding - scaledOffsetX);
+            var yPosition = screenSize.Height - windowSize.Height - (padding - scaledOffsetY);
+
+            // handle taskbar position
+            xPosition -= (screen.Bounds.Width - screen.WorkingArea.Width);
+            yPosition -= (screen.Bounds.Height - screen.WorkingArea.Height);
+
+            return new PixelPoint(xPosition, yPosition);
         }
     }
 }
