@@ -232,7 +232,7 @@ namespace DragonFruit.OnionFruit.Configuration
             observable.ObserveOn(RxApp.TaskpoolScheduler)
                 .Subscribe(value =>
                 {
-                    _logger.LogDebug("Configuration value {key} set to '{val}'", key, value);
+                    _logger.LogInformation("Configuration value {key} set to '{val}'", key, value);
                     setter.Invoke(value, _configFile);
 
                     _ = QueueSave();
