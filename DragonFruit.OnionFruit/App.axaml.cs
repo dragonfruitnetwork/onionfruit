@@ -111,7 +111,7 @@ public partial class App(IHost host) : Application
 
         _shutdownSignalProcessor = sessionObservable.CombineLatest(updateStateObservable).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x =>
         {
-            var updateBlocked = x.Second.EventArgs is not (OnionFruitUpdaterStatus.Failed or OnionFruitUpdaterStatus.UpToDate);
+            var updateBlocked = x.Second.EventArgs is not (OnionFruitUpdaterStatus.Failed or OnionFruitUpdaterStatus.UpToDate or OnionFruitUpdaterStatus.Disabled);
             switch (x.First.EventArgs)
             {
                 case TorSession.TorSessionState.Disconnected:

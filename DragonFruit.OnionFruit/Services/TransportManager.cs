@@ -20,10 +20,10 @@ namespace DragonFruit.OnionFruit.Services
 
         public TransportManager(ExecutableLocator locator, ILogger<TransportManager> logger)
         {
-            // locate and read pt_config.json in pluggable_transports
+            // locate and read pt_config.json
             var ptConfigLocation = locator.LocateExecutableInstancesOf("tor")
-                .Select(x => Path.Combine(Path.GetDirectoryName(x), TransportsDirectory, "pt_config.json"))
-                .FirstOrDefault(File.Exists);
+                .SelectMany(x => Directory.EnumerateFiles(Path.GetDirectoryName(x), "pt_config.json", SearchOption.AllDirectories))
+                .First();
 
             if (string.IsNullOrEmpty(ptConfigLocation))
             {

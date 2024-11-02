@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
@@ -38,9 +36,9 @@ public static class Program
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
     // yet and stuff might break.
     [STAThread]
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
-        await HandleSecondInstance();
+        HandleSecondInstance();
 
         VelopackApp.Build().Run();
 
@@ -85,7 +83,6 @@ public static class Program
     public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(BuildHost()))
         .UsePlatformDetect()
         .WithInterFont()
-        .LogToTrace()
         .UseReactiveUI();
 
     private static IHost BuildHost() => Host.CreateDefaultBuilder()
@@ -125,20 +122,18 @@ public static class Program
             services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
         }).Build();
 
-    private static async Task HandleSecondInstance()
+    private static void HandleSecondInstance()
     {
         var channel = new NamedPipeChannel(".", OnionRpcServer.RpcPipeName);
         var client = new OnionRpc.OnionRpcClient(channel);
 
         try
         {
-            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-            var response = await client.SecondInstanceLaunchedAsync(new Empty(), cancellationToken: timeout.Token).ConfigureAwait(false);
-
+            var response = client.SecondInstanceLaunched(new Empty(), deadline: DateTime.UtcNow.AddSeconds(2));
             if (response.HasWaitForPidExit)
             {
                 using var process = Process.GetProcessById(response.WaitForPidExit);
-                await process.WaitForExitAsync().ConfigureAwait(false);
+                process.WaitForExit();
             }
 
             if (response.ShouldClose)

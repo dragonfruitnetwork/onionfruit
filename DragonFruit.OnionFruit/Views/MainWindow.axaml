@@ -70,7 +70,7 @@
 
                     <Button DockPanel.Dock="Right" Content="Settings"
                             Padding="30, 0" CornerRadius="0"
-                            Background="{x:Null}" BorderBrush="Transparent"
+                            Background="Transparent" BorderBrush="Transparent"
                             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                             Command="{Binding OpenSettingsWindow}"/>
 

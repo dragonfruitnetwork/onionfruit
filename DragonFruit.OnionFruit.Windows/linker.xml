@@ -1,0 +1,9 @@
+﻿<linker>
+    <assembly fullname="Grpc"/>
+    <assembly fullname="GrpcDotNetNamedPipes"/>
+
+    <assembly fullname="FluentAvalonia"/>
+    <assembly fullname="DragonFruit.OnionFruit"/>
+    <assembly fullname="DragonFruit.OnionFruit.Core"/>
+    <assembly fullname="DragonFruit.OnionFruit.Core.Windows"/>
+</linker>

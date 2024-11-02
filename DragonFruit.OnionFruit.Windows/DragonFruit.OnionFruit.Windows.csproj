@@ -1,16 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <OutputType>Exe</OutputType>
+        <OutputType>WinExe</OutputType>
+        <NeutralLanguage>en-US</NeutralLanguage>
         <TargetFramework>net8.0-windows</TargetFramework>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
+
+        <Product>OnionFruit</Product>
+        <Authors>DragonFruit Network</Authors>
+        <Description>Tor access client</Description>
+        <Copyright>Copyright 2024 (c) DragonFruit Network</Copyright>
     </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\DragonFruit.OnionFruit.Core.Windows\DragonFruit.OnionFruit.Core.Windows.csproj" />
-      <ProjectReference Include="..\DragonFruit.OnionFruit\DragonFruit.OnionFruit.csproj" />
-    </ItemGroup>
+    <PropertyGroup>
+        <PublishTrimmed>true</PublishTrimmed>
+        <PublishReadyToRun>true</PublishReadyToRun>
+
+        <MetricsSupport>false</MetricsSupport>
+        <EventSourceSupport>false</EventSourceSupport>
+        <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+
+        <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
+        <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
+        <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+        
+        <!-- needed for FluentAvalonia to work -->
+        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
+    </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Google.Protobuf" Version="3.28.3"/>
@@ -27,7 +46,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\DragonFruit.OnionFruit.Core.Windows\DragonFruit.OnionFruit.Core.Windows.csproj" />
+        <ProjectReference Include="..\DragonFruit.OnionFruit\DragonFruit.OnionFruit.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Protobuf Include="Rpc\onionrpc.proto"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <TrimmerRootDescriptor Include="linker.xml" />
     </ItemGroup>
 
 </Project>
