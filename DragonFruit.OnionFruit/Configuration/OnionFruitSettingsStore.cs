@@ -20,7 +20,7 @@ using CodedOutputStream = Google.Protobuf.CodedOutputStream;
 
 namespace DragonFruit.OnionFruit.Configuration
 {
-    public class OnionFruitSettingsStore : SettingsStore<OnionFruitSetting>
+    public partial class OnionFruitSettingsStore : SettingsStore<OnionFruitSetting>
     {
         private const int ConfigVersion = 1;
 
@@ -140,6 +140,8 @@ namespace DragonFruit.OnionFruit.Configuration
                 {
                     collectionEntry.SetDefaultValues.Invoke(_configFile);
                 }
+
+                MigrateLegacySettings();
             }
 
             // set client version info
@@ -264,7 +266,7 @@ namespace DragonFruit.OnionFruit.Configuration
                     {
                         collection.Clear();
                         collection.AddRange(clonedList.ToList());
- 
+
                         _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", clonedList.AsEnumerable()));
                     }
 
