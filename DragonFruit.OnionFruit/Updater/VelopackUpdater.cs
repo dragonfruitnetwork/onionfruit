@@ -26,7 +26,7 @@ namespace DragonFruit.OnionFruit.Updater
         public VelopackUpdater(UpdateOptions options, ILogger<VelopackUpdater> logger)
         {
             _logger = logger;
-            _updateManager = new UpdateManager(new GithubSource("https://github.com/aspriddell/onionfruit-xplat", null, true), options);
+            _updateManager = new UpdateManager(new GithubSource("https://github.com/dragonfruitnetwork/onionfruit", null, true), options);
         }
 
         public OnionFruitUpdaterStatus Status
