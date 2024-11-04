@@ -1,0 +1,6 @@
+[
+  "DragonFruit.OnionFruit/DragonFruit.OnionFruit.csproj",
+  "DragonFruit.OnionFruit.Core/DragonFruit.OnionFruit.Core.csproj",
+  "DragonFruit.OnionFruit.Windows/DragonFruit.OnionFruit.Windows.csproj",
+  "DragonFruit.OnionFruit.Core.Windows/DragonFruit.OnionFruit.Core.Windows.csproj"
+]

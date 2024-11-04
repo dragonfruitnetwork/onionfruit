@@ -58,5 +58,9 @@
     <ItemGroup>
         <TrimmerRootDescriptor Include="linker.xml" />
     </ItemGroup>
+    
+    <ItemGroup>
+        <None Remove="nuget-license-sources.json"/>
+    </ItemGroup>
 
 </Project>
