@@ -6,7 +6,15 @@
       "version": "3.0.13",
       "commands": [
         "nuget-license"
-      ]
+      ],
+      "rollForward": false
+    },
+    "vpk": {
+      "version": "0.0.869",
+      "commands": [
+        "vpk"
+      ],
+      "rollForward": false
     }
   }
 }
