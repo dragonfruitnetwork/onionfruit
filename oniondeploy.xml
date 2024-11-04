@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+    <SolutionName>DragonFruit.OnionFruit.sln</SolutionName>
+    <GitHub>
+        <User>dragonfruitnetwork</User>
+        <Repo>onionfruit</Repo>
+    </GitHub>
+    <Velopack>
+        <PackageId>onionfruit</PackageId>
+        <PackageIcon>DragonFruit.OnionFruit/Assets/icon.ico</PackageIcon>
+    </Velopack>
+</configuration>
