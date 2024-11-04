@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Templates;
+using Avalonia.Markup.Xaml.Templates;
 
 namespace DragonFruit.OnionFruit.Controls
 {
@@ -14,8 +15,8 @@ namespace DragonFruit.OnionFruit.Controls
         private readonly ContentPresenter _presenter;
 
         public static readonly StyledProperty<bool> SwitchProperty = AvaloniaProperty.Register<SwitchingControl, bool>(nameof(Switch));
-        public static readonly StyledProperty<IDataTemplate> SwitchTrueProperty = AvaloniaProperty.Register<SwitchingControl, IDataTemplate>(nameof(SwitchTrue));
-        public static readonly StyledProperty<IDataTemplate> SwitchFalseProperty = AvaloniaProperty.Register<SwitchingControl, IDataTemplate>(nameof(SwitchFalse));
+        public static readonly StyledProperty<IDataTemplate> SwitchTrueProperty = AvaloniaProperty.Register<SwitchingControl, IDataTemplate>(nameof(SwitchTrue), defaultValue: new DataTemplate());
+        public static readonly StyledProperty<IDataTemplate> SwitchFalseProperty = AvaloniaProperty.Register<SwitchingControl, IDataTemplate>(nameof(SwitchFalse), defaultValue: new DataTemplate());
 
         public SwitchingControl()
         {
