@@ -40,12 +40,22 @@
                                 <DockPanel>
                                     <StackPanel Orientation="Horizontal" Spacing="10" DockPanel.Dock="Right">
                                         <TextBlock TextTrimming="WordEllipsis" VerticalAlignment="Center" Text="{Binding Copyright}" />
-                                        <lucideAvalonia:Lucide Icon="Scale" StrokeBrush="LimeGreen" Margin="10,0,0,0"
-                                                               Height="20" Width="20" VerticalAlignment="Center"
-                                                               ToolTip.Tip="{Binding License}"
-                                                               ToolTip.HorizontalOffset="-15"
-                                                               ToolTip.VerticalOffset="0"
-                                                               ToolTip.Placement="Left" />
+                                        <Border Height="20"
+                                                Width="20"
+                                                Margin="10,0,0,0"
+                                                BorderThickness="0"
+                                                Background="Transparent"
+                                                ToolTip.Tip="{Binding License}"
+                                                ToolTip.HorizontalOffset="-15"
+                                                ToolTip.VerticalOffset="0"
+                                                ToolTip.Placement="Left">
+                                            <lucideAvalonia:Lucide Width="20"
+                                                                   Height="20"
+                                                                   Icon="Scale"
+                                                                   StrokeBrush="LimeGreen"
+                                                                   VerticalAlignment="Center"/>
+                                        </Border>
+
                                     </StackPanel>
 
                                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
