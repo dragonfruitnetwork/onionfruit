@@ -110,7 +110,7 @@ namespace DragonFruit.OnionFruit.Updater
         {
             if (_updateManager.IsInstalled)
             {
-                _checkTimer = new Timer(_ => TriggerUpdateCheck(), null, TimeSpan.FromSeconds(5), TimeSpan.FromHours(12));
+                _checkTimer = new Timer(_ => TriggerUpdateCheck(), null, TimeSpan.Zero, TimeSpan.FromHours(12));
             }
             else
             {
