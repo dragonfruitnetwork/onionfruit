@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DiscordRPC;
+using DiscordRPC.Logging;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
@@ -93,13 +94,18 @@ namespace DragonFruit.OnionFruit.Services
 
                     _rpcClient = new DiscordRpcClient(DiscordAppId)
                     {
-                        Logger = new DiscordRpcLogger(logger)
+                        Logger = new NullLogger()
                     };
 
                     _rpcClient.OnReady += (sender, args) =>
                     {
                         logger.LogInformation("Discord RPC client ready (version {v})", args.Version);
                         (sender as DiscordRpcClient)?.SetPresence(_currentPresence);
+                    };
+
+                    _rpcClient.OnError += (_, args) =>
+                    {
+                        logger.LogError("Discord RPC error occurred: {message} ({type})", args.Message, args.Type);
                     };
 
                     _rpcClient.Initialize();
@@ -156,19 +162,6 @@ namespace DragonFruit.OnionFruit.Services
         {
             _rpcClient?.Dispose();
             _observables?.Dispose();
-        }
-
-        /// <summary>
-        /// A Discord RPC logger that writes to the application logger
-        /// </summary>
-        private class DiscordRpcLogger(ILogger logger) : DiscordRPC.Logging.ILogger
-        {
-            public DiscordRPC.Logging.LogLevel Level { get; set; }
-
-            public void Trace(string message, params object[] args) => logger.LogTrace(message, args);
-            public void Info(string message, params object[] args) => logger.LogInformation(message, args);
-            public void Warning(string message, params object[] args) => logger.LogWarning(message, args);
-            public void Error(string message, params object[] args) => logger.LogError(message, args);
         }
     }
 }

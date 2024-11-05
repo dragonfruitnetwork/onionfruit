@@ -61,7 +61,7 @@
             <controls:SettingsExpander.Footer>
                 <Label Content="{Binding DatabaseState}"/>
             </controls:SettingsExpander.Footer>
-            <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, 10, *" >
+            <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, 10, *" IsVisible="{Binding DatabaseLoaded}">
                 <Label Grid.Row="0" Grid.Column="0">Database Version</Label>
                 <Label Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Content="{Binding DatabaseVersion, Mode=OneTime}"/>
 

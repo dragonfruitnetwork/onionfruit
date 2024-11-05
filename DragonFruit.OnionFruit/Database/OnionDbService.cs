@@ -29,6 +29,8 @@ namespace DragonFruit.OnionFruit.Database
     public class OnionDbService : IOnionDatabase, IHostedService, IDisposable
     {
         private const string GeoIpFileTemplate = "oniondb-{0}.geoip{1}";
+        private const int MaxGeoIpFileAge = 48;
+
         private readonly string _databasePath = Path.Combine(App.StoragePath, "onion.db");
 
         private Timer _checkTimer;
@@ -200,34 +202,60 @@ namespace DragonFruit.OnionFruit.Database
 
             DateTimeOffset? fileLastModified = _currentDb == null ? null : DateTimeOffset.FromUnixTimeSeconds(_currentDb.DbVersion);
 
-            // re-download if file is 0-length or is older than 12 hours
-            if (DateTimeOffset.Now - fileLastModified < TimeSpan.FromHours(12))
+            // skip download if file is new enough
+            if (DateTimeOffset.Now - fileLastModified < TimeSpan.FromHours(MaxGeoIpFileAge))
             {
                 return;
             }
 
             State = DatabaseState.Downloading;
-            _logger.LogInformation("Downloading onion.db (expiry date: {ExpiryDate})...", fileLastModified);
-
-            using var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan);
+            _logger.LogInformation("Downloading onion.db (expiry date: {expiry})...", fileLastModified);
 
             try
             {
-                var onionDbRequest = new OnionDbDownloadRequest(fileLastModified);
-                var downloadRequestStatus = await _client.PerformDownload(onionDbRequest, databaseStream, null, true, false, _cancellation.Token).ConfigureAwait(false);
+                using var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan);
 
-                _logger.LogInformation("onion.db download request returned {status}", downloadRequestStatus);
+                using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(2));
+                using var linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellation.Token);
 
-                if (downloadRequestStatus == HttpStatusCode.OK)
+                var downloadRequestStatus = await _client.PerformDownload(new OnionDbDownloadRequest(fileLastModified), databaseStream, null, true, true, linkedCancellation.Token).ConfigureAwait(false);
+
+                switch (downloadRequestStatus)
                 {
-                    databaseStream.Seek(0, SeekOrigin.Begin);
-                    LoadLocalDatabase(databaseStream);
+                    case HttpStatusCode.OK:
+                        databaseStream.Seek(0, SeekOrigin.Begin);
+                        LoadLocalDatabase(databaseStream);
+                        break;
+
+                    case HttpStatusCode.NotModified:
+                        _logger.LogInformation("onion.db is up to date (returned {status})", downloadRequestStatus);
+                        break;
+
+                    default:
+                        _logger.LogWarning("Failed to download onion.db - web request returned {status}", downloadRequestStatus);
+                        break;
                 }
+            }
+            catch (IOException e)
+            {
+                _logger.LogError(e, "Failed to download onion.db due to an I/O error: {message}", e.Message);
             }
             catch (HttpRequestException e)
             {
                 _logger.LogWarning(e, "Failed to download onion.db - web request failed with error: {message}", e.Message);
-                SetErrorState();
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("onion.db download request timed out");
+            }
+            finally
+            {
+                // if the download failed but a database is still available, continue using it.
+                // otherwise use error state to allow random country selection
+                if (_currentDb == null)
+                {
+                    SetErrorState();
+                }
             }
         }
 
@@ -236,7 +264,9 @@ namespace DragonFruit.OnionFruit.Database
             try
             {
                 State = DatabaseState.Processing;
+
                 _currentDb = OnionDb.Parser.ParseFrom(stream);
+                _logger.LogInformation("onion.db version {v} loaded successfully", DisplayVersion);
             }
             catch // todo detect if protobuf is corrupt, delete the file and restart the download
             {
