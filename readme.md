@@ -24,7 +24,6 @@ Users are encouraged to download and use the program (either side-by-side or as 
 OnionFruit™ builds are provided for the platforms below. Click the links to download the latest version:
 
 - [Windows (x64)](https://github.com/dragonfruitnetwork/onionfruit/releases)
-- [Windows (ARM64)](https://github.com/dragonfruitnetwork/onionfruit/releases)
 
 **NOTE: install.exe is the installer for the legacy version of OnionFruit™ Connect.**
 
