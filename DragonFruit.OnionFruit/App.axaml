@@ -4,7 +4,7 @@
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
              xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit" RequestedThemeVariant="Dark">
     <Application.Styles>
-        <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" />
+        <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" CustomAccentColor="#c71585" />
     </Application.Styles>
     <Application.Resources>
         <ResourceDictionary>
