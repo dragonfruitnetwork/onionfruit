@@ -14,15 +14,20 @@ jobs:
   create-draft-release:
     name: Create Draft Release
     runs-on: ubuntu-latest
-    environment: release
 
     steps:
+      - id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.ONIONFRUIT_TEAM_CLIENT_ID }}
+          private-key: ${{ secrets.ONIONFRUIT_TEAM_CLIENT_KEY }}
+
       - uses: softprops/action-gh-release@v2
         with:
           draft: true
           prerelease: true
           generate_release_notes: true
-          token: ${{ secrets.USER_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           name: ${{ github.event.inputs.version }}
           tag_name: ${{ github.event.inputs.version }}
 
