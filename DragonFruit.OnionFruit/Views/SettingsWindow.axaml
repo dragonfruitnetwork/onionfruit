@@ -26,7 +26,7 @@
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10">
                     <!-- <Image Source="avares://DragonFruit.OnionFruit/Assets/icon.ico" Height="16" Width="16" /> -->
-                    <TextBlock Text="OnionFruit Settings" />
+                    <TextBlock Text="OnionFruit™ Settings" />
                 </StackPanel>
 
                 <controls:NavigationView ContentTemplate="{Binding TabTemplate, Mode=OneTime}"
