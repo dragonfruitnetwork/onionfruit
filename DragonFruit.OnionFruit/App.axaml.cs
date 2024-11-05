@@ -111,28 +111,36 @@ public partial class App(IHost host) : Application
 
         _shutdownSignalProcessor = sessionObservable.CombineLatest(updateStateObservable).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x =>
         {
-            var updateBlocked = x.Second.EventArgs is not (OnionFruitUpdaterStatus.Failed or OnionFruitUpdaterStatus.UpToDate or OnionFruitUpdaterStatus.Disabled);
+            bool blockClose;
+
             switch (x.First.EventArgs)
             {
                 case TorSession.TorSessionState.Disconnected:
                 case TorSession.TorSessionState.BlockedProxy:
                 case TorSession.TorSessionState.BlockedProcess:
+                case TorSession.TorSessionState.KillSwitchTriggered:
                 {
-                    if (!updateBlocked)
+                    blockClose = false;
+                    if (x.First.EventArgs == TorSession.TorSessionState.KillSwitchTriggered)
                     {
-                        _shutdownSignal.Set();
+                        ActivateApp();
                     }
 
-                    goto case TorSession.TorSessionState.KillSwitchTriggered;
+                    break;
                 }
 
-                case TorSession.TorSessionState.KillSwitchTriggered:
-                    ActivateApp();
-                    break;
-
                 default:
-                    _shutdownSignal.Reset();
+                    blockClose = true;
                     break;
+            }
+
+            if (blockClose || x.Second.EventArgs == OnionFruitUpdaterStatus.Downloading)
+            {
+                _shutdownSignal.Reset();
+            }
+            else
+            {
+                _shutdownSignal.Set();
             }
         });
 

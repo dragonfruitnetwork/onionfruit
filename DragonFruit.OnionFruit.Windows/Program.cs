@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -163,18 +162,10 @@ public static class Program
     private static UpdateOptions GetUpdateOptions(OnionFruitSettingsStore settings)
     {
         var targetStream = settings.GetValue<UpdateStream?>(OnionFruitSetting.ExplicitUpdateStream);
-        var prefix = RuntimeInformation.OSArchitecture switch
-        {
-            Architecture.Arm64 => "arm64",
-            Architecture.X64 => null,
-
-            _ => throw new PlatformNotSupportedException()
-        };
-
         return new UpdateOptions
         {
             AllowVersionDowngrade = true,
-            ExplicitChannel = VelopackUpdater.UpdateChannelName(prefix, targetStream)
+            ExplicitChannel = VelopackUpdater.UpdateChannelName(null, targetStream)
         };
     }
 

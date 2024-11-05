@@ -51,7 +51,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 {
                     OnionFruitUpdaterStatus.Checking => "Checking for updates...",
 
-                    OnionFruitUpdaterStatus.Downloading when x.Second.HasValue => $"Downloading update ({x.Second} %)",
+                    OnionFruitUpdaterStatus.Downloading when x.Second.HasValue => $"Downloading update ({x.Second}%)",
                     OnionFruitUpdaterStatus.Failed when x.Second.HasValue => "Update failed",
 
                     OnionFruitUpdaterStatus.Downloading => "Downloading update...",
