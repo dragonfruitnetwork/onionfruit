@@ -199,9 +199,9 @@ public static class Program
 
         PInvoke.ShellMessageBox(SafeAccessTokenHandle.InvalidHandle,
             HWND.Null,
-            "OnionFruit has encountered an unrecoverable error and must close. After clicking OK, Tor will attempt to disconnect gracefully and the application will close.",
-            "OnionFruit",
-            MESSAGEBOX_STYLE.MB_OK);
+            "OnionFruit\u2122 has encountered an unrecoverable error and must close. After clicking OK, Tor will attempt to disconnect gracefully and the application will close.",
+            "OnionFruit\u2122",
+            MESSAGEBOX_STYLE.MB_OK | MESSAGEBOX_STYLE.MB_ICONWARNING);
 
         // shutdown any ongoing session
         _host?.Services.GetService<TorSession>().StopSession().AsTask().Wait();
