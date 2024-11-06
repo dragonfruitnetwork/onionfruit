@@ -44,8 +44,20 @@ public static class Program
     public static void Main(string[] args)
     {
         HandleSecondInstance();
-
         VelopackApp.Build().Run();
+
+        // FluentAvalonia needs Windows 10.0.14393.0 (Anniversary Update) or later
+        // see https://github.com/amwx/FluentAvalonia/issues/212
+        if (!OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393))
+        {
+            PInvoke.ShellMessageBox(SafeAccessTokenHandle.InvalidHandle,
+                HWND.Null,
+                "OnionFruit\u2122 requires Windows 10 Anniversary Update (1607) or later to run.\nConsider using the legacy OnionFruit\u2122 Connect client instead.",
+                "OnionFruit\u2122",
+                MESSAGEBOX_STYLE.MB_OK | MESSAGEBOX_STYLE.MB_ICONERROR);
+
+            return;
+        }
 
         // standard application startup
         var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
