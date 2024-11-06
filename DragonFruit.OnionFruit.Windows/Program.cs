@@ -1,4 +1,7 @@
-﻿using System;
+﻿// OnionFruit Copyright DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under LGPL-3.0. Refer to the LICENCE file for more info
+
+using System;
 using System.Diagnostics;
 using System.IO;
 using Windows.Win32;
