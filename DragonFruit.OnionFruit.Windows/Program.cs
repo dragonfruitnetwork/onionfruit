@@ -78,6 +78,8 @@ public static class Program
 
                 o.MinimumEventLevel = LogEventLevel.Error;
                 o.MinimumBreadcrumbLevel = LogEventLevel.Debug;
+
+                o.DisableUnobservedTaskExceptionCapture();
             })
             .CreateLogger();
 

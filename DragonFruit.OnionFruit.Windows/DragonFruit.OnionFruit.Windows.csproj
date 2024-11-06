@@ -4,7 +4,7 @@
         <OutputType>WinExe</OutputType>
         <NeutralLanguage>en-US</NeutralLanguage>
         <AssemblyTitle>OnionFruit™</AssemblyTitle>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net8.0-windows7.0</TargetFramework>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
 
