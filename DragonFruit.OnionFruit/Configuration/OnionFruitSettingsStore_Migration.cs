@@ -41,22 +41,22 @@ namespace DragonFruit.OnionFruit.Configuration
                 SetValue(OnionFruitSetting.TorExitCountryCode, legacySettings["tor_exit"]!["a2c"]?.GetValue<string>());
 
                 // features
-                SetValue(OnionFruitSetting.EnableErrorReporting, legacySettings["functions"]!["crash_reports"]!.GetValue<bool>());
-                SetValue(OnionFruitSetting.EnableDiscordRpc, legacySettings["functions"]["discord_status"]!.GetValue<bool>());
-                SetValue(OnionFruitSetting.ExplicitUpdateStream, legacySettings["functions"]["beta_updates"]!.GetValue<bool>() ? (UpdateStream?)UpdateStream.Beta : null);
-                SetValue(OnionFruitSetting.DisconnectOnTorFailure, !legacySettings["functions"]["killswitch"]!.GetValue<bool>());
+                SetValue(OnionFruitSetting.EnableErrorReporting, legacySettings["functions"]!["crash_reports"]?.GetValue<bool>() != false);
+                SetValue(OnionFruitSetting.EnableDiscordRpc, legacySettings["functions"]["discord_status"]?.GetValue<bool>() == true);
+                SetValue(OnionFruitSetting.ExplicitUpdateStream, legacySettings["functions"]["beta_updates"]?.GetValue<bool>() == true ? (UpdateStream?)UpdateStream.Beta : null);
+                SetValue(OnionFruitSetting.DisconnectOnTorFailure, legacySettings["functions"]["killswitch"]?.GetValue<bool>() == false);
 
                 // landing pages
                 if (legacySettings.ContainsKey("connected_landing"))
                 {
-                    SetValue(OnionFruitSetting.EnableWebsiteLaunchConnect, legacySettings["connected_landing"]!["enabled"]!.GetValue<bool>());
-                    SetValue(OnionFruitSetting.WebsiteLaunchConnect, legacySettings["connected_landing"]["location"]!.GetValue<string>());
+                    SetValue(OnionFruitSetting.EnableWebsiteLaunchConnect, legacySettings["connected_landing"]!["enabled"]?.GetValue<bool>() ?? true);
+                    SetValue(OnionFruitSetting.WebsiteLaunchConnect, legacySettings["connected_landing"]["location"]?.GetValue<string>());
                 }
 
                 if (legacySettings.ContainsKey("disconnected_landing"))
                 {
-                    SetValue(OnionFruitSetting.EnableWebsiteLaunchDisconnect, legacySettings["disconnected_landing"]!["enabled"]!.GetValue<bool>());
-                    SetValue(OnionFruitSetting.WebsiteLaunchDisconnect, legacySettings["disconnected_landing"]["location"]!.GetValue<string>());
+                    SetValue(OnionFruitSetting.EnableWebsiteLaunchDisconnect, legacySettings["disconnected_landing"]!["enabled"]?.GetValue<bool>() ?? false);
+                    SetValue(OnionFruitSetting.WebsiteLaunchDisconnect, legacySettings["disconnected_landing"]["location"]?.GetValue<string>());
                 }
 
                 // bridges
@@ -69,14 +69,16 @@ namespace DragonFruit.OnionFruit.Configuration
                         3 => TransportType.obfs3,
                         4 => TransportType.obfs4,
                         5 => TransportType.scramblesuit,
-                        6 => TransportType.snowflake
+                        6 => TransportType.snowflake,
+
+                        _ => TransportType.None
                     });
                 }
 
                 // bridge lines
                 if (legacySettings.ContainsKey("bridges"))
                 {
-                    var lines = legacySettings["bridges"]!["bridge_lines"]!.GetValue<string>().Split('\n').Where(x => BridgeEntry.ValidationRegex().IsMatch(x));
+                    var lines = legacySettings["bridges"]!["bridge_lines"]?.GetValue<string>().Split('\n').Where(x => BridgeEntry.ValidationRegex().IsMatch(x)) ?? [];
                     GetCollection<string>(OnionFruitSetting.UserDefinedBridges).AddRange(lines);
                 }
 
