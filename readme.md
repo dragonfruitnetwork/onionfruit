@@ -8,7 +8,7 @@ Connect to the Tor network with minimal effort
 </div>
 
 ## Overview
-OnionFruit is a Tor Proxy Gateway that bootstraps Tor and updates the appropriate system settings to allow a wide range of applications to use the network (primarily Browsers) with a range of customisation and features through a clean, modern interface.
+OnionFruit™ is a Tor Proxy Gateway that bootstraps Tor and updates the appropriate system settings to allow a wide range of applications to use the network (primarily Browsers) with a range of customisation and features through a clean, modern interface.
 
 This is an open-source rewrite of the legacy OnionFruit™ Connect, originally published in late 2016 (with the last major redesign in 2020).
 
@@ -23,7 +23,7 @@ Users are encouraged to download and use the program (either side-by-side or as 
 
 OnionFruit™ builds are provided for the platforms below. Click the links to download the latest version:
 
-- [Windows (x64)](https://github.com/dragonfruitnetwork/onionfruit/releases)
+- [Windows 10+ (x64)](https://github.com/dragonfruitnetwork/onionfruit/releases)
 
 **NOTE: install.exe is the installer for the legacy version of OnionFruit™ Connect.**
 
