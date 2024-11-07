@@ -29,6 +29,7 @@ namespace DragonFruit.OnionFruit.Models
         private const int DefaultSocksPort = 9050;
         private const int DefaultControlPort = 9051;
 
+        private bool _bootstrapped;
         private TorProcess _process;
         private TorSessionState _state = TorSessionState.Disconnected;
 
@@ -117,6 +118,8 @@ namespace DragonFruit.OnionFruit.Models
 
             try
             {
+                _bootstrapped = false;
+
                 State = TorSessionState.Connecting;
                 await _process.StartProcessWithConfig(_sessionConfig);
             }
@@ -322,9 +325,27 @@ namespace DragonFruit.OnionFruit.Models
                     break;
                 }
 
+                case TorProcess.State.Killed when !_bootstrapped:
+                {
+                    State = TorSessionState.BlockedProcess;
+                    if (_connectionStallTimer != null)
+                    {
+                        await _connectionStallTimer.DisposeAsync();
+                    }
+
+                    break;
+                }
+
                 case TorProcess.State.Killed when !settings.GetValue<bool>(OnionFruitSetting.DisconnectOnTorFailure):
                 {
                     State = TorSessionState.KillSwitchTriggered;
+
+                    // disable the stall timer as the process was killed and won't be able to recover
+                    if (_connectionStallTimer != null)
+                    {
+                        await _connectionStallTimer.DisposeAsync();
+                    }
+
                     break;
                 }
 
@@ -355,11 +376,14 @@ namespace DragonFruit.OnionFruit.Models
         {
             if (e == 100)
             {
+                _bootstrapped = true;
+
                 _connectionStallTimer?.Dispose();
                 _connectionStallTimer = null;
             }
             else
             {
+                _bootstrapped = false;
                 _connectionStallTimer?.Change(TimeSpan.FromSeconds(30), Timeout.InfiniteTimeSpan);
             }
 
