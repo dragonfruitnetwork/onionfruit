@@ -202,7 +202,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             TorSession.TorSessionState.Disconnecting => new ToolbarContent(false, false, Brushes.DarkOrange, "Tor Disconnecting"),
 
-            TorSession.TorSessionState.BlockedProcess => new ToolbarContent(false, false, Brushes.Black, "Tor process failed to start"),
+            TorSession.TorSessionState.BlockedProcess => new ToolbarContent(false, true, Brushes.Black, "Tor process failed to start"),
             TorSession.TorSessionState.BlockedProxy => new ToolbarContent(false, false, Brushes.Black, "Failed to change proxy settings"),
 
             TorSession.TorSessionState.KillSwitchTriggered => new ToolbarContent(true, true, Brushes.DeepPink, "Tor Process Killed (Killswitch enabled)"),
