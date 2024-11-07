@@ -16,8 +16,6 @@ namespace DragonFruit.OnionFruit.Services
 {
     public class TransportManager
     {
-        private const string TransportsDirectory = "pluggable_transports";
-
         public TransportManager(ExecutableLocator locator, ILogger<TransportManager> logger)
         {
             // locate and read pt_config.json
@@ -69,9 +67,13 @@ namespace DragonFruit.OnionFruit.Services
                 logger.LogWarning("Cannot use transport {TransportType} as the required engine {Engine} is not available", transport, metadata.TransportEngine);
             }
 
+            // determine the relative path to the transport directory from the tor executable
+            var torExecutableDirectory = Path.GetDirectoryName(locator.LocateExecutableInstancesOf("tor").First());
+            var relTransportDirectory = Path.GetRelativePath(torExecutableDirectory, Path.GetDirectoryName(ptConfigLocation)).TrimEnd(Path.DirectorySeparatorChar);
+
             // set properties
             AvailableTransports = availableTransports.ToFrozenDictionary();
-            TransportConfigLines = Config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => x.Value.Replace("${pt_path}", $"{TransportsDirectory}{Path.DirectorySeparatorChar}"));
+            TransportConfigLines = Config.PluggableTransports.ToFrozenDictionary(x => x.Key, x => x.Value.Replace("${pt_path}", $"{relTransportDirectory}{Path.DirectorySeparatorChar}"));
 
             if (recommendedTransport.HasValue && !availableTransports.ContainsKey(recommendedTransport.Value))
             {
