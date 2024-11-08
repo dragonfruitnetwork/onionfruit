@@ -73,6 +73,10 @@ jobs:
           Copy-Item -Path oniondeploy.xml -Destination $deployToolHome
 
           echo "home=$deployToolHome" >> $env:GITHUB_OUTPUT
+          
+      - name: Validate Deployment Tool Attestation
+        working-directory: ${{ steps.deploytool.outputs.home }}
+        run: gh attestation verify DragonFruit.OnionFruit.Deploy.dll --repo dragonfruitnetwork/onionfruit-deploy --deny-self-hosted-runners
 
       - name: Restore .NET Tools
         run: dotnet tool restore
