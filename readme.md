@@ -1,3 +1,6 @@
+<p align="center"> 	<a href="./readme.md"> 	English 	</a> 	/ 	 <a href="./readme-ru.md"> Русский </a>  /  <a href="./readme-zh-cn.md"> 	简体中文 	</a>  /  <a href="./readme-ar.md"> 	اَلْعَرَبِيَّةُ 	</a>  /  <a href="./readme-fa.md"> 	فارسی 	</a> </p>
+
+
 <div align="center">
 
 <img src="DragonFruit.OnionFruit/Assets/onionfruit.svg" width="100"/>
@@ -29,7 +32,7 @@ OnionFruit™ builds are provided for the platforms below. Click the links to do
 
 ## Features
 🌍 Entry/Exit Location selection (with regular database updates)  
-🌉 Bridge support including plain, obfs4, snowflake and conjure transports  
+🌉 Bridge support: webtunnel snowflake meek conjure plain(vanilla) scramblesuit obfs3 obfs4  
 🧱 Set allowed ports on restrictive firewalls  
 🌐 Custom launch pages  
 🛡️ No administrator privileges required to install and use  
