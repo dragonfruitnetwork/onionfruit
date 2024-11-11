@@ -77,6 +77,8 @@ jobs:
       - name: Validate Deployment Tool Attestation
         working-directory: ${{ steps.deploytool.outputs.home }}
         run: gh attestation verify DragonFruit.OnionFruit.Deploy.dll --repo dragonfruitnetwork/onionfruit-deploy --deny-self-hosted-runners
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Restore .NET Tools
         run: dotnet tool restore
