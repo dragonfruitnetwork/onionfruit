@@ -225,10 +225,10 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private static string GetWindowTitle((OnionFruitUpdaterStatus Status, int? Progress) current) => current.Status switch
         {
-            OnionFruitUpdaterStatus.Downloading when current.Progress.HasValue => $"{App.Title} - Downloading update ({current.Progress}%)",
-            OnionFruitUpdaterStatus.Downloading => $"{App.Title} - Downloading update",
-            OnionFruitUpdaterStatus.PendingRestart => $"{App.Title} - Update downloaded (pending restart)",
-            OnionFruitUpdaterStatus.Failed => $"{App.Title} - Update failed",
+            OnionFruitUpdaterStatus.Downloading when current.Progress.HasValue => $"{App.Title} - Downloading Update ({current.Progress}%)",
+            OnionFruitUpdaterStatus.Downloading => $"{App.Title} - Downloading Update",
+            OnionFruitUpdaterStatus.PendingRestart => $"{App.Title} - Update Downloaded",
+            OnionFruitUpdaterStatus.Failed => $"{App.Title} - Update Failed",
 
             _ => App.Title
         };

@@ -89,7 +89,7 @@ namespace DragonFruit.OnionFruit.Updater
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Failed to perform updater: {message}", e.Message);
+                _logger.LogError(e, "Failed to perform update: {message}", e.Message);
                 Status = OnionFruitUpdaterStatus.Failed;
             }
         }
