@@ -252,7 +252,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         private static string GetFlagEmoji(TorNodeCountry country)
         {
             // use globe if not known
-            if (country.CountryCode == IOnionDatabase.TorCountryCode)
+            if (country?.CountryCode is null or IOnionDatabase.TorCountryCode)
             {
                 return "\U0001F6A9";
             }
