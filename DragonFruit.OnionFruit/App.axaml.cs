@@ -22,6 +22,7 @@ using FluentAvalonia.UI.Controls;
 using LucideAvalonia.Enum;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using ReactiveUI;
 
@@ -254,7 +255,15 @@ public partial class App(IHost host) : Application
             UseShellExecute = true
         };
 
-        return Process.Start(psi) != null;
+        try
+        {
+            return Process.Start(psi) != null;
+        }
+        catch (Exception e)
+        {
+            Instance.Services.GetRequiredService<ILogger<App>>().LogWarning(e, "Failed to launch URL due to an error: {err}", e.Message);
+            return false;
+        }
     }
 
     public static IconSource GetIcon(LucideIconNames icon, IImmutableSolidColorBrush brush = null, double thickness = 1.5)
