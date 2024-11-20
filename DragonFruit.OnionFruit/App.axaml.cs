@@ -15,6 +15,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Threading;
 using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Services;
 using DragonFruit.OnionFruit.Updater;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.Views;
@@ -144,6 +145,12 @@ public partial class App(IHost host) : Application
                 _shutdownSignal.Set();
             }
         });
+
+        // handle start on boot
+        if (Services.GetService<IStartupLaunchService>()?.InstanceLaunchedByStartupService == true)
+        {
+            _ = session.StartSession();
+        }
 
         desktop.MainWindow = new MainWindow
         {

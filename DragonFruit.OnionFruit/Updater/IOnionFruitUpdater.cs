@@ -11,12 +11,17 @@ namespace DragonFruit.OnionFruit.Updater
         /// <summary>
         /// The current updater status
         /// </summary>
-        public OnionFruitUpdaterStatus Status { get; }
+        OnionFruitUpdaterStatus Status { get; }
+
+        /// <summary>
+        /// Whether the application is installed
+        /// </summary>
+        bool IsInstalled { get; }
 
         /// <summary>
         /// The current download progress
         /// </summary>
-        public int? DownloadProgress { get; }
+        int? DownloadProgress { get; }
 
         /// <summary>
         /// Event fired when the updater status changes

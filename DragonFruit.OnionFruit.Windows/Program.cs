@@ -137,6 +137,8 @@ public static class Program
                 return ActivatorUtilities.CreateInstance<VelopackUpdater>(s, GetUpdateOptions(settings));
             });
 
+            services.AddSingleton<IStartupLaunchService, StartupLaunchService>(s => ActivatorUtilities.CreateInstance<StartupLaunchService>(s, [Environment.GetCommandLineArgs()]));
+
             services.AddHostedService<OnionRpcServer>();
             services.AddHostedService<DiscordRpcService>();
             services.AddHostedService<LandingPageLaunchService>();

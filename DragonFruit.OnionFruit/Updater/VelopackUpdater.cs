@@ -39,6 +39,8 @@ namespace DragonFruit.OnionFruit.Updater
             }
         }
 
+        public bool IsInstalled => _updateManager.IsInstalled && !_updateManager.IsPortable;
+
         public int? DownloadProgress
         {
             get => _downloadProgress;

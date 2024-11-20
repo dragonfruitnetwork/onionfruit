@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:viewModels="clr-namespace:DragonFruit.OnionFruit.ViewModels"
+             xmlns:controls1="clr-namespace:DragonFruit.OnionFruit.Controls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="DragonFruit.OnionFruit.Views.Settings.ExternalConnectionsSettingsTabView"
              x:DataType="viewModels:ExternalConnectionsSettingsTabViewModel">
@@ -11,13 +12,40 @@
         <controls:NavigationViewItemHeader Content="External Connections" VerticalAlignment="Top" FontSize="24" />
         
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
-            <controls:SettingsExpander Description="Discord Status" IconSource="{Binding DiscordIcon}">
+            <controls:SettingsExpander Description="Launch on startup" IconSource="{Binding StartupIcon}">
+                <controls:SettingsExpander.Footer>
+                    <controls1:SwitchingControl Switch="{Binding ForceStartupRepair}">
+                        <controls1:SwitchingControl.SwitchFalse>
+                            <DataTemplate DataType="viewModels:ExternalConnectionsSettingsTabViewModel">
+                                <ToggleSwitch Command="{Binding SetStartupState}"
+                                              CommandParameter="{Binding !IsStartupEnabled}"
+                                              IsEnabled="{Binding !IsStartupBlocked}"
+                                              IsChecked="{Binding IsStartupEnabled, Mode=OneWay}"
+                                              OnContent="Enabled"
+                                              OffContent="Disabled"/>
+                            </DataTemplate>
+                        </controls1:SwitchingControl.SwitchFalse>
+                        <controls1:SwitchingControl.SwitchTrue>
+                            <DataTemplate DataType="viewModels:ExternalConnectionsSettingsTabViewModel">
+                                <StackPanel Orientation="Horizontal" Spacing="15">
+                                    <TextBlock VerticalAlignment="Center">Requires Attention</TextBlock>
+                                    <Button Command="{Binding RepairStartup}"
+                                            Content="Repair"
+                                            MinWidth="100"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </controls1:SwitchingControl.SwitchTrue>
+                    </controls1:SwitchingControl>
+                </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander Description="Discord status" IconSource="{Binding DiscordIcon}">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding EnableDiscordRpc}" OnContent="Enabled" OffContent="Disabled"/>
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
-            
-            <controls:SettingsExpander Description="Error Reporting" IconSource="{Binding ErrorIcon}">
+
+            <controls:SettingsExpander Description="Error reporting" IconSource="{Binding ErrorIcon}">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding EnableErrorReporting}" OnContent="Enabled" OffContent="Disabled"/>
                 </controls:SettingsExpander.Footer>
