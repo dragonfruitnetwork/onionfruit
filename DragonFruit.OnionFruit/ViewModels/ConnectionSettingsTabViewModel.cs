@@ -42,6 +42,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly ObservableAsPropertyHelper<TorNodeCountry> _selectedEntryCountry, _selectedExitCountry;
         private readonly ObservableAsPropertyHelper<IEnumerable<TorNodeCountry>> _entryCountries, _exitCountries;
 
+        private readonly ObservableAsPropertyHelper<decimal?> _maxCircuitIdleTime;
+
         public ConnectionSettingsTabViewModel(OnionDbService database, OnionFruitSettingsStore settings)
         {
             _database = database;
@@ -103,10 +105,10 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             var firewallPorts = settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts);
 
-            _canSelectEntryCountry = settings.GetObservableValue<TransportType>(OnionFruitSetting.SelectedTransportType)
+            settings.GetObservableValue<TransportType>(OnionFruitSetting.SelectedTransportType)
                 .Select(x => x == TransportType.None)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToProperty(this, x => x.CanSelectEntryCountry)
+                .ToProperty(this, x => x.CanSelectEntryCountry, out _canSelectEntryCountry)
                 .DisposeWith(_disposables);
 
             // versions/licenses are updated when the database state changes
@@ -121,9 +123,9 @@ namespace DragonFruit.OnionFruit.ViewModels
                 this.RaisePropertyChanged(nameof(DatabaseLicense));
             }).DisposeWith(_disposables);
 
-            _showFirewallPortsList = firewallPorts.CountChanged.Select(x => x > 0)
+            firewallPorts.CountChanged.Select(x => x > 0)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToProperty(this, x => x.ShouldShowFirewallPortList)
+                .ToProperty(this, x => x.ShouldShowFirewallPortList, out _showFirewallPortsList)
                 .DisposeWith(_disposables);
 
             firewallPorts.Connect()
@@ -133,14 +135,14 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Subscribe()
                 .DisposeWith(_disposables);
 
-            _enableFirewallRestrictions = settings.GetObservableValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions)
+            settings.GetObservableValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToProperty(this, x => x.EnableRestrictedFirewallMode)
+                .ToProperty(this, x => x.EnableRestrictedFirewallMode, out _enableFirewallRestrictions)
                 .DisposeWith(_disposables);
 
-            _disconnectOnTorFailure = settings.GetObservableValue<bool>(OnionFruitSetting.DisconnectOnTorFailure)
+            settings.GetObservableValue<bool>(OnionFruitSetting.DisconnectOnTorFailure)
                 .ObserveOn(RxApp.MainThreadScheduler)
-                .ToProperty(this, x => x.DisconnectOnTorFailure)
+                .ToProperty(this, x => x.DisconnectOnTorFailure, out _disconnectOnTorFailure)
                 .DisposeWith(_disposables);
 
             _selectedEntryCountry = entryCountry.ToProperty(this, x => x.SelectedEntryCountry).DisposeWith(_disposables);
@@ -148,6 +150,12 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             _selectedEntryCountryFlag = entryCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedEntryCountryFlag).DisposeWith(_disposables);
             _selectedExitCountryFlag = exitCountry.Select(GetFlagEmoji).ToProperty(this, x => x.SelectedExitCountryFlag).DisposeWith(_disposables);
+
+            settings.GetObservableValue<int?>(OnionFruitSetting.MaxCircuitIdleTime)
+                .Select(x => (decimal?)x)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.MaxCircuitIdleTime, out _maxCircuitIdleTime)
+                .DisposeWith(_disposables);
 
             AddFirewallPort = ReactiveCommand.Create(AddFirewallPortImpl, this.WhenAnyValue(x => x.FirewallPort).Select(x => x.HasValue));
             RemoveFirewallPort = ReactiveCommand.Create<uint>(RemoveFirewallPortImpl);
@@ -158,6 +166,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         public IconSource ExitLocationIcon => App.GetIcon(LucideIconNames.Earth);
         public IconSource FirewallIcon => App.GetIcon(LucideIconNames.Construction);
         public IconSource KillswitchIcon => App.GetIcon(LucideIconNames.Unplug);
+        public IconSource CircuitLifetimeIcon => App.GetIcon(LucideIconNames.ClockAlert);
 
         /// <summary>
         /// Gets whether the countries database has been loaded and <see cref="TorNodeCountry"/> items have been created.
@@ -248,6 +257,12 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         public string SelectedEntryCountryFlag => _selectedEntryCountryFlag.Value;
         public string SelectedExitCountryFlag => _selectedExitCountryFlag.Value;
+
+        public decimal? MaxCircuitIdleTime
+        {
+            get => _maxCircuitIdleTime.Value;
+            set => _settings.SetValue(OnionFruitSetting.MaxCircuitIdleTime, (int?)value);
+        }
 
         private static string GetFlagEmoji(TorNodeCountry country)
         {

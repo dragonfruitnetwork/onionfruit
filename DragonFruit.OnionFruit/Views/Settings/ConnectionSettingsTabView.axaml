@@ -169,5 +169,11 @@
                 </StackPanel>
             </controls:SettingsExpander.Footer>
         </controls:SettingsExpander>
+        
+        <controls:SettingsExpander IconSource="{Binding CircuitLifetimeIcon}" Description="Max circuit inactivity (minutes)">
+            <controls:SettingsExpander.Footer>
+                <NumericUpDown Minimum="5" Maximum="120" Width="200" FormatString="0" Value="{Binding MaxCircuitIdleTime}"/>
+            </controls:SettingsExpander.Footer>
+        </controls:SettingsExpander>
     </StackPanel>
 </UserControl>

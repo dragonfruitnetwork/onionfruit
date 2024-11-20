@@ -176,8 +176,9 @@ namespace DragonFruit.OnionFruit.Models
                 Endpoints = [],
                 ClientOnly = true,
 #if DEBUG
-                EnableLogScrubbing = false
+                EnableLogScrubbing = false,
 #endif
+                CircuitIdleTimeout = TimeSpan.FromMinutes(settings.GetValue<int?>(OnionFruitSetting.MaxCircuitIdleTime) ?? 0)
             };
 
             // todo handle null with error/create special method

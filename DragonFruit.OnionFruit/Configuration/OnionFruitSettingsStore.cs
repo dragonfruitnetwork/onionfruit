@@ -96,6 +96,8 @@ namespace DragonFruit.OnionFruit.Configuration
                 }
             });
 
+            RegisterOption<int?>(OnionFruitSetting.MaxCircuitIdleTime, null, nameof(OnionFruitConfigFile.MaxCircuitIdleTime));
+
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
             _storeCollections = _storeCollections.ToFrozenDictionary();
@@ -184,7 +186,7 @@ namespace DragonFruit.OnionFruit.Configuration
                 throw new ArgumentException("Invalid property name", nameof(targetPropertyName));
             }
 
-            if (defaultValue == null && (accessorClearMethod == null || !accessor.PropertyType.IsClass))
+            if (defaultValue == null && accessorClearMethod == null && !accessor.PropertyType.IsClass)
             {
                 throw new ArgumentException("Cannot have a null default value without a clear method", nameof(defaultValue));
             }
@@ -297,6 +299,8 @@ namespace DragonFruit.OnionFruit.Configuration
         EnableErrorReporting,
 
         EnableDiscordRpc,
-        ExplicitUpdateStream
+        ExplicitUpdateStream,
+
+        MaxCircuitIdleTime
     }
 }

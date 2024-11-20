@@ -29,6 +29,8 @@ message OnionFruitConfigFile {
   bool enableDiscordRpc = 15;
 
   optional UPDATE_STREAM clientUpdateStream = 16;
+
+  optional int32 maxCircuitIdleTime = 17;
 }
 
 enum TRANSPORT_TYPES {
