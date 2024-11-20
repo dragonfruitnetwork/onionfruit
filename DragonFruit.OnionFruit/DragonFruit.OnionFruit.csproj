@@ -30,9 +30,10 @@
         <PackageReference Include="Google.Protobuf" Version="3.28.3" />
         <PackageReference Include="Grpc.Tools" Version="2.67.0" PrivateAssets="all"/>
         <PackageReference Include="LucideAvalonia" Version="1.6.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
         <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+        <PackageReference Include="System.Text.Json" Version="8.0.5" />
         <PackageReference Include="Velopack" Version="0.0.942" />
 
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
