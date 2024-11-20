@@ -32,8 +32,6 @@ namespace DragonFruit.OnionFruit.Windows.Rpc
         {
             var securityPolicy = new PipeSecurity();
 
-            securityPolicy.SetAccessRuleProtection(isProtected: true, preserveInheritance: false);
-
             securityPolicy.AddAccessRule(new PipeAccessRule(WindowsIdentity.GetCurrent().User, PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
             securityPolicy.AddAccessRule(new PipeAccessRule(new SecurityIdentifier(WellKnownSidType.BuiltinAdministratorsSid, null), PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
 
