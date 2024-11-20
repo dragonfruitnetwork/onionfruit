@@ -38,7 +38,7 @@ namespace DragonFruit.OnionFruit.Windows
                 _startupCollectionKey = null;
             }
 
-            InstanceLaunchedByStartupService = launchArgs.Any(x => x.Equals(StartupAppArgs, StringComparison.OrdinalIgnoreCase));
+            InstanceLaunchedByStartupService = launchArgs?.Any(x => x.Equals(StartupAppArgs, StringComparison.OrdinalIgnoreCase)) == true;
         }
 
         public bool InstanceLaunchedByStartupService { get; }
@@ -71,7 +71,7 @@ namespace DragonFruit.OnionFruit.Windows
         private StartupLaunchState GetStartupStateImpl()
         {
 #if !DEBUG
-            if (!_updater.IsInstalled)
+            if (_updater?.IsInstalled != true)
             {
                 return StartupLaunchState.Blocked;
             }

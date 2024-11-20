@@ -47,7 +47,8 @@ public static class Program
     public static void Main(string[] args)
     {
         HandleSecondInstance();
-        VelopackApp.Build().Run();
+
+        VelopackApp.Build().WithBeforeUninstallFastCallback(_ => PerformRemovalCleanup()).Run();
 
         // FluentAvalonia needs Windows 10.0.14393.0 (Anniversary Update) or later
         // see https://github.com/amwx/FluentAvalonia/issues/212
@@ -207,5 +208,13 @@ public static class Program
 
         // shutdown any ongoing session
         _host?.Services.GetService<TorSession>().StopSession().AsTask().Wait();
+    }
+
+    private static void PerformRemovalCleanup()
+    {
+        using (var startupManager = new StartupLaunchService(null, null))
+        {
+            startupManager.SetStartupState(false);
+        }
     }
 }
