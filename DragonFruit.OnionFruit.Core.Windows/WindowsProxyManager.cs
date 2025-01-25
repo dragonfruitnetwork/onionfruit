@@ -86,7 +86,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
         {
             if (proxies.Length == 0)
             {
-                _registry.SetValue(ProxyEnabledKey, 0);
+                _registry.SetValue(ProxyEnabledKey, 0, RegistryValueKind.DWord);
                 _registry.DeleteValue(ProxyServerKey, false);
             }
             else
@@ -108,18 +108,18 @@ namespace DragonFruit.OnionFruit.Core.Windows
 
                 proxyUrlBuilder.Length--;
 
-                _registry.SetValue(ProxyEnabledKey, globalState ? 1 : 0);
-                _registry.SetValue(ProxyServerKey, proxyUrlBuilder.ToString());
+                _registry.SetValue(ProxyEnabledKey, globalState ? 1 : 0, RegistryValueKind.DWord);
+                _registry.SetValue(ProxyServerKey, proxyUrlBuilder.ToString(), RegistryValueKind.String);
             }
 
             var updateResult = SignalSettingsChanged();
             return ValueTask.FromResult(updateResult);
         }
 
-        private unsafe bool SignalSettingsChanged()
+        private static unsafe bool SignalSettingsChanged()
         {
-            return PInvoke.InternetSetOption(default, InternetOptionSettingsChanged, default, 0) &&
-                   PInvoke.InternetSetOption(default, InternetOptionRefresh, default, 0);
+            return PInvoke.InternetSetOption(null, InternetOptionSettingsChanged, null, 0) &&
+                   PInvoke.InternetSetOption(null, InternetOptionRefresh, null, 0);
         }
 
         [GeneratedRegex(@"^(socks|http|https|ftp)=(.+):(\d{1,5})(/.+)?$", RegexOptions.IgnoreCase, "en-GB")]
