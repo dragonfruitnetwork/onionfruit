@@ -19,9 +19,24 @@ namespace DragonFruit.OnionFruit.Core.Network
         string Name { get; }
 
         /// <summary>
-        /// Gets a list of currently configured DNS servers (the user has chosen, if any)
+        /// Whether the adapter should be shown to the user
+        /// </summary>
+        bool IsVisible { get; }
+
+        /// <summary>
+        /// Gets the currently configured proxy servers (and whether they are enabled)
         /// </summary>
         /// <returns></returns>
+        IReadOnlyCollection<NetworkProxy> GetProxyServers();
+
+        /// <summary>
+        /// Sets the proxy servers for this adapter
+        /// </summary>
+        void SetProxyServers(IReadOnlyCollection<NetworkProxy> servers);
+
+        /// <summary>
+        /// Gets a list of currently configured DNS servers (the user has chosen, if any)
+        /// </summary>
         IReadOnlyCollection<IPAddress> GetDnsServers();
 
         /// <summary>

@@ -3,7 +3,7 @@
 
 namespace DragonFruit.OnionFruit.Core.Network
 {
-    public enum DnsManagerState
+    public enum NetworkComponentState
     {
         Available,
 
@@ -13,7 +13,7 @@ namespace DragonFruit.OnionFruit.Core.Network
         Unavailable,
 
         /// <summary>
-        /// The manager can be used, but the current user does not have the required permissions to make the required changes.
+        /// The component is available, but the current user does not have the required permissions use it without issue.
         /// </summary>
         MissingPermissions
     }
