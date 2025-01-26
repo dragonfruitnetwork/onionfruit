@@ -123,7 +123,7 @@ public static class Program
         .ConfigureServices((context, services) =>
         {
             // register platform-specific services
-            services.AddSingleton<IProxyManager, WindowsProxyManager>();
+            services.AddSingleton<INetworkAdapterManager, WindowsNetworkAdapterManager>();
             services.AddSingleton<ExecutableLocator>(new WindowsExecutableLocator("ONIONFRUIT_HOME"));
 
             // configuration

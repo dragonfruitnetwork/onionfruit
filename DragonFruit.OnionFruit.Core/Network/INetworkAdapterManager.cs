@@ -14,7 +14,7 @@ namespace DragonFruit.OnionFruit.Core.Network
     /// <param name="IsVisible">Whether the adapter should be shown to the user</param>
     public record NetworkAdapterInfo(string Id, string Name, bool IsVisible);
 
-    public interface IAdapterManager
+    public interface INetworkAdapterManager
     {
         NetworkComponentState DnsState { get; }
         NetworkComponentState ProxyState { get; }

@@ -27,21 +27,21 @@ namespace DragonFruit.OnionFruit.Core.Network
         /// Gets the currently configured proxy servers (and whether they are enabled)
         /// </summary>
         /// <returns></returns>
-        IReadOnlyCollection<NetworkProxy> GetProxyServers();
+        IList<NetworkProxy> GetProxyServers();
 
         /// <summary>
         /// Sets the proxy servers for this adapter
         /// </summary>
-        void SetProxyServers(IReadOnlyCollection<NetworkProxy> servers);
+        bool SetProxyServers(IReadOnlyList<NetworkProxy> servers);
 
         /// <summary>
         /// Gets a list of currently configured DNS servers (the user has chosen, if any)
         /// </summary>
-        IReadOnlyCollection<IPAddress> GetDnsServers();
+        IList<IPAddress> GetDnsServers();
 
         /// <summary>
         /// Sets the DNS servers for this adapter, optionally clearing any pre-existing configuration
         /// </summary>
-        void SetDnsServers(IReadOnlyCollection<IPAddress> servers, bool clearExisting);
+        bool SetDnsServers(IReadOnlyList<IPAddress> servers, bool clearExisting);
     }
 }

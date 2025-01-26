@@ -11,14 +11,18 @@ using Microsoft.Win32;
 
 namespace DragonFruit.OnionFruit.Core.Windows
 {
-    public class WindowsNetworkAdapter : INetworkAdapter, IDisposable
+    public class WinNetworkAdapter : INetworkAdapter, IDisposable
     {
-        private readonly RegistryKey _tcpipKey, _tcpip6Key;
+        private const string DnsKey = "NameServer";
 
-        public WindowsNetworkAdapter(string id, string name, RegistryKey tcpipKey, RegistryKey tcpip6Key)
+        private readonly RegistryKey _tcpipKey;
+        private readonly RegistryKey _tcpip6Key;
+
+        public WinNetworkAdapter(string id, string name, bool isVisible, RegistryKey tcpipKey, RegistryKey tcpip6Key)
         {
             Id = id;
             Name = name;
+            IsVisible = isVisible;
 
             _tcpipKey = tcpipKey;
             _tcpip6Key = tcpip6Key;
@@ -27,16 +31,28 @@ namespace DragonFruit.OnionFruit.Core.Windows
         public string Id { get; }
         public string Name { get; }
 
-        public IReadOnlyCollection<IPAddress> GetDnsServers()
+        public bool IsVisible { get; }
+
+        public IList<NetworkProxy> GetProxyServers()
+        {
+            return [];
+        }
+
+        public bool SetProxyServers(IReadOnlyList<NetworkProxy> servers)
+        {
+            return true;
+        }
+
+        public IList<IPAddress> GetDnsServers()
         {
             return new[] {_tcpipKey, _tcpip6Key}
                 .Where(x => x != null)
-                .SelectMany(key => key.GetValue("NameServer", string.Empty).ToString()!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                .SelectMany(key => key.GetValue(DnsKey, string.Empty).ToString()!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                 .Select(IPAddress.Parse)
                 .ToList();
         }
 
-        public void SetDnsServers(IReadOnlyCollection<IPAddress> servers, bool clearExisting)
+        public bool SetDnsServers(IReadOnlyList<IPAddress> servers, bool clearExisting)
         {
             var targetKeys = new List<RegistryKey> {_tcpipKey, _tcpip6Key};
 
@@ -52,10 +68,10 @@ namespace DragonFruit.OnionFruit.Core.Windows
 
                 if (targetRegistryKey == null)
                 {
-                    return;
+                    continue;
                 }
 
-                targetRegistryKey.SetValue("NameServer", string.Join(",", group.Select(server => server.ToString())), RegistryValueKind.String);
+                targetRegistryKey.SetValue(DnsKey, string.Join(",", group.Select(server => server.ToString())), RegistryValueKind.String);
                 targetKeys.Remove(targetRegistryKey);
             }
 
@@ -63,9 +79,11 @@ namespace DragonFruit.OnionFruit.Core.Windows
             {
                 foreach (var key in targetKeys)
                 {
-                    key?.SetValue("NameServer", string.Empty, RegistryValueKind.String);
+                    key?.SetValue(DnsKey, string.Empty, RegistryValueKind.String);
                 }
             }
+
+            return true;
         }
 
         public void Dispose()
