@@ -24,7 +24,7 @@ namespace DragonFruit.OnionFruit.Models
     /// <summary>
     /// Combines user configuration, control port access and the underlying tor process lifetime management into a single location
     /// </summary>
-    public class TorSession(ExecutableLocator executableLocator, IProxyManager proxyManager, IOnionDatabase database, TransportManager transportManager, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory)
+    public class TorSession(ExecutableLocator executableLocator, INetworkAdapterManager adapterManager, IOnionDatabase database, TransportManager transportManager, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory)
     {
         private const int DefaultSocksPort = 9050;
         private const int DefaultControlPort = 9051;
@@ -32,6 +32,9 @@ namespace DragonFruit.OnionFruit.Models
         private bool _bootstrapped;
         private TorProcess _process;
         private TorSessionState _state = TorSessionState.Disconnected;
+
+        private NetworkProxy[] _activeProxies;
+        private IList<INetworkAdapter> _targetedAdapters;
 
         private Timer _connectionStallTimer;
         private IReadOnlyList<TorrcConfigEntry> _sessionConfig;
@@ -110,6 +113,12 @@ namespace DragonFruit.OnionFruit.Models
             if (!TryGenerateSessionConfig(geoIpFiles, out _sessionConfig) || !TryCreateUnderlyingTorProcess(out _process))
             {
                 return;
+            }
+
+            // get adapters to target configuration changes against
+            foreach (var disposable in _targetedAdapters?.OfType<IDisposable>() ?? [])
+            {
+                disposable.Dispose();
             }
 
             // subscribe to process events
@@ -289,7 +298,7 @@ namespace DragonFruit.OnionFruit.Models
         /// <summary>
         /// Handles process state changes, setting the proxy if the process is running and clearing it if it's not
         /// </summary>
-        private async void ProcessStateChanged(object sender, TorProcess.State e)
+        private void ProcessStateChanged(object sender, TorProcess.State e)
         {
             switch (e)
             {
@@ -300,14 +309,12 @@ namespace DragonFruit.OnionFruit.Models
                     break;
                 }
 
-                // set blocked proxy state
-                case TorProcess.State.Running when proxyManager.GetState() != ProxyAccessState.Accessible:
+                case TorProcess.State.Running when adapterManager.ProxyState != NetworkComponentState.Available:
                 {
                     State = TorSessionState.BlockedProxy;
                     break;
                 }
 
-                // set proxy
                 case TorProcess.State.Running:
                 {
                     var endpoints = _sessionConfig.OfType<ClientConfig>().Single().Endpoints;
@@ -320,19 +327,23 @@ namespace DragonFruit.OnionFruit.Models
                         proxies[index++] = new NetworkProxy(true, new Uri(address));
                     }
 
-                    await proxyManager.SetProxy(proxies);
+                    _activeProxies = proxies;
+                    _targetedAdapters = adapterManager.GetAdapters();
+
+                    foreach (var adapter in _targetedAdapters)
+                    {
+                        adapter.SetProxyServers(proxies);
+                    }
 
                     State = TorSessionState.Connected;
+                    adapterManager.AdapterConnected += OnAdapterConnected;
                     break;
                 }
 
                 case TorProcess.State.Killed when !_bootstrapped:
                 {
                     State = TorSessionState.BlockedProcess;
-                    if (_connectionStallTimer != null)
-                    {
-                        await _connectionStallTimer.DisposeAsync();
-                    }
+                    _connectionStallTimer?.Dispose();
 
                     break;
                 }
@@ -340,12 +351,7 @@ namespace DragonFruit.OnionFruit.Models
                 case TorProcess.State.Killed when !settings.GetValue<bool>(OnionFruitSetting.DisconnectOnTorFailure):
                 {
                     State = TorSessionState.KillSwitchTriggered;
-
-                    // disable the stall timer as the process was killed and won't be able to recover
-                    if (_connectionStallTimer != null)
-                    {
-                        await _connectionStallTimer.DisposeAsync();
-                    }
+                    _connectionStallTimer?.Dispose(); // disable the stall timer as the process was killed and won't be able to recover
 
                     break;
                 }
@@ -354,11 +360,13 @@ namespace DragonFruit.OnionFruit.Models
                 case TorProcess.State.Killed:
                 case TorProcess.State.Stopped:
                 {
-                    await proxyManager.SetProxy();
+                    _connectionStallTimer?.Dispose();
 
-                    if (_connectionStallTimer != null)
+                    adapterManager.AdapterConnected -= OnAdapterConnected;
+
+                    foreach (var adapter in _targetedAdapters)
                     {
-                        await _connectionStallTimer.DisposeAsync();
+                        adapter.SetProxyServers([]);
                     }
 
                     State = TorSessionState.Disconnected;
@@ -404,6 +412,24 @@ namespace DragonFruit.OnionFruit.Models
 
             process = new TorProcess(torExecutable.First(), loggerFactory.CreateLogger<TorProcess>());
             return true;
+        }
+
+        private void OnAdapterConnected(object sender, NetworkAdapterInfo info)
+        {
+            if (_targetedAdapters?.Any(x => x.Id == info.Id) != false)
+            {
+                return;
+            }
+
+            var adapter = adapterManager.GetAdapter(info.Id);
+
+            // handle bringing the adapter up to date
+            if (State == TorSessionState.Connected && _activeProxies?.Length > 0)
+            {
+                adapter.SetProxyServers(_activeProxies);
+            }
+
+            _targetedAdapters.Add(adapter);
         }
 
         public enum TorSessionState

@@ -14,6 +14,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Threading;
+using DragonFruit.OnionFruit.Core.Network;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Services;
 using DragonFruit.OnionFruit.Updater;
@@ -49,7 +50,7 @@ public partial class App(IHost host) : Application
 #if DEBUG
         Title = "OnionFruit\u2122 Development Edition";
 #else
-        Title = $"OnionFruit\u2122";
+        Title = "OnionFruit\u2122";
 #endif
 
         // enable mica effect on Windows 11 and above
@@ -104,6 +105,9 @@ public partial class App(IHost host) : Application
         {
             throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
         }
+
+        // startup any network management components required to use the app
+        Services.GetRequiredService<INetworkAdapterManager>().Init();
 
         var updater = Services.GetRequiredService<IOnionFruitUpdater>();
         var session = Services.GetRequiredService<TorSession>();
