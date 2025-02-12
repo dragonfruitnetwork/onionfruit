@@ -8,10 +8,20 @@ using Grpc.Core;
 
 namespace DragonFruit.OnionFruit.Windows.Rpc
 {
-    public class OnionRpcService : OnionRpc.OnionRpcBase
+    public class OnionRpcService(WindowsAppInstanceManager appInstanceManager) : OnionRpc.OnionRpcBase
     {
         public override Task<SecondInstanceLaunchedResponse> SecondInstanceLaunched(Empty request, ServerCallContext context)
         {
+            // if the old instance launched a new one, we should close
+            if (appInstanceManager.ReplacementProcess?.HasExited == false)
+            {
+                return Task.FromResult(new SecondInstanceLaunchedResponse
+                {
+                    ShouldClose = false,
+                    WaitForPidExit = appInstanceManager.CurrentProcess.Id
+                });
+            }
+
             App.Instance.ActivateApp();
             return Task.FromResult(new SecondInstanceLaunchedResponse
             {

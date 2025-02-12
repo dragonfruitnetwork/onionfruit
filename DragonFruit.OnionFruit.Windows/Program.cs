@@ -133,8 +133,11 @@ public static class Program
             services.AddSingleton<TorSession>();
             services.AddSingleton<OnionDbService>();
             services.AddSingleton<TransportManager>();
+            services.AddSingleton<WindowsAppInstanceManager>();
             services.AddSingleton<ApiClient, OnionFruitClient>();
+
             services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
+            services.AddSingleton<IProcessElevator>(s => s.GetRequiredService<WindowsAppInstanceManager>());
             services.AddSingleton<IOnionFruitUpdater>(s =>
             {
                 var settings = s.GetRequiredService<OnionFruitSettingsStore>();
