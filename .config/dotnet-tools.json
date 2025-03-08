@@ -3,14 +3,14 @@
   "isRoot": true,
   "tools": {
     "nuget-license": {
-      "version": "3.0.13",
+      "version": "3.1.2",
       "commands": [
         "nuget-license"
       ],
       "rollForward": false
     },
     "vpk": {
-      "version": "0.0.942",
+      "version": "0.0.1053",
       "commands": [
         "vpk"
       ],
