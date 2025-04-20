@@ -25,12 +25,14 @@ message OnionFruitConfigFile {
   // aka the "killswitch" feature
   bool disconnectOnProxyFailure = 13;
   bool enableErrorReporting = 14;
-  
   bool enableDiscordRpc = 15;
 
   optional UPDATE_STREAM clientUpdateStream = 16;
 
   optional int32 maxCircuitIdleTime = 17;
+  
+  bool enableDnsProxying = 18;
+  repeated bytes fallbackDnsServers = 19;
 }
 
 enum TRANSPORT_TYPES {

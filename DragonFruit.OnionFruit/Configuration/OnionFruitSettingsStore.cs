@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Updater;
 using DynamicData;
+using Google.Protobuf;
 using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
 using ReactiveUI;
@@ -24,10 +26,11 @@ namespace DragonFruit.OnionFruit.Configuration
     {
         private const int ConfigVersion = 1;
 
+        private static readonly IEnumerable<string> DefaultDnsServers = ["1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001"];
+
         private readonly ILogger<OnionFruitSettingsStore> _logger;
 
         private OnionFruitConfigFile _configFile;
-
         private IDictionary<OnionFruitSetting, SettingsStoreEntry> _storeEntries = new Dictionary<OnionFruitSetting, SettingsStoreEntry>();
         private IDictionary<OnionFruitSetting, SettingsCollectionEntry> _storeCollections = new Dictionary<OnionFruitSetting, SettingsCollectionEntry>();
 
@@ -97,6 +100,9 @@ namespace DragonFruit.OnionFruit.Configuration
             });
 
             RegisterOption<int?>(OnionFruitSetting.MaxCircuitIdleTime, null, nameof(OnionFruitConfigFile.MaxCircuitIdleTime));
+
+            RegisterOption(OnionFruitSetting.DnsEnabled, false, nameof(OnionFruitConfigFile.EnableDnsProxying));
+            RegisterCollection<IPAddress, ByteString>(OnionFruitSetting.DnsFallbackServers, DefaultDnsServers.Select(IPAddress.Parse), x => x.FallbackDnsServers, x => new IPAddress(x.Span), i => ByteString.CopyFrom(i.GetAddressBytes()));
 
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
@@ -246,13 +252,18 @@ namespace DragonFruit.OnionFruit.Configuration
 
         private void RegisterCollection<T>(OnionFruitSetting key, IEnumerable<T> defaultValue, Func<OnionFruitConfigFile, RepeatedField<T>> rfAccessor)
         {
+            RegisterCollection(key, defaultValue, rfAccessor, x => x, x => x);
+        }
+
+        private void RegisterCollection<T, TStored>(OnionFruitSetting key, IEnumerable<T> defaultValue, Func<OnionFruitConfigFile, RepeatedField<TStored>> rfAccessor, Func<TStored, T> rfConversion, Func<T, TStored> rfConversionRev)
+        {
             var observer = RegisterCollection<T>(key, out var list);
-            _storeCollections[key] = new SettingsCollectionEntry(c => list.AddRange(rfAccessor.Invoke(c)), c =>
+            _storeCollections[key] = new SettingsCollectionEntry(c => list.AddRange(rfAccessor.Invoke(c).Select(rfConversion)), c =>
             {
                 var collection = rfAccessor.Invoke(c);
 
                 collection.Clear();
-                collection.AddRange(defaultValue);
+                collection.AddRange(defaultValue.Select(rfConversionRev));
             });
 
             if (defaultValue.Any())
@@ -267,7 +278,7 @@ namespace DragonFruit.OnionFruit.Configuration
                     using (list.Connect().Bind(out var clonedList).Subscribe())
                     {
                         collection.Clear();
-                        collection.AddRange(clonedList.ToList());
+                        collection.AddRange(clonedList.Select(rfConversionRev).ToList());
 
                         _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", clonedList.AsEnumerable()));
                     }
@@ -301,6 +312,9 @@ namespace DragonFruit.OnionFruit.Configuration
         EnableDiscordRpc,
         ExplicitUpdateStream,
 
-        MaxCircuitIdleTime
+        MaxCircuitIdleTime,
+
+        DnsEnabled,
+        DnsFallbackServers
     }
 }
