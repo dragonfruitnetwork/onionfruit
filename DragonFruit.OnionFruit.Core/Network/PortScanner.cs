@@ -27,6 +27,17 @@ namespace DragonFruit.OnionFruit.Core.Network
             return GenerateValueSequence(target, range).FirstOrDefault(x => !ports.Contains(x));
         }
 
+        /// <summary>
+        /// Gets whether a specified port is available on the local machine for listening on
+        /// </summary>
+        public static bool IsPortAvailable(int port)
+        {
+            return IPGlobalProperties.GetIPGlobalProperties()
+                .GetActiveTcpListeners()
+                .Select(x => x.Port)
+                .Any(x => x == port);
+        }
+
         private static IEnumerable<int> GenerateValueSequence(int start, int iterations)
         {
             yield return start;
