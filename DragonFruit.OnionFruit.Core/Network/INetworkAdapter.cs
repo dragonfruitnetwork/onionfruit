@@ -42,6 +42,6 @@ namespace DragonFruit.OnionFruit.Core.Network
         /// <summary>
         /// Sets the DNS servers for this adapter, optionally clearing any pre-existing configuration
         /// </summary>
-        bool SetDnsServers(IReadOnlyList<IPAddress> servers, bool clearExisting);
+        bool SetDnsServers(IList<IPAddress> servers, bool clearExisting);
     }
 }

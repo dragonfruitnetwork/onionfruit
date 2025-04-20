@@ -109,7 +109,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
             return [];
         }
 
-        public bool SetDnsServers(IReadOnlyList<IPAddress> servers, bool clearExisting)
+        public bool SetDnsServers(IList<IPAddress> servers, bool clearExisting)
         {
             // global adapter can only handle proxies...
             return true;

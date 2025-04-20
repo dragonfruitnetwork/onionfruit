@@ -52,7 +52,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
                 .ToList();
         }
 
-        public bool SetDnsServers(IReadOnlyList<IPAddress> servers, bool clearExisting)
+        public bool SetDnsServers(IList<IPAddress> servers, bool clearExisting)
         {
             var targetKeys = new List<RegistryKey> {_tcpipKey, _tcpip6Key};
 
