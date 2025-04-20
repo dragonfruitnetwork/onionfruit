@@ -22,10 +22,11 @@ using Microsoft.Extensions.Logging;
 namespace DragonFruit.OnionFruit.Models
 {
     /// <summary>
-    /// Combines user configuration, control port access and the underlying tor process lifetime management into a single location
+    /// Combines user configuration, control port access and the underlying tor process lifetime management in a single location
     /// </summary>
     public class TorSession(ExecutableLocator executableLocator, INetworkAdapterManager adapterManager, IOnionDatabase database, TransportManager transportManager, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory)
     {
+        private const int DNSPort = 53;
         private const int DefaultSocksPort = 9050;
         private const int DefaultControlPort = 9051;
 
@@ -33,8 +34,10 @@ namespace DragonFruit.OnionFruit.Models
         private TorProcess _process;
         private TorSessionState _state = TorSessionState.Disconnected;
 
+        private IPAddress[] _activeDnsServers;
         private NetworkProxy[] _activeProxies;
         private IList<INetworkAdapter> _targetedAdapters;
+        private IDictionary<string, IList<IPAddress>> _userConfiguredDnsServers;
 
         private Timer _connectionStallTimer;
         private IReadOnlyList<TorrcConfigEntry> _sessionConfig;
@@ -291,7 +294,29 @@ namespace DragonFruit.OnionFruit.Models
                 nodeSelectionConfig.EntryNodes?.Clear();
             }
 
-            sessionConfig = [basicConfig, controlPortConfig, nodeSelectionConfig, bridgeConfig];
+            // dns
+            var dnsConfig = new CustomConfig();
+            if (settings.GetValue<bool>(OnionFruitSetting.DnsEnabled))
+            {
+                if (adapterManager.DnsState != NetworkComponentState.Available)
+                {
+                    loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS settings were enabled, but the adapter managed reported DNS modifications are unavailable. ({reason})", adapterManager.DnsState);
+                }
+                else if (!PortScanner.IsPortAvailable(DNSPort))
+                {
+                    loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS routing was enabled but the required port is already in use, therefore cannot be used.");
+                }
+                else
+                {
+                    dnsConfig.Lines =
+                    [
+                        $"DNSPort {DNSPort}",
+                        "AutomapHostsOnResolve 1" // .onion url mapping
+                    ];
+                }
+            }
+
+            sessionConfig = [basicConfig, controlPortConfig, nodeSelectionConfig, bridgeConfig, dnsConfig];
             return true;
         }
 
@@ -317,6 +342,7 @@ namespace DragonFruit.OnionFruit.Models
 
                 case TorProcess.State.Running:
                 {
+                    // proxy server application
                     var endpoints = _sessionConfig.OfType<ClientConfig>().Single().Endpoints;
                     var proxies = new NetworkProxy[endpoints.Count];
                     var index = 0;
@@ -333,6 +359,34 @@ namespace DragonFruit.OnionFruit.Models
                     foreach (var adapter in _targetedAdapters)
                     {
                         adapter.SetProxyServers(proxies);
+                    }
+
+                    // DNS settings application
+                    if (settings.GetValue<bool>(OnionFruitSetting.DnsEnabled) && adapterManager.DnsState == NetworkComponentState.Available)
+                    {
+                        _userConfiguredDnsServers = new Dictionary<string, IList<IPAddress>>();
+
+                        using (settings.GetCollection<IPAddress>(OnionFruitSetting.DnsFallbackServers).Connect().Bind(out var fallbackServers).Subscribe())
+                        {
+                            // don't need to check if the host supports ipv4/ipv6 as the adapter manager will ignore ones it can't set
+                            _activeDnsServers =
+                            [
+                                IPAddress.Loopback,
+                                IPAddress.IPv6Loopback,
+                                ..fallbackServers
+                            ];
+                        }
+
+                        foreach (var adapter in _targetedAdapters)
+                        {
+                            _userConfiguredDnsServers[adapter.Id] = adapter.GetDnsServers();
+                            adapter.SetDnsServers(_activeDnsServers, clearExisting: true);
+                        }
+                    }
+                    else
+                    {
+                        _activeDnsServers = null;
+                        _userConfiguredDnsServers = null;
                     }
 
                     State = TorSessionState.Connected;
@@ -367,6 +421,12 @@ namespace DragonFruit.OnionFruit.Models
                     foreach (var adapter in _targetedAdapters)
                     {
                         adapter.SetProxyServers([]);
+
+                        // reset DNS (will be null if not available)
+                        if (_userConfiguredDnsServers?.TryGetValue(adapter.Id, out var addresses) == true)
+                        {
+                            adapter.SetDnsServers(addresses, true);
+                        }
                     }
 
                     State = TorSessionState.Disconnected;
@@ -427,6 +487,12 @@ namespace DragonFruit.OnionFruit.Models
             if (State == TorSessionState.Connected && _activeProxies?.Length > 0)
             {
                 adapter.SetProxyServers(_activeProxies);
+
+                if (_userConfiguredDnsServers != null)
+                {
+                    _userConfiguredDnsServers[adapter.Id] = adapter.GetDnsServers();
+                    adapter.SetDnsServers(_activeDnsServers, true);
+                }
             }
 
             _targetedAdapters.Add(adapter);
