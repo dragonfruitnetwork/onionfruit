@@ -8,11 +8,29 @@ namespace DragonFruit.OnionFruit.Services
         /// <summary>
         /// Checks whether the current process can be elevated
         /// </summary>
-        bool CheckElevationStatus();
+        ElevationStatus CheckElevationStatus();
 
         /// <summary>
         /// Attempts to increase the permissions of the current process, returning whether the operation was successful
         /// </summary>
-        bool ElevatePermissions();
+        bool RelaunchProcess(bool elevated);
+    }
+
+    public enum ElevationStatus
+    {
+        /// <summary>
+        /// Process is already elevated
+        /// </summary>
+        Elevated,
+
+        /// <summary>
+        /// Process can be elevated
+        /// </summary>
+        CanElevate,
+
+        /// <summary>
+        /// Process cannot be elevated
+        /// </summary>
+        CannotElevate
     }
 }

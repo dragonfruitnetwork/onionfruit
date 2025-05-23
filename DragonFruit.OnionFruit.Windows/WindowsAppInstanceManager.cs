@@ -18,13 +18,15 @@ namespace DragonFruit.OnionFruit.Windows
         /// </summary>
         public Process ReplacementProcess { get; private set; }
 
-        public bool CheckElevationStatus()
+        public ElevationStatus CheckElevationStatus()
         {
             using var identity = WindowsIdentity.GetCurrent();
-            return new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+            var isAdmin = new WindowsPrincipal(identity).IsInRole(WindowsBuiltInRole.Administrator);
+
+            return isAdmin ? ElevationStatus.Elevated : ElevationStatus.CanElevate;
         }
 
-        public bool ElevatePermissions()
+        public bool RelaunchProcess(bool elevated)
         {
             var file = CurrentProcess.MainModule?.FileName ?? Assembly.GetEntryAssembly()?.Location;
 
@@ -35,9 +37,10 @@ namespace DragonFruit.OnionFruit.Windows
 
             var startInfo = new ProcessStartInfo(file)
             {
+                Arguments = string.Concat(' ', Environment.GetCommandLineArgs()),
                 WorkingDirectory = Environment.CurrentDirectory,
                 UseShellExecute = true,
-                Verb = "runas"
+                Verb = elevated ? "runas" : null
             };
 
             try
