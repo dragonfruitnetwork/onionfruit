@@ -189,7 +189,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             }
         }
 
-        private ToolbarContent GetRibbonContent(TorSession.TorSessionState state, int connectionProgress) => state switch
+        private static ToolbarContent GetRibbonContent(TorSession.TorSessionState state, int connectionProgress) => state switch
         {
             TorSession.TorSessionState.Disconnected => new ToolbarContent(false, true, new ImmutableSolidColorBrush(Color.FromRgb(244, 67, 54)), "Tor Disconnected"),
             TorSession.TorSessionState.Connected => new ToolbarContent(true, true, Brushes.Green, "Tor Connected"),
