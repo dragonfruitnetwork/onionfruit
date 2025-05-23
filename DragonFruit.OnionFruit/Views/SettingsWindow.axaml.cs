@@ -51,6 +51,10 @@ public partial class SettingsWindow : AppWindow
             {
                 DataContext = ActivatorUtilities.CreateInstance<BridgeSettingsTabViewModel>(App.Instance.Services)
             }),
+            new("DNS", App.GetIcon(LucideIconNames.Book), () => new DnsPageTabView
+            {
+                DataContext = ActivatorUtilities.CreateInstance<DnsPageTabViewModel>(App.Instance.Services)
+            }),
             new("External Connections", App.GetIcon(LucideIconNames.Sparkles), () => new ExternalConnectionsSettingsTabView
             {
                 DataContext = ActivatorUtilities.CreateInstance<ExternalConnectionsSettingsTabViewModel>(App.Instance.Services)
