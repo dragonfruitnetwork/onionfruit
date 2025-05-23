@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using System.Net.Sockets;
 
 namespace DragonFruit.OnionFruit.Core.Network
 {
@@ -20,8 +21,9 @@ namespace DragonFruit.OnionFruit.Core.Network
         {
             var ports = IPGlobalProperties.GetIPGlobalProperties()
                 .GetActiveTcpListeners()
+                .Where(x => x.AddressFamily is AddressFamily.InterNetwork or AddressFamily.InterNetworkV6)
                 .Select(x => x.Port)
-                .Concat(excludedPorts ?? Enumerable.Empty<int>())
+                .Concat(excludedPorts ?? [])
                 .ToHashSet();
 
             return GenerateValueSequence(target, range).FirstOrDefault(x => !ports.Contains(x));
@@ -32,10 +34,10 @@ namespace DragonFruit.OnionFruit.Core.Network
         /// </summary>
         public static bool IsPortAvailable(int port)
         {
-            return IPGlobalProperties.GetIPGlobalProperties()
-                .GetActiveTcpListeners()
-                .Select(x => x.Port)
-                .Any(x => x == port);
+            var listeners = IPGlobalProperties.GetIPGlobalProperties().GetActiveTcpListeners();
+            var isInUse = listeners.Any(x => x.Port == port && x.AddressFamily is AddressFamily.InterNetwork or AddressFamily.InterNetworkV6);
+
+            return !isInUse;
         }
 
         private static IEnumerable<int> GenerateValueSequence(int start, int iterations)
