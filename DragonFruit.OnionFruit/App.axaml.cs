@@ -14,6 +14,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using Avalonia.Threading;
+using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Core.Network;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Services;
@@ -106,11 +107,13 @@ public partial class App(IHost host) : Application
             throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
         }
 
-        // startup any network management components required to use the app
-        Services.GetRequiredService<INetworkAdapterManager>().Init();
-
+        var networkManager = Services.GetRequiredService<INetworkAdapterManager>();
+        var settings = Services.GetRequiredService<OnionFruitSettingsStore>();
         var updater = Services.GetRequiredService<IOnionFruitUpdater>();
         var session = Services.GetRequiredService<TorSession>();
+
+        // startup any network management components required to use the app
+        networkManager.Init();
 
         var sessionObservable = Observable.FromEventPattern<TorSession.TorSessionState>(h => session.SessionStateChanged += h, h => session.SessionStateChanged -= h).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State));
         var updateStateObservable = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h).StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status));
@@ -149,6 +152,17 @@ public partial class App(IHost host) : Application
                 _shutdownSignal.Set();
             }
         });
+
+        // relaunch as admin if dns can't run due to permissions
+        var elevator = Services.GetRequiredService<IProcessElevator>();
+        var shouldRelaunch = settings.GetValue<bool>(OnionFruitSetting.DnsEnabled)
+                             && networkManager.DnsState == NetworkComponentState.MissingPermissions
+                             && elevator.CheckElevationStatus() == ElevationStatus.CanElevate;
+
+        if (shouldRelaunch && elevator.RelaunchProcess(true))
+        {
+            return;
+        }
 
         // handle start on boot
         if (Services.GetService<IStartupLaunchService>()?.InstanceLaunchedByStartupService == true)
