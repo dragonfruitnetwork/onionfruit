@@ -113,7 +113,7 @@ namespace DragonFruit.OnionFruit.Models
             }
 
             // create session config and underlying process
-            if (!TryGenerateSessionConfig(geoIpFiles, out _sessionConfig) || !TryCreateUnderlyingTorProcess(out _process))
+            if (!TryGenerateSessionConfig(geoIpFiles, out _activeDnsServers, out _sessionConfig) || !TryCreateUnderlyingTorProcess(out _process))
             {
                 return;
             }
@@ -180,7 +180,7 @@ namespace DragonFruit.OnionFruit.Models
         /// <summary>
         /// Builds a configuration for the current session using sane defaults and the user's preferences
         /// </summary>
-        private bool TryGenerateSessionConfig(IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles, out IReadOnlyList<TorrcConfigEntry> sessionConfig)
+        private bool TryGenerateSessionConfig(IReadOnlyDictionary<AddressFamily, FileInfo> geoIpFiles, out IPAddress[] dnsServers, out IReadOnlyList<TorrcConfigEntry> sessionConfig)
         {
             var consumedPorts = new List<int>(2);
             var basicConfig = new ClientConfig
@@ -295,6 +295,14 @@ namespace DragonFruit.OnionFruit.Models
             }
 
             // dns
+            dnsServers = null;
+
+            IPAddress[] userDnsServers;
+            using (settings.GetCollection<IPAddress>(OnionFruitSetting.DnsFallbackServers).Connect().Bind(out var fallbackServers).Subscribe())
+            {
+                userDnsServers = [..fallbackServers];
+            }
+
             var dnsConfig = new CustomConfig();
             if (settings.GetValue<bool>(OnionFruitSetting.DnsEnabled))
             {
@@ -304,10 +312,12 @@ namespace DragonFruit.OnionFruit.Models
                 }
                 else if (!PortScanner.IsPortAvailable(DNSPort))
                 {
-                    loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS routing was enabled but the required port is already in use, therefore cannot be used.");
+                    loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS routing was enabled but the required port is already in use, therefore cannot be used. Falling back to switching DNS without local proxying.");
+                    dnsServers = userDnsServers;
                 }
                 else
                 {
+                    dnsServers = [IPAddress.Loopback, IPAddress.IPv6Loopback, ..userDnsServers];
                     dnsConfig.Lines =
                     [
                         $"DNSPort {DNSPort}",
@@ -362,20 +372,9 @@ namespace DragonFruit.OnionFruit.Models
                     }
 
                     // DNS settings application
-                    if (settings.GetValue<bool>(OnionFruitSetting.DnsEnabled) && adapterManager.DnsState == NetworkComponentState.Available)
+                    if (_activeDnsServers?.Length > 0)
                     {
                         _userConfiguredDnsServers = new Dictionary<string, IList<IPAddress>>();
-
-                        using (settings.GetCollection<IPAddress>(OnionFruitSetting.DnsFallbackServers).Connect().Bind(out var fallbackServers).Subscribe())
-                        {
-                            // don't need to check if the host supports ipv4/ipv6 as the adapter manager will ignore ones it can't set
-                            _activeDnsServers =
-                            [
-                                IPAddress.Loopback,
-                                IPAddress.IPv6Loopback,
-                                ..fallbackServers
-                            ];
-                        }
 
                         foreach (var adapter in _targetedAdapters)
                         {
@@ -385,7 +384,6 @@ namespace DragonFruit.OnionFruit.Models
                     }
                     else
                     {
-                        _activeDnsServers = null;
                         _userConfiguredDnsServers = null;
                     }
 
