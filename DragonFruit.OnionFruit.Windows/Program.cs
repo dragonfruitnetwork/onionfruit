@@ -49,8 +49,8 @@ public static class Program
         HandleSecondInstance();
 
         VelopackApp.Build()
-            .WithAfterInstallFastCallback(_ => PerformInstallationSetup())
-            .WithBeforeUninstallFastCallback(_ => PerformRemovalCleanup())
+            .OnAfterInstallFastCallback(_ => PerformInstallationSetup())
+            .OnBeforeUninstallFastCallback(_ => PerformRemovalCleanup())
             .Run();
 
         // FluentAvalonia needs Windows 10.0.14393.0 (Anniversary Update) or later
