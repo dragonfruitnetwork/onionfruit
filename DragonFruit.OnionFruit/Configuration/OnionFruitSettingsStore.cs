@@ -102,7 +102,7 @@ namespace DragonFruit.OnionFruit.Configuration
             RegisterOption<int?>(OnionFruitSetting.MaxCircuitIdleTime, null, nameof(OnionFruitConfigFile.MaxCircuitIdleTime));
 
             RegisterOption(OnionFruitSetting.DnsEnabled, false, nameof(OnionFruitConfigFile.EnableDnsProxying));
-            RegisterCollection<IPAddress, ByteString>(OnionFruitSetting.DnsFallbackServers, DefaultDnsServers.Select(IPAddress.Parse), x => x.FallbackDnsServers, x => new IPAddress(x.Span), i => ByteString.CopyFrom(i.GetAddressBytes()));
+            RegisterCollection(OnionFruitSetting.DnsFallbackServers, DefaultDnsServers.Select(IPAddress.Parse), x => x.FallbackDnsServers, x => new IPAddress(x.Span), i => ByteString.CopyFrom(i.GetAddressBytes()));
 
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();

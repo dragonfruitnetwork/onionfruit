@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
              xmlns:viewModels="clr-namespace:DragonFruit.OnionFruit.ViewModels"
+             xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
+             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="DragonFruit.OnionFruit.Views.Settings.DnsPageTabView"
              x:DataType="viewModels:DnsPageTabViewModel">
@@ -11,9 +13,15 @@
         <controls:NavigationViewItemHeader Content="DNS" VerticalAlignment="Top" FontSize="24" />
         
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
+            <StackPanel.Styles>
+                <Style Selector="TextBox">
+                    <Setter Property="VerticalAlignment" Value="Center"/>
+                    <Setter Property="Margin" Value="0, 0, 15 ,0"/>
+                </Style>
+            </StackPanel.Styles>
 
             <!-- process elevation required alert -->
-            <controls:SettingsExpander IsVisible="{Binding ShowRelaunchNotice}" IconSource="{Binding ShieldIcon}" Description="OnionFruit™ needs to be run as an administrator to change these settings.">
+            <controls:SettingsExpander IsVisible="{Binding ShowRelaunchNotice}" IconSource="{Binding ShieldIcon}" Description="OnionFruit™ needs to be run as an administrator to use DNS features.">
                 <controls:SettingsExpander.Resources>
                     <ResourceDictionary>
                         <ResourceDictionary.MergedDictionaries>
@@ -31,10 +39,48 @@
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
             
-            <controls:SettingsExpander Description="Status">
+            <controls:SettingsExpander Description="DNS Proxying" IconSource="{Binding DnsProxyingIcon}">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding DnsProxyEnabled}" IsEnabled="{Binding CanToggleDns}" OnContent="Enabled" OffContent="Disabled"/>
                 </controls:SettingsExpander.Footer>
+            </controls:SettingsExpander>
+
+            <controls:SettingsExpander Description="Alternative Servers" IconSource="{Binding AlternativeServersIcon}" IsExpanded="True">
+                <StackPanel Orientation="Vertical" Spacing="20" Margin="0,10,0,0">
+                    <DockPanel>
+                        <Button Content="Add" Command="{Binding AddDnsServerEntry}" TabIndex="1" DockPanel.Dock="Right"/>
+                        <TextBox Text="{Binding AddDnsServerEntryBoxContent}" FontFamily="{StaticResource JetBrainsMono}" TabIndex="0" DockPanel.Dock="Left"/>
+                    </DockPanel>
+
+                    <Border Background="Gray" Height="1" />
+
+                    <StackPanel Orientation="Horizontal" Spacing="15" IsVisible="{Binding NoAlternativeServersAvailable}">
+                        <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue" Height="20" Width="20"/>
+                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                            All DNS requests will be sent through Tor as no alternative servers have been set.
+                        </TextBlock>
+                    </StackPanel>
+
+                    <controls:ItemsRepeater ItemsSource="{Binding AlternativeDnsServers}">
+                        <controls:ItemsRepeater.Layout>
+                            <controls:StackLayout Spacing="15"/>
+                        </controls:ItemsRepeater.Layout>
+                        <controls:ItemsRepeater.ItemTemplate>
+                            <DataTemplate DataType="system:String">
+                                <Grid ColumnDefinitions="*, 10, 30" VerticalAlignment="Center">
+                                    <TextBlock Grid.Column="0" 
+                                               TextWrapping="Wrap"
+                                               Text="{Binding}"
+                                               VerticalAlignment="Center"
+                                               FontFamily="{StaticResource JetBrainsMono}"/>
+                                    <Button Grid.Column="2" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:DnsPageTabViewModel)DataContext).RemoveDnsServerEntry}" CommandParameter="{Binding}">
+                                        <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </controls:ItemsRepeater.ItemTemplate>
+                    </controls:ItemsRepeater>
+                </StackPanel>
             </controls:SettingsExpander>
         </StackPanel>
     </StackPanel>
