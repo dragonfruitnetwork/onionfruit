@@ -2,7 +2,6 @@
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -16,7 +15,6 @@ namespace DragonFruit.OnionFruit.Database
 {
     public class GeoIpWriter(TextWriter writer) : IDisposable
     {
-        private readonly byte[] _addressBuffer = ArrayPool<byte>.Shared.Rent(16);
         private bool _disposed;
 
         private static FileStreamOptions FileStreamOptions => new()
@@ -74,11 +72,9 @@ namespace DragonFruit.OnionFruit.Database
             }
         }
 
-        private IPAddress CreateAddressFromByteString(ByteString addressBytes, bool convertMappedAddresses = true)
+        private static IPAddress CreateAddressFromByteString(ByteString addressBytes, bool convertMappedAddresses = true)
         {
-            addressBytes.CopyTo(_addressBuffer, 0);
-            var address = new IPAddress(_addressBuffer.AsSpan(0, addressBytes.Length));
-
+            var address = new IPAddress(addressBytes.Span);
             return address.IsIPv4MappedToIPv6 && convertMappedAddresses ? address.MapToIPv4() : address;
         }
 
@@ -90,7 +86,6 @@ namespace DragonFruit.OnionFruit.Database
             _disposed = true;
 
             writer?.Dispose();
-            ArrayPool<byte>.Shared.Return(_addressBuffer);
         }
     }
 }
