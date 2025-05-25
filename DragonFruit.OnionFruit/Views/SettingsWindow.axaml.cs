@@ -43,17 +43,17 @@ public partial class SettingsWindow : AppWindow
             {
                 DataContext = ActivatorUtilities.CreateInstance<ConnectionSettingsTabViewModel>(App.Instance.Services)
             }),
-            new("Landing Pages", App.GetIcon(LucideIconNames.Chrome), () => new LandingPageSettingsTabView
-            {
-                DataContext = ActivatorUtilities.CreateInstance<LandingPageSettingsTabViewModel>(App.Instance.Services)
-            }),
             new("Bridges", App.GetIcon(LucideIconNames.Castle), () => new BridgeSettingsTabView
             {
                 DataContext = ActivatorUtilities.CreateInstance<BridgeSettingsTabViewModel>(App.Instance.Services)
             }),
-            new("DNS", App.GetIcon(LucideIconNames.Book), () => new DnsPageTabView
+            new("DNS", App.GetIcon(LucideIconNames.Signpost), () => new DnsPageTabView
             {
                 DataContext = ActivatorUtilities.CreateInstance<DnsPageTabViewModel>(App.Instance.Services)
+            }),
+            new("Landing Pages", App.GetIcon(LucideIconNames.Chrome), () => new LandingPageSettingsTabView
+            {
+                DataContext = ActivatorUtilities.CreateInstance<LandingPageSettingsTabViewModel>(App.Instance.Services)
             }),
             new("External Connections", App.GetIcon(LucideIconNames.Sparkles), () => new ExternalConnectionsSettingsTabView
             {
@@ -63,7 +63,7 @@ public partial class SettingsWindow : AppWindow
 
         FooterTabs =
         [
-            new("About OnionFruit", App.GetIcon(LucideIconNames.Info), () => new AboutPageTabView
+            new("About OnionFruit™", App.GetIcon(LucideIconNames.Info), () => new AboutPageTabView
             {
                 DataContext = ActivatorUtilities.CreateInstance<AboutPageTabViewModel>(App.Instance.Services)
             })
