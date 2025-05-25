@@ -26,8 +26,6 @@ namespace DragonFruit.OnionFruit.Configuration
     {
         private const int ConfigVersion = 1;
 
-        private static readonly IEnumerable<string> DefaultDnsServers = ["1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001"];
-
         private readonly ILogger<OnionFruitSettingsStore> _logger;
 
         private OnionFruitConfigFile _configFile;
@@ -35,6 +33,14 @@ namespace DragonFruit.OnionFruit.Configuration
         private IDictionary<OnionFruitSetting, SettingsCollectionEntry> _storeCollections = new Dictionary<OnionFruitSetting, SettingsCollectionEntry>();
 
         private string ConfigurationFile => Path.Combine(App.StoragePath, "onionfruit.cfg");
+
+        public static IReadOnlyDictionary<FALLBACK_DNS_SERVER_PRESET, string[]> DefaultDnsServers { get; } = new Dictionary<FALLBACK_DNS_SERVER_PRESET, string[]>
+        {
+            [FALLBACK_DNS_SERVER_PRESET.Cloudflare] = ["1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001"],
+            [FALLBACK_DNS_SERVER_PRESET.Google] = ["8.8.8.8", "8.8.4.4", "2001:4860:4860::8888", "2001:4860:4860::8844"],
+            [FALLBACK_DNS_SERVER_PRESET.Quad9] = ["9.9.9.9", "149.112.112.11", "2620:fe::11", "2620:fe::fe:11"],
+            [FALLBACK_DNS_SERVER_PRESET.OpenDns] = ["208.67.222.222", "208.67.220.220", "2620:119:35::35", "2620:119:53::53"]
+        };
 
         public OnionFruitSettingsStore(ILogger<OnionFruitSettingsStore> logger)
         {
@@ -101,8 +107,9 @@ namespace DragonFruit.OnionFruit.Configuration
 
             RegisterOption<int?>(OnionFruitSetting.MaxCircuitIdleTime, null, nameof(OnionFruitConfigFile.MaxCircuitIdleTime));
 
-            RegisterOption(OnionFruitSetting.DnsEnabled, false, nameof(OnionFruitConfigFile.EnableDnsProxying));
-            RegisterCollection(OnionFruitSetting.DnsFallbackServers, DefaultDnsServers.Select(IPAddress.Parse), x => x.FallbackDnsServers, x => new IPAddress(x.Span), i => ByteString.CopyFrom(i.GetAddressBytes()));
+            RegisterOption(OnionFruitSetting.DnsProxyingEnabled, false, nameof(OnionFruitConfigFile.EnableDnsProxying));
+            RegisterOption(OnionFruitSetting.DnsFallbackServerPreset, FALLBACK_DNS_SERVER_PRESET.Cloudflare, nameof(OnionFruitConfigFile.FallbackDnsServerPreset));
+            RegisterCollection(OnionFruitSetting.DnsCustomFallbackServers, [], x => x.CustomFallbackDnsServers, x => new IPAddress(x.Span), i => ByteString.CopyFrom(i.GetAddressBytes()));
 
             // freeze to prevent further changes
             _storeEntries = _storeEntries.ToFrozenDictionary();
@@ -314,7 +321,8 @@ namespace DragonFruit.OnionFruit.Configuration
 
         MaxCircuitIdleTime,
 
-        DnsEnabled,
-        DnsFallbackServers
+        DnsProxyingEnabled,
+        DnsFallbackServerPreset,
+        DnsCustomFallbackServers
     }
 }

@@ -297,27 +297,56 @@ namespace DragonFruit.OnionFruit.Models
             // dns
             dnsServers = null;
 
-            IPAddress[] userDnsServers;
-            using (settings.GetCollection<IPAddress>(OnionFruitSetting.DnsFallbackServers).Connect().Bind(out var fallbackServers).Subscribe())
+            IPAddress[] alternativeDnsServers;
+            var userSelectedPreset = settings.GetValue<FALLBACK_DNS_SERVER_PRESET>(OnionFruitSetting.DnsFallbackServerPreset);
+
+            switch (userSelectedPreset)
             {
-                userDnsServers = [..fallbackServers];
+                case FALLBACK_DNS_SERVER_PRESET.Unused:
+                    alternativeDnsServers = [];
+                    break;
+
+                case FALLBACK_DNS_SERVER_PRESET.Custom:
+                    using (settings.GetCollection<IPAddress>(OnionFruitSetting.DnsCustomFallbackServers).Connect().Bind(out var fallbackServers).Subscribe())
+                    {
+                        alternativeDnsServers = [..fallbackServers];
+                    }
+
+                    break;
+
+                default:
+                    // presets stored in the settings store
+                    alternativeDnsServers = OnionFruitSettingsStore.DefaultDnsServers.TryGetValue(userSelectedPreset, out var preset) ? preset.Select(IPAddress.Parse).ToArray() : [];
+                    break;
             }
 
             var dnsConfig = new CustomConfig();
-            if (settings.GetValue<bool>(OnionFruitSetting.DnsEnabled))
+            if (settings.GetValue<bool>(OnionFruitSetting.DnsProxyingEnabled))
             {
+                // check if adapter can change dns settings
                 if (adapterManager.DnsState != NetworkComponentState.Available)
                 {
                     loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS settings were enabled, but the adapter managed reported DNS modifications are unavailable. ({reason})", adapterManager.DnsState);
                 }
+                // then check if DNS port is available (cannot be changed)
                 else if (!PortScanner.IsPortAvailable(DNSPort))
                 {
-                    loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS routing was enabled but the required port is already in use, therefore cannot be used. Falling back to switching DNS without local proxying.");
-                    dnsServers = userDnsServers;
+                    // if the port is not available, at least fallback to the alternative dns servers
+                    if (alternativeDnsServers.Length > 0)
+                    {
+                        loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS routing was enabled but the required port is already in use. Falling back to switching DNS without local proxying.");
+                        dnsServers = alternativeDnsServers;
+                    }
+                    // uh oh...
+                    else
+                    {
+                        loggerFactory.CreateLogger<INetworkAdapterManager>().LogWarning("DNS routing has been ignored due to DNS port being used and no alternative DNS servers being configured. Please configure a fallback DNS server in the settings.");
+                        dnsServers = null;
+                    }
                 }
                 else
                 {
-                    dnsServers = [IPAddress.Loopback, IPAddress.IPv6Loopback, ..userDnsServers];
+                    dnsServers = [IPAddress.Loopback, IPAddress.IPv6Loopback, ..alternativeDnsServers];
                     dnsConfig.Lines =
                     [
                         $"DNSPort {DNSPort}",

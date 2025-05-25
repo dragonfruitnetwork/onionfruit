@@ -18,8 +18,9 @@ namespace DragonFruit.OnionFruit.Configuration
     public abstract class SettingsStore<TKey> : IDisposable where TKey : Enum
     {
         protected readonly IDictionary<TKey, object> ConfigStore = new ConcurrentDictionary<TKey, object>();
-        protected readonly CompositeDisposable Subscriptions = new();
         protected readonly BehaviorSubject<bool> IsLoaded = new(false);
+
+        protected readonly CompositeDisposable Subscriptions = new();
 
         private readonly object _saveLock = new();
         private long _lastSaveValue;

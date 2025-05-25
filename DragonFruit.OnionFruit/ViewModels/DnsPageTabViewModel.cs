@@ -25,25 +25,30 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly OnionFruitSettingsStore _settings;
         private readonly SourceList<IPAddress> _fallbackDnsServersSource;
 
-        private readonly ObservableAsPropertyHelper<bool> _dnsProxyEnabled;
-        private readonly ObservableAsPropertyHelper<bool> _canToggleDns, _showRelaunchNotice;
+        private readonly ObservableAsPropertyHelper<bool> _dnsProxyEnabled, _canToggleDns, _showRelaunchNotice, _isCustomAlternativeDnsServerSelected;
+        private readonly ObservableAsPropertyHelper<FALLBACK_DNS_SERVER_PRESET> _dnsFallbackServerPreset;
 
         private readonly ReadOnlyObservableCollection<IPAddress> _alternativeDnsServers;
 
         private readonly CompositeDisposable _disposables = new();
 
-        private string _addDnsServerEntryBoxContent;
+        private string _customDnsServerEntryContent;
 
         public DnsPageTabViewModel(OnionFruitSettingsStore settings, INetworkAdapterManager adapterManager, IProcessElevator processElevator)
         {
             _settings = settings;
 
-            settings.GetObservableValue<bool>(OnionFruitSetting.DnsEnabled)
+            settings.GetObservableValue<bool>(OnionFruitSetting.DnsProxyingEnabled)
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, x => x.DnsProxyEnabled, out _dnsProxyEnabled)
                 .DisposeWith(_disposables);
 
-            _fallbackDnsServersSource = settings.GetCollection<IPAddress>(OnionFruitSetting.DnsFallbackServers);
+            settings.GetObservableValue<FALLBACK_DNS_SERVER_PRESET>(OnionFruitSetting.DnsFallbackServerPreset)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.SelectedAlternativeDnsServerPreset, out _dnsFallbackServerPreset)
+                .DisposeWith(_disposables);
+
+            _fallbackDnsServersSource = settings.GetCollection<IPAddress>(OnionFruitSetting.DnsCustomFallbackServers);
             _fallbackDnsServersSource
                 .Connect()
                 .Bind(out _alternativeDnsServers)
@@ -65,12 +70,19 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .ToProperty(this, x => x.CanToggleDns, out _canToggleDns);
 
+            this.WhenAnyValue(x => x.SelectedAlternativeDnsServerPreset)
+                .Select(x => x == FALLBACK_DNS_SERVER_PRESET.Custom)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.IsCustomAlternativeDnsServerSelected, out _isCustomAlternativeDnsServerSelected);
+
             RelaunchAsElevatedProcess = ReactiveCommand.Create(() => processElevator.RelaunchProcess(true));
         }
 
         public IconSource ShieldIcon => App.GetIcon(LucideIconNames.ShieldHalf);
         public IconSource DnsProxyingIcon => App.GetIcon(LucideIconNames.Waypoints);
         public IconSource AlternativeServersIcon => App.GetIcon(LucideIconNames.BookDashed);
+
+        public FALLBACK_DNS_SERVER_PRESET[] AlternativeDnsPresets { get; } = Enum.GetValues<FALLBACK_DNS_SERVER_PRESET>();
 
         /// <summary>
         /// Determines whether the DNS proxy can be toggled on or off.
@@ -86,6 +98,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public bool ShowRelaunchNotice => _showRelaunchNotice.Value;
 
+        public bool IsCustomAlternativeDnsServerSelected => _isCustomAlternativeDnsServerSelected.Value;
+
         public bool NoAlternativeServersAvailable => _alternativeDnsServers.Count == 0;
 
         public IReadOnlyCollection<IPAddress> AlternativeDnsServers => _alternativeDnsServers;
@@ -93,35 +107,41 @@ namespace DragonFruit.OnionFruit.ViewModels
         public bool DnsProxyEnabled
         {
             get => _dnsProxyEnabled.Value;
-            set => _settings.SetValue(OnionFruitSetting.DnsEnabled, value);
+            set => _settings.SetValue(OnionFruitSetting.DnsProxyingEnabled, value);
         }
 
-        public string AddDnsServerEntryBoxContent
+        public FALLBACK_DNS_SERVER_PRESET SelectedAlternativeDnsServerPreset
         {
-            get => _addDnsServerEntryBoxContent;
-            set => this.RaiseAndSetIfChanged(ref _addDnsServerEntryBoxContent, value);
+            get => _dnsFallbackServerPreset.Value;
+            set => _settings.SetValue(OnionFruitSetting.DnsFallbackServerPreset, value);
+        }
+
+        public string CustomDnsServerEntryContent
+        {
+            get => _customDnsServerEntryContent;
+            set => this.RaiseAndSetIfChanged(ref _customDnsServerEntryContent, value);
         }
 
         public ICommand RelaunchAsElevatedProcess { get; }
 
         public void AddDnsServerEntry()
         {
-            var ipContent = AddDnsServerEntryBoxContent.Trim();
+            var ipContent = CustomDnsServerEntryContent.Trim();
 
             if (IPAddress.TryParse(ipContent, out var ip) && ip.AddressFamily is AddressFamily.InterNetwork or AddressFamily.InterNetworkV6)
             {
                 if (AlternativeDnsServers.Contains(ip))
                 {
-                    AddDnsServerEntryBoxContent = string.Empty;
+                    CustomDnsServerEntryContent = string.Empty;
                     return;
                 }
 
                 _fallbackDnsServersSource.Add(ip);
-                AddDnsServerEntryBoxContent = string.Empty;
+                CustomDnsServerEntryContent = string.Empty;
             }
             else
             {
-                AddDnsServerEntryBoxContent = ipContent;
+                CustomDnsServerEntryContent = ipContent;
             }
         }
 

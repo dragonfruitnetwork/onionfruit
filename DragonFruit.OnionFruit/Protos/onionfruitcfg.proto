@@ -31,8 +31,14 @@ message OnionFruitConfigFile {
 
   optional int32 maxCircuitIdleTime = 17;
   
+  // Whether DNS proxying should be enabled.
   bool enableDnsProxying = 18;
-  repeated bytes fallbackDnsServers = 19;
+  
+  // What pre-defined fallback DNS servers to use.
+  FALLBACK_DNS_SERVER_PRESET fallbackDnsServerPreset = 20;
+
+  // Custom DNS server IPs used when fallbackDnsServerPreset is set to Custom
+  repeated bytes customFallbackDnsServers = 19;
 }
 
 enum TRANSPORT_TYPES {
@@ -45,6 +51,15 @@ enum TRANSPORT_TYPES {
   webtunnel = 6;
   snowflake = 7;
   conjure = 8;
+}
+
+enum FALLBACK_DNS_SERVER_PRESET {
+  Unused = 0;
+  Custom = 1;
+  Cloudflare = 2;
+  Google = 3;
+  Quad9 = 4;
+  OpenDNS = 5;
 }
 
 enum UPDATE_STREAM {

@@ -6,6 +6,8 @@
              xmlns:viewModels="clr-namespace:DragonFruit.OnionFruit.ViewModels"
              xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
+             xmlns:controls1="clr-namespace:DragonFruit.OnionFruit.Controls"
+             xmlns:configuration="clr-namespace:DragonFruit.OnionFruit.Configuration"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="DragonFruit.OnionFruit.Views.Settings.DnsPageTabView"
              x:DataType="viewModels:DnsPageTabViewModel">
@@ -45,42 +47,66 @@
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
 
-            <controls:SettingsExpander Description="Alternative Servers" IconSource="{Binding AlternativeServersIcon}" IsExpanded="True">
-                <StackPanel Orientation="Vertical" Spacing="20" Margin="0,10,0,0">
-                    <DockPanel>
-                        <Button Content="Add" Command="{Binding AddDnsServerEntry}" TabIndex="1" DockPanel.Dock="Right"/>
-                        <TextBox Text="{Binding AddDnsServerEntryBoxContent}" FontFamily="{StaticResource JetBrainsMono}" TabIndex="0" DockPanel.Dock="Left"/>
-                    </DockPanel>
+            <controls:SettingsExpander Description="Alternative Servers" IconSource="{Binding AlternativeServersIcon}" IsExpanded="{Binding IsCustomAlternativeDnsServerSelected}">
+                <controls:SettingsExpander.Footer>
+                    <ComboBox MinWidth="200" SelectedItem="{Binding SelectedAlternativeDnsServerPreset}" ItemsSource="{Binding AlternativeDnsPresets}"/>
+                </controls:SettingsExpander.Footer>
 
-                    <Border Background="Gray" Height="1" />
+                <controls1:SwitchingControl Switch="{Binding IsCustomAlternativeDnsServerSelected}">
+                    <controls1:SwitchingControl.SwitchFalse>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Spacing="15" Margin="0, 15">
+                                <lucideAvalonia:Lucide Icon="CircleCheck" StrokeBrush="LimeGreen" Height="20" Width="20"/>
+                                <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                                    The selected preset requires no additional configuration.
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </controls1:SwitchingControl.SwitchFalse>
+                    <controls1:SwitchingControl.SwitchTrue>
+                        <DataTemplate DataType="viewModels:DnsPageTabViewModel">
+                            <StackPanel Orientation="Vertical" Spacing="20" Margin="0,10,0,0">
+                                <DockPanel>
+                                    <Button Content="Add" Command="{Binding AddDnsServerEntry}" TabIndex="1" DockPanel.Dock="Right"/>
+                                    <TextBox Text="{Binding CustomDnsServerEntryContent}" FontFamily="{StaticResource JetBrainsMono}" Watermark="Enter Server IP (0.0.0.0)" TabIndex="0" DockPanel.Dock="Left">
+                                        <Interaction.Behaviors>
+                                            <controls1:EnterKeyBehavior Command="{Binding AddDnsServerEntry}"/>
+                                        </Interaction.Behaviors>
+                                    </TextBox>
+                                </DockPanel>
 
-                    <StackPanel Orientation="Horizontal" Spacing="15" IsVisible="{Binding NoAlternativeServersAvailable}">
-                        <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue" Height="20" Width="20"/>
-                        <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
-                            All DNS requests will be sent through Tor as no alternative servers have been set.
-                        </TextBlock>
-                    </StackPanel>
+                                <Border Background="Gray" Height="1" />
 
-                    <controls:ItemsRepeater ItemsSource="{Binding AlternativeDnsServers}">
-                        <controls:ItemsRepeater.Layout>
-                            <controls:StackLayout Spacing="15"/>
-                        </controls:ItemsRepeater.Layout>
-                        <controls:ItemsRepeater.ItemTemplate>
-                            <DataTemplate DataType="system:String">
-                                <Grid ColumnDefinitions="*, 10, 30" VerticalAlignment="Center">
-                                    <TextBlock Grid.Column="0" 
-                                               TextWrapping="Wrap"
-                                               Text="{Binding}"
-                                               VerticalAlignment="Center"
-                                               FontFamily="{StaticResource JetBrainsMono}"/>
-                                    <Button Grid.Column="2" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:DnsPageTabViewModel)DataContext).RemoveDnsServerEntry}" CommandParameter="{Binding}">
-                                        <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    </Button>
-                                </Grid>
-                            </DataTemplate>
-                        </controls:ItemsRepeater.ItemTemplate>
-                    </controls:ItemsRepeater>
-                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="15" IsVisible="{Binding NoAlternativeServersAvailable}">
+                                    <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue" Height="20" Width="20"/>
+                                    <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
+                                        No custom DNS servers set. Enter some servers in the box above or use a preset from the dropdown.
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <controls:ItemsRepeater ItemsSource="{Binding AlternativeDnsServers}">
+                                    <controls:ItemsRepeater.Layout>
+                                        <controls:StackLayout Spacing="15"/>
+                                    </controls:ItemsRepeater.Layout>
+                                    <controls:ItemsRepeater.ItemTemplate>
+                                        <DataTemplate DataType="system:String">
+                                            <Grid ColumnDefinitions="*, 10, 30" VerticalAlignment="Center">
+                                                <TextBlock Grid.Column="0" 
+                                                           TextWrapping="Wrap"
+                                                           Text="{Binding}"
+                                                           VerticalAlignment="Center"
+                                                           FontFamily="{StaticResource JetBrainsMono}"/>
+                                                <Button Grid.Column="2" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:DnsPageTabViewModel)DataContext).RemoveDnsServerEntry}" CommandParameter="{Binding}">
+                                                    <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </controls:ItemsRepeater.ItemTemplate>
+                                </controls:ItemsRepeater>
+                            </StackPanel>
+                        </DataTemplate>
+                    </controls1:SwitchingControl.SwitchTrue>
+                </controls1:SwitchingControl>
             </controls:SettingsExpander>
         </StackPanel>
     </StackPanel>

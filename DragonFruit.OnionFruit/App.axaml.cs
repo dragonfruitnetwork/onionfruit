@@ -155,7 +155,7 @@ public partial class App(IHost host) : Application
 
         // relaunch as admin if dns can't run due to permissions
         var elevator = Services.GetRequiredService<IProcessElevator>();
-        var shouldRelaunch = settings.GetValue<bool>(OnionFruitSetting.DnsEnabled)
+        var shouldRelaunch = settings.GetValue<bool>(OnionFruitSetting.DnsProxyingEnabled)
                              && networkManager.DnsState == NetworkComponentState.MissingPermissions
                              && elevator.CheckElevationStatus() == ElevationStatus.CanElevate;
 
