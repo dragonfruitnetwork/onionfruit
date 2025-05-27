@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DragonFruit.OnionFruit.Native.win" Version="14.0.7" />
+        <PackageReference Include="DragonFruit.OnionFruit.Native.win" Version="14.5.3" />
         <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" PrivateAssets="all" />
         <PackageReference Include="System.Net.Http" Version="4.3.4" />
