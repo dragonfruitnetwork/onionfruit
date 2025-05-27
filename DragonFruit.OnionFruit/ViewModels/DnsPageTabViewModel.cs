@@ -40,6 +40,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             settings.GetObservableValue<bool>(OnionFruitSetting.DnsProxyingEnabled)
                 .ObserveOn(RxApp.MainThreadScheduler)
+                // disable switch if not running as an admin (even though it is technically on)
+                .Select(x => adapterManager.DnsState == NetworkComponentState.Available && x)
                 .ToProperty(this, x => x.DnsProxyEnabled, out _dnsProxyEnabled)
                 .DisposeWith(_disposables);
 
