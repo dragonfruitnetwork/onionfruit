@@ -3,7 +3,7 @@
     <PropertyGroup>
         <OutputType>Library</OutputType>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFrameworks>net8.0-windows;net9.0-windows</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>

@@ -4,14 +4,14 @@
         <OutputType>WinExe</OutputType>
         <NeutralLanguage>en-US</NeutralLanguage>
         <AssemblyTitle>OnionFruit™</AssemblyTitle>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net9.0-windows</TargetFramework>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
 
         <Product>OnionFruit™</Product>
         <Authors>DragonFruit Network</Authors>
         <Description>Tor access client</Description>
-        <Copyright>Copyright 2024 (c) DragonFruit Network</Copyright>
+        <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
     </PropertyGroup>
 
     <PropertyGroup>
