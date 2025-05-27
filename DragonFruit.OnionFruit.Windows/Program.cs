@@ -104,17 +104,17 @@ public static class Program
 
         AppDomain.CurrentDomain.UnhandledException += PerformShutdown;
 
-        _host = BuildHost();
+        _host = BuildHost(args);
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost()))
+    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost([])))
         .UsePlatformDetect()
         .WithInterFont()
         .UseReactiveUI();
 
-    private static IHost BuildHost() => Host.CreateDefaultBuilder()
+    private static IHost BuildHost(string[] args) => Host.CreateDefaultBuilder()
         .ConfigureLogging(logging =>
         {
             logging.ClearProviders();
@@ -133,8 +133,9 @@ public static class Program
             services.AddSingleton<TorSession>();
             services.AddSingleton<OnionDbService>();
             services.AddSingleton<TransportManager>();
-            services.AddSingleton<WindowsAppInstanceManager>();
             services.AddSingleton<ApiClient, OnionFruitClient>();
+
+            services.AddSingleton(new WindowsAppInstanceManager(args));
 
             services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
             services.AddSingleton<IProcessElevator>(s => s.GetRequiredService<WindowsAppInstanceManager>());

@@ -9,7 +9,7 @@ using DragonFruit.OnionFruit.Services;
 
 namespace DragonFruit.OnionFruit.Windows
 {
-    public class WindowsAppInstanceManager : IProcessElevator
+    public class WindowsAppInstanceManager(string[] launchArgs) : IProcessElevator
     {
         public Process CurrentProcess { get; } = Process.GetCurrentProcess();
 
@@ -37,7 +37,7 @@ namespace DragonFruit.OnionFruit.Windows
 
             var startInfo = new ProcessStartInfo(file)
             {
-                Arguments = string.Join(' ', Environment.GetCommandLineArgs()),
+                Arguments = string.Join(' ', launchArgs),
                 WorkingDirectory = Environment.CurrentDirectory,
                 UseShellExecute = true,
                 Verb = elevated ? "runas" : null
