@@ -37,7 +37,7 @@ namespace DragonFruit.OnionFruit.Windows
 
             var startInfo = new ProcessStartInfo(file)
             {
-                Arguments = string.Concat(' ', Environment.GetCommandLineArgs()),
+                Arguments = string.Join(' ', Environment.GetCommandLineArgs()),
                 WorkingDirectory = Environment.CurrentDirectory,
                 UseShellExecute = true,
                 Verb = elevated ? "runas" : null

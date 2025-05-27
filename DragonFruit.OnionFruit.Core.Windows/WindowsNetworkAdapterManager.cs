@@ -17,7 +17,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
     {
         private const string WmiNamespace = @"root\cimv2";
         private const string WmiNetworkAdapterQuery = "SELECT Description,SettingID FROM Win32_NetworkAdapterConfiguration WHERE IPEnabled = 'TRUE'";
-        private const string WmiNetworkAdapterEventQuery = "SELECT * FROM __InstanceCreationEvent WITHIN 2 WHERE TargetInstance ISA 'Win32_NetworkAdapterConfiguration' AND TargetInstance.IPEnabled = TRUE";
+        private const string WmiNetworkAdapterEventQuery = "SELECT * FROM __InstanceCreationEvent WITHIN 10 WHERE TargetInstance ISA 'Win32_NetworkAdapterConfiguration' AND TargetInstance.IPEnabled = TRUE";
 
         private const string DnsRegistryPath = @"SYSTEM\CurrentControlSet\Services\Tcpip{0}\Parameters\Interfaces";
         private const string ProxySettingsPath = @"Software\Microsoft\Windows\CurrentVersion\Internet Settings";
@@ -40,6 +40,7 @@ namespace DragonFruit.OnionFruit.Core.Windows
         {
             try
             {
+                _proxyRegistry?.Dispose();
                 _proxyRegistry = Registry.CurrentUser.OpenSubKey(ProxySettingsPath, RegistryKeyPermissionCheck.ReadWriteSubTree, RequiredRegistryAccess);
             }
             catch (SecurityException)
@@ -48,12 +49,17 @@ namespace DragonFruit.OnionFruit.Core.Windows
 
             try
             {
+                _tcpipConfigRegistry?.Dispose();
+                _tcpip6ConfigRegistry?.Dispose();
+
                 _tcpipConfigRegistry = Registry.LocalMachine.OpenSubKey(string.Format(DnsRegistryPath, string.Empty), RegistryKeyPermissionCheck.ReadWriteSubTree, RequiredRegistryAccess);
                 _tcpip6ConfigRegistry = Registry.LocalMachine.OpenSubKey(string.Format(DnsRegistryPath, "6"), RegistryKeyPermissionCheck.ReadWriteSubTree, RequiredRegistryAccess);
             }
             catch (SecurityException)
             {
             }
+
+            _wmiEventWatcher?.Dispose();
 
             _wmiEventWatcher = new ManagementEventWatcher(WmiNamespace, WmiNetworkAdapterEventQuery);
             _wmiEventWatcher.EventArrived += WmiEventHandler;
