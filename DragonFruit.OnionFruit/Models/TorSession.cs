@@ -445,7 +445,7 @@ namespace DragonFruit.OnionFruit.Models
 
                     adapterManager.AdapterConnected -= OnAdapterConnected;
 
-                    foreach (var adapter in _targetedAdapters)
+                    foreach (var adapter in _targetedAdapters ?? [])
                     {
                         adapter.SetProxyServers([]);
 
