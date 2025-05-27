@@ -30,11 +30,12 @@ OnionFruit™ builds are provided for the platforms below. Click the links to do
 ## Features
 🌍 Entry/Exit Location selection (with regular database updates)  
 🌉 Bridge support including plain, obfs4, snowflake and conjure transports  
-🧱 Set allowed ports on restrictive firewalls  
+🧱 Set allowed ports to access through restrictive firewalls  
+🧭 DNS proxying to allow applications to resolve .onion addresses  
 🌐 Custom launch pages  
-🛡️ No administrator privileges required to install and use  
+🛡️ No administrator privileges required to install and use most features  
 🎮 Optional Discord status  
-✨ Based on Windows 11 Fluent 2 Design  
+✨ Based on [Fluent 2 Design](https://fluent2.microsoft.design/)  
 ⚖️ Fully open source
 
 ## Developing
