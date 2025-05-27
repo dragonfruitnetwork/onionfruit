@@ -208,9 +208,13 @@ namespace DragonFruit.OnionFruit.Configuration
             // null checks are performed to ensure default values are not set.
             Action<OnionFruitConfigFile> setFromConfigAction = c =>
             {
-                if ((bool?)accessorNullCheck?.GetValue(c) != false)
+                if ((bool?)accessorNullCheck?.GetValue(c) ?? true)
                 {
                     subject.OnNext((T)accessor.GetValue(c, null));
+                }
+                else
+                {
+                    subject.OnNext(defaultValue);
                 }
             };
 
