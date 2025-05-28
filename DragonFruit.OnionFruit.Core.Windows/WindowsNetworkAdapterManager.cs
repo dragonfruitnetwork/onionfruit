@@ -4,12 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management;
 using System.Net.Sockets;
 using System.Security;
 using System.Security.AccessControl;
 using DragonFruit.OnionFruit.Core.Network;
 using Microsoft.Win32;
+using WmiLight;
 
 namespace DragonFruit.OnionFruit.Core.Windows
 {
@@ -28,7 +28,8 @@ namespace DragonFruit.OnionFruit.Core.Windows
                                                               | RegistryRights.SetValue
                                                               | RegistryRights.Delete;
 
-        private ManagementEventWatcher _wmiEventWatcher;
+        private WmiConnection _wmiEventConnection;
+        private WmiEventSubscription _wmiEventSubscription;
         private RegistryKey _proxyRegistry, _tcpipConfigRegistry, _tcpip6ConfigRegistry;
 
         public NetworkComponentState DnsState => _tcpipConfigRegistry == null && _tcpip6ConfigRegistry == null ? NetworkComponentState.MissingPermissions : NetworkComponentState.Available;
@@ -59,76 +60,50 @@ namespace DragonFruit.OnionFruit.Core.Windows
             {
             }
 
-            _wmiEventWatcher?.Dispose();
+            _wmiEventConnection?.Dispose();
+            _wmiEventConnection = new WmiConnection(WmiNamespace);
 
-            _wmiEventWatcher = new ManagementEventWatcher(WmiNamespace, WmiNetworkAdapterEventQuery);
-            _wmiEventWatcher.EventArrived += WmiEventHandler;
-            _wmiEventWatcher.Start();
+            _wmiEventSubscription?.Dispose();
+            _wmiEventSubscription = _wmiEventConnection.CreateEventSubscription(WmiNetworkAdapterEventQuery, WmiEventHandler);
         }
 
         public INetworkAdapter GetAdapter(string id)
         {
-            using var objectSearcher = new ManagementObjectSearcher(new ManagementScope(WmiNamespace), new WqlObjectQuery($"{WmiNetworkAdapterQuery} AND SettingID = '{id}'"));
-            var adapters = objectSearcher.Get();
-
-            switch (adapters.Count)
-            {
-                case 0:
-                {
-                    return null;
-                }
-
-                case 1:
-                {
-                    var adapter = adapters.Cast<ManagementObject>().SingleOrDefault();
-                    return adapter == null ? null : AdapterFromCimInstance(adapter);
-                }
-
-                default:
-                {
-                    throw new InvalidOperationException($"Multiple adapters found with SettingID '{id}'.");
-                }
-            }
+            var targetAdapter = _wmiEventConnection.CreateQuery($"{WmiNetworkAdapterQuery} AND SettingID = '{id}'").SingleOrDefault();
+            return targetAdapter == null ? null : AdapterFromWmiInstance(targetAdapter);
         }
 
         public IList<INetworkAdapter> GetAdapters()
         {
-            List<INetworkAdapter> adapters = [new WinGlobalProxyAdapter(_proxyRegistry, false)];
+            // WMI uses COM, so each connection needs to be tied to the thread it's running on.
+            // creating the connection here to keep it simple and thread-safe.
+            using var wmiConnection = new WmiConnection(WmiNamespace);
 
-            using var objectSearcher = new ManagementObjectSearcher(new ManagementScope(WmiNamespace), new WqlObjectQuery(WmiNetworkAdapterQuery));
-            using var results = objectSearcher.Get();
-
-            if (results == null || results.Count == 0)
-            {
-                return adapters;
-            }
-
-            adapters.AddRange(results.Cast<ManagementObject>().Select(AdapterFromCimInstance));
-            return adapters;
+            return
+            [
+                new WinGlobalProxyAdapter(_proxyRegistry, false),
+                ..wmiConnection.CreateQuery(WmiNetworkAdapterQuery).Select(AdapterFromWmiInstance)
+            ];
         }
 
-        private void WmiEventHandler(object sender, EventArrivedEventArgs e)
+        private void WmiEventHandler(WmiObject x)
         {
-            if (e.NewEvent == null)
+            var newEvent = x.GetPropertyValue<WmiObject>("TargetInstance");
+            if (newEvent == null)
             {
                 return;
             }
 
-            using (e.NewEvent)
-            {
-                var newAdapter = (ManagementBaseObject)e.NewEvent["TargetInstance"];
+            var id = x.GetPropertyValue<string>("SettingID");
+            var name = x.GetPropertyValue<string>("Description");
 
-                var id = newAdapter["SettingID"].ToString();
-                var name = newAdapter["Description"].ToString();
-
-                AdapterConnected?.Invoke(this, new NetworkAdapterInfo(id, name, true));
-            }
+            AdapterConnected?.Invoke(this, new NetworkAdapterInfo(id, name, true));
         }
 
         public void Dispose()
         {
-            _wmiEventWatcher?.Stop();
-            _wmiEventWatcher?.Dispose();
+            _wmiEventSubscription?.Dispose();
+            _wmiEventConnection?.Dispose();
 
             _proxyRegistry?.Dispose();
             _tcpipConfigRegistry?.Dispose();
@@ -137,10 +112,10 @@ namespace DragonFruit.OnionFruit.Core.Windows
             GC.SuppressFinalize(this);
         }
 
-        private WinNetworkAdapter AdapterFromCimInstance(ManagementObject instance)
+        private WinNetworkAdapter AdapterFromWmiInstance(WmiObject instance)
         {
-            var id = instance["SettingID"].ToString();
-            var name = instance["Description"].ToString();
+            var id = instance.GetPropertyValue<string>("SettingID");
+            var name = instance.GetPropertyValue<string>("Description");
 
             var tcpipKey = Socket.OSSupportsIPv4 ? _tcpipConfigRegistry?.OpenSubKey(id, RequiredRegistryAccess) : null;
             var tcpip6Key = Socket.OSSupportsIPv6 ? _tcpip6ConfigRegistry?.OpenSubKey(id, RequiredRegistryAccess) : null;
