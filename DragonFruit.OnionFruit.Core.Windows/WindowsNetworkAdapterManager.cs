@@ -69,7 +69,11 @@ namespace DragonFruit.OnionFruit.Core.Windows
 
         public INetworkAdapter GetAdapter(string id)
         {
-            var targetAdapter = _wmiEventConnection.CreateQuery($"{WmiNetworkAdapterQuery} AND SettingID = '{id}'").SingleOrDefault();
+            // WMI uses COM, so each connection needs to be tied to the thread it's running on.
+            // creating the connection here to keep it simple and thread-safe.
+            using var wmiConnection = new WmiConnection(WmiNamespace);
+
+            var targetAdapter = wmiConnection.CreateQuery($"{WmiNetworkAdapterQuery} AND SettingID = '{id}'").SingleOrDefault();
             return targetAdapter == null ? null : AdapterFromWmiInstance(targetAdapter);
         }
 
