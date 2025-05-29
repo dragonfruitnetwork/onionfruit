@@ -1,6 +1,5 @@
 ﻿<linker>
     <assembly fullname="FluentAvalonia"/>
-    <assembly fullname="System.Management"/>
     <assembly fullname="GrpcDotNetNamedPipes"/>
     <assembly fullname="DragonFruit.OnionFruit"/>
     <assembly fullname="DragonFruit.OnionFruit.Core"/>
