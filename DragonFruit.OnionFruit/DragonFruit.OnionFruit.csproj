@@ -25,7 +25,7 @@
         <PackageReference Include="DragonFruit.Data.Roslyn" Version="4.1.2" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="FluentAvaloniaUI" Version="2.3.0" />
-        <PackageReference Include="Google.Protobuf" Version="3.31.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.31.1" />
         <PackageReference Include="Grpc.Tools" Version="2.72.0" PrivateAssets="all" />
         <PackageReference Include="LucideAvalonia" Version="1.6.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.5" />
@@ -37,7 +37,7 @@
 
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.0" />
-        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.0.9" />
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.0.10" />
     </ItemGroup>
 
     <ItemGroup>
