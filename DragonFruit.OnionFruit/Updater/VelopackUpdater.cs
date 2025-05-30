@@ -105,7 +105,7 @@ namespace DragonFruit.OnionFruit.Updater
             UpdateStream.Beta => $"{prefix}-beta",
 
             // use whatever velopack has chosen
-            _ => null
+            _ => prefix
         };
 
         Task IHostedService.StartAsync(CancellationToken cancellationToken)

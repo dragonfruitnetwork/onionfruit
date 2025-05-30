@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -189,10 +190,12 @@ public static class Program
     private static UpdateOptions GetUpdateOptions(OnionFruitSettingsStore settings)
     {
         var targetStream = settings.GetValue<UpdateStream?>(OnionFruitSetting.ExplicitUpdateStream);
+        var channelName = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "win-arm64" : "win";
+
         return new UpdateOptions
         {
             AllowVersionDowngrade = true,
-            ExplicitChannel = VelopackUpdater.UpdateChannelName(null, targetStream)
+            ExplicitChannel = VelopackUpdater.UpdateChannelName(channelName, targetStream)
         };
     }
 

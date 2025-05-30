@@ -40,7 +40,7 @@ jobs:
 
     strategy:
       matrix:
-        rid: [win-x64]
+        rid: [win-x64, win-arm64]
 
     steps:
       - uses: actions/checkout@v4
