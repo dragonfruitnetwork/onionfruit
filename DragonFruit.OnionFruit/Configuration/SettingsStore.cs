@@ -22,7 +22,7 @@ namespace DragonFruit.OnionFruit.Configuration
 
         protected readonly CompositeDisposable Subscriptions = new();
 
-        private readonly object _saveLock = new();
+        private readonly Lock _saveLock = new();
         private long _lastSaveValue;
 
         protected virtual void RegisterSettings()
@@ -78,7 +78,7 @@ namespace DragonFruit.OnionFruit.Configuration
             subject = new BehaviorSubject<TValue>(defaultValue);
             ConfigStore.Add(key, subject);
 
-            return subject.Where(_ => IsLoaded.Value).DistinctUntilChanged();
+            return subject.CombineLatest(IsLoaded).Where(x => x.Second).Select(x => x.First).DistinctUntilChanged();
         }
 
         protected IObservable<IChangeSet<TValue>> RegisterCollection<TValue>(TKey key, out SourceList<TValue> collection)
@@ -91,7 +91,7 @@ namespace DragonFruit.OnionFruit.Configuration
             collection = new SourceList<TValue>();
             ConfigStore.Add(key, collection);
 
-            return collection.Connect().Where(_ => IsLoaded.Value);
+            return collection.Connect().CombineLatest(IsLoaded).Where(x => x.Second).Select(x => x.First);
         }
 
         protected async Task<Unit> QueueSave()
