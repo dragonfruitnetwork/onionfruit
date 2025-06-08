@@ -33,7 +33,7 @@ namespace DragonFruit.OnionFruit;
 
 public partial class App(IHost host) : Application
 {
-    internal static string StoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit");
+    public static string StoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit");
 
     private readonly AsyncManualResetEvent _shutdownSignal = new(true);
     private readonly SemaphoreSlim _shutdownQueue = new(1, 1);
@@ -176,7 +176,7 @@ public partial class App(IHost host) : Application
         };
     }
 
-    internal async Task RequestAppShutdown()
+    public async Task RequestAppShutdown()
     {
         // prevent multiple shutdown requests from being queued
         // this should never fail, but if it does the app will be forced to close
