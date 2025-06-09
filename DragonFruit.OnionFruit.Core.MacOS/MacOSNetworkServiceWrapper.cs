@@ -7,7 +7,7 @@ using DragonFruit.OnionFruit.Core.Network;
 
 namespace DragonFruit.OnionFruit.Core.MacOS
 {
-    public class MacOSNetworkAdapter(MacOSNetworkService serviceInfo, OnionFruitDaemonConnection manager) : INetworkAdapter
+    public class MacOSNetworkServiceWrapper(MacOSNetworkServiceInfo serviceInfo, OnionFruitDaemonConnection manager) : INetworkAdapter
     {
         public string Id => serviceInfo.ServiceId;
         public string Name => serviceInfo.ServiceName;

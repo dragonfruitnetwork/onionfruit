@@ -12,13 +12,13 @@ namespace DragonFruit.OnionFruit.Core.MacOS
     /// <param name="ServiceId">The service identifier, used to modify configuration details</param>
     /// <param name="BsdInterfaceId">The underlying BSD network interface identifier</param>
     /// <param name="ServiceName">The friendly name, displayed to users in the System Settings application.</param>
-    public record MacOSNetworkService(string ServiceId, string BsdInterfaceId, string ServiceName)
+    public record MacOSNetworkServiceInfo(string ServiceId, string BsdInterfaceId, string ServiceName)
     {
         /// <summary>
         /// Gets the currently configured network services on the system.
         /// </summary>
-        /// <returns>An array of <see cref="MacOSNetworkService"/> items</returns>
-        public static MacOSNetworkService[] GetNetworkServices()
+        /// <returns>An array of <see cref="MacOSNetworkServiceInfo"/> items</returns>
+        public static MacOSNetworkServiceInfo[] GetNetworkServices()
         {
             var nativeServiceList = NativeMethods.CreateNetworkServiceList(out var count);
             if (count == 0)
@@ -30,13 +30,13 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             try
             {
                 var servicePtr = nativeServiceList;
-                var serviceList = new MacOSNetworkService[count];
+                var serviceList = new MacOSNetworkServiceInfo[count];
                 var serviceSize = Marshal.SizeOf<NetworkServiceInfo>();
 
                 for (var i = 0; i < count; i++)
                 {
                     var service = Marshal.PtrToStructure<NetworkServiceInfo>(servicePtr);
-                    serviceList[i] = new MacOSNetworkService(service.ServiceId, service.BsdInterfaceId, service.FriendlyName);
+                    serviceList[i] = new MacOSNetworkServiceInfo(service.ServiceId, service.BsdInterfaceId, service.FriendlyName);
 
                     servicePtr += serviceSize;
                 }

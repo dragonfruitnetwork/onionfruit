@@ -41,21 +41,21 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         public INetworkAdapter GetAdapter(string id)
         {
-            var serviceInfo = MacOSNetworkService.GetNetworkServices().FirstOrDefault(x => x.ServiceId == id);
+            var serviceInfo = MacOSNetworkServiceInfo.GetNetworkServices().FirstOrDefault(x => x.ServiceId == id);
             if (serviceInfo == null)
             {
                 throw new ArgumentException($"No network service found with ID '{id}'", nameof(id));
             }
 
-            return new MacOSNetworkAdapter(serviceInfo, _serviceConnection);
+            return new MacOSNetworkServiceWrapper(serviceInfo, _serviceConnection);
         }
 
         public IList<INetworkAdapter> GetAdapters()
         {
-            var serviceInfo = MacOSNetworkService.GetNetworkServices();
+            var serviceInfo = MacOSNetworkServiceInfo.GetNetworkServices();
             var interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.OperationalStatus == OperationalStatus.Up);
 
-            return [..serviceInfo.Join(interfaces, x => x.BsdInterfaceId, x => x.Id, (service, _) => new MacOSNetworkAdapter(service, _serviceConnection))];
+            return [..serviceInfo.Join(interfaces, x => x.BsdInterfaceId, x => x.Id, (service, _) => new MacOSNetworkServiceWrapper(service, _serviceConnection))];
         }
 
         public void Dispose()
