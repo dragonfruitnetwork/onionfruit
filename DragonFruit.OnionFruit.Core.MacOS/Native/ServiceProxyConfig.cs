@@ -1,9 +1,9 @@
 using System.Runtime.InteropServices;
 
-namespace DragonFruit.OnionFruit.Core.MacOS.NativeStructs;
+namespace DragonFruit.OnionFruit.Core.MacOS.Native;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct ServiceProxyConfig
+internal struct ServiceProxyConfig
 {
     [MarshalAs(UnmanagedType.LPUTF8Str)]
     public string HttpProxyHost;

@@ -1,8 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
-using DragonFruit.OnionFruit.Core.MacOS.NativeStructs;
 
-namespace DragonFruit.OnionFruit.Core.MacOS;
+namespace DragonFruit.OnionFruit.Core.MacOS.Native;
 
 internal static partial class NativeMethods
 {
@@ -32,13 +31,13 @@ internal static partial class NativeMethods
     [LibraryImport(LibraryName, EntryPoint = "destroyServiceDnsResolvers")]
     public static partial void DestroyDnsResolverList(IntPtr resolverListPtr, int resolverCount);
 
-    [DllImport(LibraryName, EntryPoint = "setServiceDnsResolvers")]
+    [DllImport(LibraryName, EntryPoint = "setServiceDnsResolvers", ExactSpelling = true)]
     public static extern ulong SetServiceDnsResolvers(
         IntPtr xpcConnection,
         [In, MarshalAs(UnmanagedType.LPUTF8Str)] string serviceId,
         [In, MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPUTF8Str)] string[] resolvers,
         int resolverCount);
 
-    [DllImport(LibraryName, EntryPoint = "setServiceProxyConfig")]
+    [DllImport(LibraryName, EntryPoint = "setServiceProxyConfig", ExactSpelling = true)]
     public static extern ulong SetServiceProxyConfig(IntPtr xpcConnection, string serviceId, [In, MarshalAs(UnmanagedType.LPStruct)] ServiceProxyConfig config);
 }
