@@ -1,0 +1,173 @@
+﻿// OnionFruit Copyright DragonFruit Network <inbox@dragonfruit.network>
+// Licensed under LGPL-3.0. Refer to the LICENCE file for more info
+
+using System;
+using System.IO;
+using Avalonia;
+using Avalonia.ReactiveUI;
+using DragonFruit.Data;
+using DragonFruit.OnionFruit.Configuration;
+using DragonFruit.OnionFruit.Core;
+using DragonFruit.OnionFruit.Core.MacOS;
+using DragonFruit.OnionFruit.Core.Network;
+using DragonFruit.OnionFruit.Database;
+using DragonFruit.OnionFruit.Models;
+using DragonFruit.OnionFruit.Services;
+using DragonFruit.OnionFruit.Updater;
+using DragonFruit.OnionFruit.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using Serilog.Events;
+using Serilog.Sinks.SystemConsole.Themes;
+using Velopack;
+
+namespace DragonFruit.OnionFruit.MacOS;
+
+public static class Program
+{
+#if !DEBUG
+    private const string XpcServiceName = "network.dragonfruit.onionfruit.xpc";
+    private const string DaemonPlistName = "network.dragonfruit.onionfruitd.plist";
+#else
+    private const string XpcServiceName = "network.dragonfruit.onionfruit.xpc-dev";
+    private const string DaemonPlistName = null;
+#endif
+
+    private static IHost _host;
+
+    // Initialization code. Don't use any Avalonia, third-party APIs or any
+    // SynchronizationContext-reliant code before AppMain is called: things aren't initialized
+    // yet and stuff might break.
+    [STAThread]
+    public static void Main(string[] args)
+    {
+        VelopackApp.Build().Run();
+
+        // FluentAvalonia needs Windows 10.0.14393.0 (Anniversary Update) or later
+        // see https://github.com/amwx/FluentAvalonia/issues/212
+        if (!OperatingSystem.IsMacOSVersionAtLeast(13))
+        {
+            // todo show message box or something
+            return;
+        }
+
+        // standard application startup
+        var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
+        if (File.Exists(fileLog))
+        {
+            using var stream = File.OpenWrite(fileLog);
+            stream.SetLength(0);
+        }
+
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.File(fileLog, LogEventLevel.Debug)
+            .WriteTo.Console(LogEventLevel.Debug, theme: AnsiConsoleTheme.Literate)
+            .WriteTo.Sentry(o =>
+            {
+                o.Dsn = "https://f63ab85d7581988829e9f47d329d83d5@o97031.ingest.us.sentry.io/4508002219917312";
+
+                o.MaxBreadcrumbs = 100;
+                o.SendDefaultPii = false;
+                o.Release = typeof(App).Assembly.GetName().Version!.ToString(3);
+
+#if DEBUG
+                o.SetBeforeSend(_ => null);
+#else
+                // enable error reporting only in release builds and when the user hasn't opted out.
+                // launch failures are always reported as settings can't be loaded to check if the user has opted out.
+                o.SetBeforeSend(e => App.Instance.Services?.GetService<OnionFruitSettingsStore>()?.GetValue<bool>(OnionFruitSetting.EnableErrorReporting) == false ? null : e);
+#endif
+
+                o.MinimumEventLevel = LogEventLevel.Error;
+                o.MinimumBreadcrumbLevel = LogEventLevel.Debug;
+
+                o.DisableUnobservedTaskExceptionCapture();
+            })
+            .CreateLogger();
+
+        AppDomain.CurrentDomain.UnhandledException += PerformFatalCrashShutdown;
+
+        _host = BuildHost(args);
+        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    }
+
+    // Avalonia configuration, don't remove; also used by visual designer.
+    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost([])))
+        .UsePlatformDetect()
+        .WithInterFont()
+        .UseReactiveUI();
+
+    private static IHost BuildHost(string[] args) => Host.CreateDefaultBuilder()
+        .ConfigureLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddSerilog();
+        })
+        .ConfigureServices((context, services) =>
+        {
+            // register platform-specific services
+            services.AddSingleton<INetworkAdapterManager, MacOSNetworkServiceManager>(_ => new MacOSNetworkServiceManager(XpcServiceName, DaemonPlistName));
+            services.AddSingleton<ExecutableLocator, MacOSExecutableLocator>();
+
+            // configuration
+            services.AddSingleton<OnionFruitSettingsStore>();
+
+            // register core services
+            services.AddSingleton<TorSession>();
+            services.AddSingleton<OnionDbService>();
+            services.AddSingleton<TransportManager>();
+            services.AddSingleton<ApiClient, OnionFruitClient>();
+
+            // todo find way to replace this with a permissions-oriented solution
+            // windows relaunches as admin, osx installs the daemon service
+            services.AddSingleton<MacOSAppInstanceManager>();
+
+            services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
+            services.AddSingleton<IProcessElevator>(s => s.GetRequiredService<MacOSAppInstanceManager>());
+            services.AddSingleton<IOnionFruitUpdater>(s =>
+            {
+                var settings = s.GetRequiredService<OnionFruitSettingsStore>();
+                return ActivatorUtilities.CreateInstance<VelopackUpdater>(s, GetUpdateOptions(settings));
+            });
+
+            services.AddSingleton<IStartupLaunchService, LaunchItemService>();
+
+            services.AddHostedService<DiscordRpcService>();
+            services.AddHostedService<LandingPageLaunchService>();
+            services.AddHostedService(s => s.GetRequiredService<OnionDbService>());
+            services.AddHostedService(s => (VelopackUpdater)s.GetRequiredService<IOnionFruitUpdater>());
+
+            // register view models
+            services.AddTransient<MainWindowViewModel>();
+        }).Build();
+
+    private static UpdateOptions GetUpdateOptions(OnionFruitSettingsStore settings)
+    {
+        var targetStream = settings.GetValue<UpdateStream?>(OnionFruitSetting.ExplicitUpdateStream);
+        return new UpdateOptions
+        {
+            AllowVersionDowngrade = true,
+            ExplicitChannel = VelopackUpdater.UpdateChannelName(null, targetStream)
+        };
+    }
+
+    private static void PerformFatalCrashShutdown(object sender, UnhandledExceptionEventArgs eventArgs)
+    {
+        if (!eventArgs.IsTerminating)
+        {
+            return;
+        }
+
+        // create a marker file to indicate that the application crashed
+        File.Create(Path.Combine(App.StoragePath, ".app-crash")).Dispose();
+        Log.Logger.Fatal("Unhandled exception: {message}", (eventArgs.ExceptionObject as Exception)?.Message);
+
+        // todo show error message to user
+
+        // shutdown any ongoing session
+        _host?.Services.GetService<TorSession>().StopSession().AsTask().Wait();
+    }
+}

@@ -4,6 +4,7 @@
     "projects": [
       "DragonFruit.OnionFruit.Core.MacOS\\DragonFruit.OnionFruit.Core.MacOS.csproj",
       "DragonFruit.OnionFruit.Core\\DragonFruit.OnionFruit.Core.csproj",
+      "DragonFruit.OnionFruit.MacOS\\DragonFruit.OnionFruit.MacOS.csproj",
       "DragonFruit.OnionFruit\\DragonFruit.OnionFruit.csproj"
     ]
   }

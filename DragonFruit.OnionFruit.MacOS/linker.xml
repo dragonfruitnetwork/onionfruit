@@ -1,0 +1,6 @@
+﻿<linker>
+    <assembly fullname="FluentAvalonia"/>
+    <assembly fullname="DragonFruit.OnionFruit"/>
+    <assembly fullname="DragonFruit.OnionFruit.Core"/>
+    <assembly fullname="DragonFruit.OnionFruit.Core.MacOS"/>
+</linker>
