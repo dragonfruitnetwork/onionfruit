@@ -140,7 +140,7 @@ namespace DragonFruit.OnionFruit.Core
                 throw new InvalidOperationException("Tor process is already running. It must be stopped before starting again");
             }
 
-            _process = new Process
+            var process = new Process
             {
                 EnableRaisingEvents = true,
                 StartInfo = new ProcessStartInfo(torPath)
@@ -155,21 +155,28 @@ namespace DragonFruit.OnionFruit.Core
                 }
             };
 
+            _process = process;
+
             if (!string.IsNullOrEmpty(configFile) && File.Exists(configFile))
             {
-                _process.StartInfo.Arguments = $"-f \"{configFile}\"";
+                process.StartInfo.Arguments = $"-f \"{configFile}\"";
             }
 
-            _process.Exited += ProcessExited;
-            _process.OutputDataReceived += ProcessOutput;
+            process.Exited += ProcessExited;
+            process.OutputDataReceived += ProcessOutput;
 
-            _process.Start();
-
+            process.Start();
             ProcessState = State.Started;
 
-            // start stdout and stderr events
-            _process.BeginErrorReadLine();
-            _process.BeginOutputReadLine();
+            try
+            {
+                process.BeginErrorReadLine();
+                process.BeginOutputReadLine();
+            }
+            catch (Exception) when (process.HasExited)
+            {
+                // not a lot can be done here, the exited event will have been raised already
+            }
         }
 
         public void StopProcess()
