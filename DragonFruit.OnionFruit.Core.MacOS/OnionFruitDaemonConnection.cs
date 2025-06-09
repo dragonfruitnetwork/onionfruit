@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
-using DragonFruit.OnionFruit.Core.MacOS.NativeStructs;
+using DragonFruit.OnionFruit.Core.MacOS.Native;
 using DragonFruit.OnionFruit.Core.Network;
 
 namespace DragonFruit.OnionFruit.Core.MacOS
@@ -15,9 +15,9 @@ namespace DragonFruit.OnionFruit.Core.MacOS
     /// <summary>
     /// Encapsulates a connection to the "onionfruitd" service, used to delegate network service management tasks.
     /// </summary>
-    public class NetworkServiceManager : CriticalFinalizerObject, IDisposable
+    public class OnionFruitDaemonConnection : CriticalFinalizerObject, IDisposable
     {
-        public NetworkServiceManager(string machServiceName)
+        public OnionFruitDaemonConnection(string machServiceName)
         {
             var xpcHandle = NativeMethods.CreateXpcConnection(machServiceName, out var version, out var errorCode);
             if (xpcHandle == IntPtr.Zero)
@@ -29,7 +29,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             Version = version;
         }
 
-        ~NetworkServiceManager()
+        ~OnionFruitDaemonConnection()
         {
             ReleaseUnmanagedResources();
         }
@@ -47,7 +47,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         {
             if (XpcHandle == IntPtr.Zero)
             {
-                throw new ObjectDisposedException(nameof(NetworkServiceManager), "Cannot access DNS resolvers after the connection has been disposed.");
+                throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot access DNS resolvers after the connection has been disposed.");
             }
 
             if (NativeMethods.GetServiceDnsResolvers(XpcHandle, serviceId, out var resolverList, out var resolverCount) != 0)
@@ -86,11 +86,11 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         /// </summary>
         /// <param name="serviceId">The network service to apply configurations to</param>
         /// <param name="resolvers">The DNS resolvers to set (or <c>null</c> if the current resolvers are to be cleared)</param>
-        public void SetDnsResolvers(string serviceId, [MaybeNull] IPAddress[] resolvers)
+        public void SetDnsResolvers(string serviceId, [MaybeNull] IList<IPAddress> resolvers)
         {
             if (XpcHandle == IntPtr.Zero)
             {
-                throw new ObjectDisposedException(nameof(NetworkServiceManager), "Cannot set DNS resolvers after the connection has been disposed.");
+                throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot set DNS resolvers after the connection has been disposed.");
             }
 
             string[] convertedAddresses;
@@ -101,9 +101,9 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             }
             else
             {
-                convertedAddresses = new string[resolvers.Length];
+                convertedAddresses = new string[resolvers.Count];
 
-                for (int i = 0; i < resolvers.Length; i++)
+                for (int i = 0; i < resolvers.Count; i++)
                 {
                     convertedAddresses[i] = resolvers[i].ToString();
                 }
@@ -124,7 +124,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         {
             if (XpcHandle == IntPtr.Zero)
             {
-                throw new ObjectDisposedException(nameof(NetworkServiceManager), "Cannot fetch proxy config after the connection has been disposed.");
+                throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot fetch proxy config after the connection has been disposed.");
             }
 
             if (NativeMethods.GetServiceProxyConfig(XpcHandle, serviceId, out var proxyConfigPtr) != 0)
@@ -171,7 +171,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             // get the current proxy config, duplicate and replace the values before sending it back
             if (XpcHandle == IntPtr.Zero)
             {
-                throw new ObjectDisposedException(nameof(NetworkServiceManager), "Cannot set proxy config after the connection has been disposed.");
+                throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot set proxy config after the connection has been disposed.");
             }
 
             ServiceProxyConfig proxyConfig;
