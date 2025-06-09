@@ -2,8 +2,9 @@
 
     <PropertyGroup>
         <OutputType>Library</OutputType>
+        <NoWarn>$(NoWarn);CA1416</NoWarn>
+        <TargetFramework>net8.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <TargetFramework>net8.0-macos</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -11,7 +12,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AppServiceSharp" Version="1.0.0" />
+        <PackageReference Include="AppServiceSharp" Version="1.0.0"/>
+        <PackageReference Include="DragonFruit.OnionFruit.Native.osx" Version="14.5.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="Native\libonionfruit.dylib" Link="libonionfruit.dylib" Condition="Exists('Native\libonionfruit.dylib')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

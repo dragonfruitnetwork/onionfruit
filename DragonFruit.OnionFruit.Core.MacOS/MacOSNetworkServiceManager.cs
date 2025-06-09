@@ -27,7 +27,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         }
 
         public NetworkComponentState DnsState => NetworkComponentState.Unavailable;
-        public NetworkComponentState ProxyState => _appService?.Status != AppServiceStatus.Enabled ? NetworkComponentState.MissingPermissions : NetworkComponentState.Available;
+        public NetworkComponentState ProxyState => _appService != null && _appService.Status != AppServiceStatus.Enabled ? NetworkComponentState.MissingPermissions : NetworkComponentState.Available;
 
         public event EventHandler<NetworkAdapterInfo> AdapterConnected;
 

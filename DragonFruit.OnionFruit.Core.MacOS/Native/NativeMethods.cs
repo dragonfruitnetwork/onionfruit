@@ -39,5 +39,5 @@ internal static partial class NativeMethods
         int resolverCount);
 
     [DllImport(LibraryName, EntryPoint = "setServiceProxyConfig", ExactSpelling = true)]
-    public static extern ulong SetServiceProxyConfig(IntPtr xpcConnection, string serviceId, [In, MarshalAs(UnmanagedType.LPStruct)] ServiceProxyConfig config);
+    public static extern ulong SetServiceProxyConfig(IntPtr xpcConnection, [In, MarshalAs(UnmanagedType.LPUTF8Str)] string serviceId, [MarshalAs(UnmanagedType.Struct)] ServiceProxyConfig configPtr);
 }
