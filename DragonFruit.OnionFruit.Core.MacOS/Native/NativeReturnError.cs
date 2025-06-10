@@ -3,7 +3,7 @@
 
 namespace DragonFruit.OnionFruit.Core.MacOS.Native
 {
-    public enum NativeStatus
+    internal enum NativeStatus
     {
         Ok = 0,
         NetworkServiceNotFound = 1,

@@ -13,12 +13,15 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 {
     public class MacOSNetworkServiceManager : INetworkAdapterManager, IDisposable
     {
-        private readonly OnionFruitDaemonConnection _serviceConnection;
+        private readonly object _lock = new();
+        private readonly string _xpcServiceName;
         private readonly AppService _appService;
+
+        private OnionFruitDaemonConnection _activeServiceConnection;
 
         public MacOSNetworkServiceManager(string xpcServiceName, string daemonPlistName)
         {
-            _serviceConnection = new OnionFruitDaemonConnection(xpcServiceName);
+            _xpcServiceName = xpcServiceName;
 
             if (!string.IsNullOrEmpty(daemonPlistName))
             {
@@ -47,7 +50,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 throw new ArgumentException($"No network service found with ID '{id}'", nameof(id));
             }
 
-            return new MacOSNetworkServiceWrapper(serviceInfo, _serviceConnection);
+            return new MacOSNetworkServiceWrapper(serviceInfo, GetDaemonConnection);
         }
 
         public IList<INetworkAdapter> GetAdapters()
@@ -55,12 +58,26 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             var serviceInfo = MacOSNetworkServiceInfo.GetNetworkServices();
             var interfaces = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.OperationalStatus == OperationalStatus.Up);
 
-            return [..serviceInfo.Join(interfaces, x => x.BsdInterfaceId, x => x.Id, (service, _) => new MacOSNetworkServiceWrapper(service, _serviceConnection))];
+            return [..serviceInfo.Join(interfaces, x => x.BsdInterfaceId, x => x.Id, (service, _) => new MacOSNetworkServiceWrapper(service, GetDaemonConnection))];
+        }
+
+        private OnionFruitDaemonConnection GetDaemonConnection()
+        {
+            lock (_lock)
+            {
+                if (_activeServiceConnection?.IsValid != true)
+                {
+                    _activeServiceConnection?.Dispose();
+                    _activeServiceConnection = new OnionFruitDaemonConnection(_xpcServiceName);
+                }
+            }
+
+            return _activeServiceConnection;
         }
 
         public void Dispose()
         {
-            _serviceConnection?.Dispose();
+            _activeServiceConnection?.Dispose();
             _appService?.Dispose();
         }
     }

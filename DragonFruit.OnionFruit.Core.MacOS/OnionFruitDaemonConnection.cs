@@ -40,6 +40,8 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         internal IntPtr XpcHandle { get; private set; }
 
+        public bool IsValid => XpcHandle != IntPtr.Zero;
+
         /// <summary>
         /// Gets the DNS resolvers for a specified network service.
         /// </summary>
