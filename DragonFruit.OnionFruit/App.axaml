@@ -5,7 +5,9 @@
              xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit" RequestedThemeVariant="Dark">
     <Application.Styles>
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" CustomAccentColor="#c71585" />
+        <onionFruit:NonWindowsFluentAvaloniaAdjustments />
     </Application.Styles>
+
     <Application.Resources>
         <ResourceDictionary>
             <FontFamily x:Key="TwemojiFont">avares://DragonFruit.OnionFruit/Assets/Twemoji.Mozilla.ttf#Twemoji Mozilla</FontFamily>
@@ -16,12 +18,26 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
-    
+
+    <NativeMenu.Menu>
+        <NativeMenu />
+    </NativeMenu.Menu>
+
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/Assets/icon.ico" IsVisible="False"
+            <TrayIcon IsVisible="False"
+                      Icon="/Assets/icon.ico"
                       ToolTipText="{Binding Source={x:Static onionFruit:App.Title}}"
-                      Command="{Binding ActivateApp, Source={x:Static onionFruit:App.Instance}}"/>
+                      Command="{Binding ActivateApp, Source={x:Static onionFruit:App.Instance}}">
+                <!-- macOS requires a menu as it doesn't trigger the icon Command -->
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="{Binding Source={x:Static onionFruit:App.Title}}" IsEnabled="False"/>
+                        <NativeMenuItemSeparator/>
+                        <NativeMenuItem Header="Open App" Command="{Binding ActivateApp, Source={x:Static onionFruit:App.Instance}}"/>
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
         </TrayIcons>
     </TrayIcon.Icons>
 </Application>
