@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Net;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
@@ -19,10 +20,11 @@ namespace DragonFruit.OnionFruit.Core.MacOS
     {
         public OnionFruitDaemonConnection(string machServiceName)
         {
-            var xpcHandle = NativeMethods.CreateXpcConnection(machServiceName, out var version, out var errorCode);
-            if (xpcHandle == IntPtr.Zero)
+            var status = NativeMethods.CreateXpcConnection(machServiceName, out var xpcHandle, out var version);
+
+            if (status != NativeStatus.Ok)
             {
-                throw new InvalidOperationException($"Failed to create XPC connection for service '{machServiceName}'. Error code: {errorCode}");
+                throw new InvalidOperationException($"Failed to create XPC connection to '{machServiceName}' ({status})");
             }
 
             XpcHandle = xpcHandle;
@@ -77,7 +79,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             }
             finally
             {
-                NativeMethods.DestroyDnsResolverList(resolverList, resolverCount);
+                NativeMethods.DestroyDnsResolverList(resolverList);
             }
         }
 
@@ -161,12 +163,12 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         /// Sets the proxy configuration for a specified network service.
         /// </summary>
         /// <param name="serviceId">The network service to modify configurations for</param>
-        /// <param name="proxies">The proxies to set. Duplicate proxies will overwrite previous settings</param>
+        /// <param name="proxies">The proxies to set. Duplicate proxies do not overwrite previous values</param>
         /// <param name="clearExisting">
         /// Whether existing configuration values should be cleared.
         /// If <c>false</c>, the existing configuration will be requested to overwrite affected values first.
         /// </param>
-        public void SetProxyServers(string serviceId, IEnumerable<NetworkProxy> proxies, bool clearExisting = false)
+        public void SetProxyServers(string serviceId, IReadOnlyList<NetworkProxy> proxies, bool clearExisting = false)
         {
             // get the current proxy config, duplicate and replace the values before sending it back
             if (XpcHandle == IntPtr.Zero)
@@ -202,7 +204,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 }
             }
 
-            foreach (var proxy in proxies)
+            foreach (var proxy in proxies.Reverse())
             {
                 if (!proxy.Address.IsAbsoluteUri)
                 {
