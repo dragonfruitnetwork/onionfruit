@@ -7,10 +7,7 @@ namespace DragonFruit.OnionFruit.MacOS
 {
     public class MacOSAppInstanceManager : IProcessElevator
     {
-        public ElevationStatus CheckElevationStatus()
-        {
-            return ElevationStatus.CannotElevate;
-        }
+        public ElevationStatus CheckElevationStatus() => ElevationStatus.CannotElevate;
 
         public bool RelaunchProcess(bool elevated) => false;
     }

@@ -42,6 +42,8 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         public bool IsValid => XpcHandle?.IsClosed == false;
 
+        public bool IsValid => XpcHandle != IntPtr.Zero;
+
         /// <summary>
         /// Gets the DNS resolvers for a specified network service.
         /// </summary>
