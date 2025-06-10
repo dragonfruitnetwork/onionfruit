@@ -397,9 +397,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-## Xcode User settings
-xcuserdata/
-
-## Xcode 8 and earlier
-*.xcscmblueprint
-*.xccheckout
+# Native Libraries (should be supplied separately)
+libonionfruit.dylib
