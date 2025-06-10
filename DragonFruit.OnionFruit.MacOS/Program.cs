@@ -45,15 +45,13 @@ public static class Program
     {
         VelopackApp.Build().Run();
 
-        // FluentAvalonia needs Windows 10.0.14393.0 (Anniversary Update) or later
-        // see https://github.com/amwx/FluentAvalonia/issues/212
+        // requires macOS 13 or later for SMAppService daemon installation support
         if (!OperatingSystem.IsMacOSVersionAtLeast(13))
         {
-            // todo show message box or something
+            MacOSMessageBox.Show("Unsupported macOS Version", "OnionFruit\u2122 requires macOS 13 or later to run. Please update your system and try again.");
             return;
         }
 
-        // standard application startup
         var fileLog = Path.Combine(App.StoragePath, "logs", "runtime.log");
         if (File.Exists(fileLog))
         {
@@ -165,7 +163,9 @@ public static class Program
         File.Create(Path.Combine(App.StoragePath, ".app-crash")).Dispose();
         Log.Logger.Fatal("Unhandled exception: {message}", (eventArgs.ExceptionObject as Exception)?.Message);
 
-        // todo show error message to user
+        MacOSMessageBox.Show(
+            "Application Crash",
+            "OnionFruit\u2122 has encountered an unrecoverable error and must close. After clicking OK, Tor will attempt to disconnect and the application will close.");
 
         // shutdown any ongoing session
         _host?.Services.GetService<TorSession>().StopSession().AsTask().Wait();
