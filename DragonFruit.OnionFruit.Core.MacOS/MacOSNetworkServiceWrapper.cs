@@ -21,7 +21,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         public bool SetProxyServers(IReadOnlyList<NetworkProxy> servers)
         {
-            manager.SetProxyServers(Id, servers);
+            manager.SetProxyServers(Id, servers, true);
             return true;
         }
 
