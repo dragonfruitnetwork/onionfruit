@@ -7,49 +7,50 @@ using DragonFruit.OnionFruit.ViewModels.Interfaces;
 using FluentAvalonia.UI.Windowing;
 using ReactiveUI;
 
-namespace DragonFruit.OnionFruit.Views;
-
-public partial class MainWindow : ReactiveAppWindow<MainWindowViewModel>
+namespace DragonFruit.OnionFruit.Views
 {
-    public MainWindow()
+    public partial class MainWindow : ReactiveAppWindow<MainWindowViewModel>
     {
-        InitializeComponent();
-
-        // set titlebar options
-        TitleBar.ExtendsContentIntoTitleBar = true;
-        TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
-
-        TransparencyLevelHint = App.TransparencyLevels;
-
-        this.WhenActivated(action => action(ViewModel!.SettingsWindowInteraction.RegisterHandler(OpenSettingsWindow)));
-    }
-
-    private async Task OpenSettingsWindow(IInteractionContext<Unit, Unit> ctx)
-    {
-        await new SettingsWindow().ShowDialog(this);
-        ctx.SetOutput(Unit.Default);
-    }
-
-    protected override void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-
-        if (DataContext is IHasCustomStartupPosition position)
+        public MainWindow()
         {
-            Position = position.GetInitialPosition(Screens.Primary, ClientSize);
-        }
-    }
+            InitializeComponent();
 
-    private void HandleCloseRequest(object sender, WindowClosingEventArgs e)
-    {
-        if (e.CloseReason != WindowCloseReason.WindowClosing)
-        {
-            return;
+            // set titlebar options
+            TitleBar.ExtendsContentIntoTitleBar = true;
+            TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
+
+            TransparencyLevelHint = App.TransparencyLevels;
+
+            this.WhenActivated(action => action(ViewModel!.SettingsWindowInteraction.RegisterHandler(OpenSettingsWindow)));
         }
 
-        _ = App.Instance.RequestAppShutdown();
+        private async Task OpenSettingsWindow(IInteractionContext<Unit, Unit> ctx)
+        {
+            await new SettingsWindow().ShowDialog(this);
+            ctx.SetOutput(Unit.Default);
+        }
 
-        // block default close behavior
-        e.Cancel = true;
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+
+            if (DataContext is IHasCustomStartupPosition position)
+            {
+                Position = position.GetInitialPosition(Screens.Primary, ClientSize);
+            }
+        }
+
+        private void HandleCloseRequest(object sender, WindowClosingEventArgs e)
+        {
+            if (e.CloseReason != WindowCloseReason.WindowClosing)
+            {
+                return;
+            }
+
+            _ = App.Instance.RequestAppShutdown();
+
+            // block default close behavior
+            e.Cancel = true;
+        }
     }
 }
