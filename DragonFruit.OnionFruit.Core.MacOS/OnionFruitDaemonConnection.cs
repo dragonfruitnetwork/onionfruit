@@ -38,9 +38,9 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         public int Version { get; }
 
-        internal IntPtr XpcHandle { get; private set; }
+        internal XpcConnectionHandle XpcHandle { get; private set; }
 
-        public bool IsValid => XpcHandle != IntPtr.Zero;
+        public bool IsValid => XpcHandle?.IsClosed == false;
 
         /// <summary>
         /// Gets the DNS resolvers for a specified network service.
@@ -49,7 +49,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         /// <returns>An array of <see cref="IPAddress"/>es used to resolve DNS queries</returns>
         public unsafe IPAddress[] GetDnsResolvers(string serviceId)
         {
-            if (XpcHandle == IntPtr.Zero)
+            if (!IsValid)
             {
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot access DNS resolvers after the connection has been disposed.");
             }
@@ -92,7 +92,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         /// <param name="resolvers">The DNS resolvers to set (or <c>null</c> if the current resolvers are to be cleared)</param>
         public void SetDnsResolvers(string serviceId, [MaybeNull] IList<IPAddress> resolvers)
         {
-            if (XpcHandle == IntPtr.Zero)
+            if (!IsValid)
             {
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot set DNS resolvers after the connection has been disposed.");
             }
@@ -126,7 +126,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         /// <returns>A collection of network proxies held by the service</returns>
         public IEnumerable<NetworkProxy> GetProxyServers(string serviceId)
         {
-            if (XpcHandle == IntPtr.Zero)
+            if (!IsValid)
             {
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot fetch proxy config after the connection has been disposed.");
             }
@@ -172,8 +172,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         /// </param>
         public void SetProxyServers(string serviceId, IReadOnlyList<NetworkProxy> proxies, bool clearExisting = false)
         {
-            // get the current proxy config, duplicate and replace the values before sending it back
-            if (XpcHandle == IntPtr.Zero)
+            if (!IsValid)
             {
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot set proxy config after the connection has been disposed.");
             }
@@ -258,13 +257,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         private void ReleaseUnmanagedResources()
         {
-            if (XpcHandle == IntPtr.Zero)
-            {
-                return;
-            }
-
-            NativeMethods.DestroyXpcConnection(XpcHandle);
-            XpcHandle = IntPtr.Zero;
+            XpcHandle.Dispose();
         }
 
         public void Dispose()
