@@ -38,6 +38,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         {
             if (_appService != null && _appService.Status != AppServiceStatus.Enabled)
             {
+                _appService.UnregisterService();
                 _appService.RegisterService();
             }
         }
