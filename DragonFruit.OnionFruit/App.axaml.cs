@@ -107,6 +107,18 @@ public partial class App(IHost host) : Application
             throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
         }
 
+        // handle (macOS specific) reactivation events
+        if (TryGetFeature(typeof(IActivatableLifetime)) is IActivatableLifetime lifetime)
+        {
+            lifetime.Activated += (_, args) =>
+            {
+                if (args.Kind == ActivationKind.Reopen)
+                {
+                    ActivateApp();
+                }
+            };
+        }
+
         var networkManager = Services.GetRequiredService<INetworkAdapterManager>();
         var settings = Services.GetRequiredService<OnionFruitSettingsStore>();
         var updater = Services.GetRequiredService<IOnionFruitUpdater>();
