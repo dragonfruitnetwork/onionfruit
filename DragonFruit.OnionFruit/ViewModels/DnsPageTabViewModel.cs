@@ -25,7 +25,10 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly OnionFruitSettingsStore _settings;
         private readonly SourceList<IPAddress> _fallbackDnsServersSource;
 
-        private readonly ObservableAsPropertyHelper<bool> _dnsProxyEnabled, _canToggleDns, _showRelaunchNotice, _isCustomAlternativeDnsServerSelected;
+        private readonly IProcessElevator _processElevator;
+        private readonly INetworkAdapterManager _adapterManager;
+
+        private readonly ObservableAsPropertyHelper<bool> _dnsProxyEnabled, _canToggleDns, _isCustomAlternativeDnsServerSelected;
         private readonly ObservableAsPropertyHelper<FALLBACK_DNS_SERVER_PRESET> _dnsFallbackServerPreset;
 
         private readonly ReadOnlyObservableCollection<IPAddress> _alternativeDnsServers;
@@ -37,6 +40,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         public DnsPageTabViewModel(OnionFruitSettingsStore settings, INetworkAdapterManager adapterManager, IProcessElevator processElevator)
         {
             _settings = settings;
+            _adapterManager = adapterManager;
+            _processElevator = processElevator;
 
             settings.GetObservableValue<bool>(OnionFruitSetting.DnsProxyingEnabled)
                 .ObserveOn(RxApp.MainThreadScheduler)
@@ -60,11 +65,6 @@ namespace DragonFruit.OnionFruit.ViewModels
                     this.RaisePropertyChanged(nameof(NoAlternativeServersAvailable));
                 })
                 .DisposeWith(_disposables);
-
-            Observable.Never<ElevationStatus>()
-                .StartWith(processElevator.CheckElevationStatus())
-                .Select(x => x == ElevationStatus.CanElevate)
-                .ToProperty(this, x => x.ShowRelaunchNotice, out _showRelaunchNotice);
 
             // allow toggling if already enabled, otherwise only allow if dns is available
             this.WhenAnyValue(x => x.DnsProxyEnabled)
@@ -95,13 +95,10 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </remarks>
         public bool CanToggleDns => _canToggleDns.Value;
 
-        /// <summary>
-        /// Controls whether the "admin relaunch required" message is shown
-        /// </summary>
-        public bool ShowRelaunchNotice => _showRelaunchNotice.Value;
+        public bool ShowNotAvailableNotice => _adapterManager.DnsState == NetworkComponentState.Unavailable;
+        public bool ShowMissingPermissionsNotice => _adapterManager.DnsState == NetworkComponentState.MissingPermissions && _processElevator.CheckElevationStatus() == ElevationStatus.CanElevate;
 
         public bool IsCustomAlternativeDnsServerSelected => _isCustomAlternativeDnsServerSelected.Value;
-
         public bool NoAlternativeServersAvailable => _alternativeDnsServers.Count == 0;
 
         public IReadOnlyCollection<IPAddress> AlternativeDnsServers => _alternativeDnsServers;

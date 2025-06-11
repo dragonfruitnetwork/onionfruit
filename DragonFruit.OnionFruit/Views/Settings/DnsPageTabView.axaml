@@ -23,7 +23,7 @@
             </StackPanel.Styles>
 
             <!-- process elevation required alert -->
-            <controls:SettingsExpander IsVisible="{Binding ShowRelaunchNotice}" IconSource="{Binding ShieldIcon}" Description="OnionFruit™ needs to be run as an administrator to use DNS features.">
+            <controls:SettingsExpander IsVisible="{Binding ShowMissingPermissionsNotice}" IconSource="{Binding ShieldIcon}" Description="OnionFruit™ needs to be run as an administrator to use DNS features.">
                 <controls:SettingsExpander.Resources>
                     <ResourceDictionary>
                         <ResourceDictionary.MergedDictionaries>
@@ -41,13 +41,29 @@
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
             
+            <!-- service not available alert -->
+            <controls:SettingsExpander IsVisible="{Binding ShowNotAvailableNotice}" IconSource="{Binding ShieldIcon}" Description="DNS proxying is not available on this operating system.">
+                <controls:SettingsExpander.Resources>
+                    <ResourceDictionary>
+                        <ResourceDictionary.MergedDictionaries>
+                            <ResourceDictionary>
+                                <SolidColorBrush x:Key='ExpanderHeaderBackground'>#d03c49</SolidColorBrush>
+                            </ResourceDictionary>
+                        </ResourceDictionary.MergedDictionaries>
+                    </ResourceDictionary>
+                </controls:SettingsExpander.Resources>
+                <controls:SettingsExpander.Header>
+                    <TextBlock Text="Feature Unavailable" FontSize="16" Foreground="White"/>
+                </controls:SettingsExpander.Header>
+            </controls:SettingsExpander>
+            
             <controls:SettingsExpander Description="DNS Proxying" IconSource="{Binding DnsProxyingIcon}">
                 <controls:SettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding DnsProxyEnabled}" IsEnabled="{Binding CanToggleDns}" OnContent="Enabled" OffContent="Disabled"/>
                 </controls:SettingsExpander.Footer>
             </controls:SettingsExpander>
 
-            <controls:SettingsExpander Description="Alternative Servers" IconSource="{Binding AlternativeServersIcon}" IsExpanded="{Binding IsCustomAlternativeDnsServerSelected}">
+            <controls:SettingsExpander Description="Alternative Servers" IconSource="{Binding AlternativeServersIcon}" IsVisible="{Binding !ShowNotAvailableNotice}" IsExpanded="{Binding IsCustomAlternativeDnsServerSelected}">
                 <controls:SettingsExpander.Footer>
                     <ComboBox MinWidth="200" SelectedItem="{Binding SelectedAlternativeDnsServerPreset}" ItemsSource="{Binding AlternativeDnsPresets}"/>
                 </controls:SettingsExpander.Footer>
