@@ -11,7 +11,7 @@ using Microsoft.Win32;
 
 namespace DragonFruit.OnionFruit.Core.Windows
 {
-    public class WinNetworkAdapter : INetworkAdapter, IDisposable
+    internal class WinNetworkAdapter : INetworkAdapter, IDisposable
     {
         private const string DnsKey = "NameServer";
 
