@@ -112,7 +112,6 @@ public static class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost([])))
         .UsePlatformDetect()
-        .WithInterFont()
         .UseReactiveUI();
 
     private static IHost BuildHost(string[] args) => Host.CreateDefaultBuilder()

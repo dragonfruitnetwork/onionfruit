@@ -19,7 +19,6 @@
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="11.3.0" />
         <PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
-        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.0" />
         <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
         <PackageReference Include="DragonFruit.Data" Version="4.1.2" />
         <PackageReference Include="DragonFruit.Data.Roslyn" Version="4.1.2" />
