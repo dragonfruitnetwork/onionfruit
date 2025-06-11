@@ -88,17 +88,17 @@ public static class Program
 
         AppDomain.CurrentDomain.UnhandledException += PerformFatalCrashShutdown;
 
-        _host = BuildHost(args);
+        _host = BuildHost();
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
 
     // Avalonia configuration, don't remove; also used by visual designer.
-    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost([])))
+    public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost()))
         .UsePlatformDetect()
         .WithInterFont()
         .UseReactiveUI();
 
-    private static IHost BuildHost(string[] args) => Host.CreateDefaultBuilder()
+    private static IHost BuildHost() => Host.CreateDefaultBuilder()
         .ConfigureLogging(logging =>
         {
             logging.ClearProviders();
