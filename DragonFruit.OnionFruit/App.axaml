@@ -2,10 +2,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DragonFruit.OnionFruit.App"
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
-             xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit" RequestedThemeVariant="Dark">
+             xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
+             xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             RequestedThemeVariant="Dark">
     <Application.Styles>
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" CustomAccentColor="#c71585" />
         <onionFruit:NonWindowsFluentAvaloniaAdjustments />
+        
+        <Style Selector="controls|NavigationViewItemHeader">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Margin" Value="{DynamicResource SettingsTabHeaderMargin}"/>
+        </Style>
     </Application.Styles>
 
     <Application.Resources>

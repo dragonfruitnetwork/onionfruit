@@ -7,12 +7,11 @@
              xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              xmlns:controls1="clr-namespace:DragonFruit.OnionFruit.Controls"
-             xmlns:configuration="clr-namespace:DragonFruit.OnionFruit.Configuration"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="DragonFruit.OnionFruit.Views.Settings.DnsPageTabView"
              x:DataType="viewModels:DnsPageTabViewModel">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
-        <controls:NavigationViewItemHeader Content="DNS" VerticalAlignment="Top" FontSize="24" />
+        <controls:NavigationViewItemHeader Content="DNS" />
         
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
             <StackPanel.Styles>
@@ -34,7 +33,7 @@
                     </ResourceDictionary>
                 </controls:SettingsExpander.Resources>
                 <controls:SettingsExpander.Header>
-                    <TextBlock Text="Relaunch Required" FontSize="16" Foreground="White"/>
+                    <TextBlock Text="Relaunch Required" Margin="{OnPlatform Default='0,0,0,5', Windows='0'}" FontSize="16" Foreground="White"/>
                 </controls:SettingsExpander.Header>
                 <controls:SettingsExpander.Footer>
                     <Button Command="{Binding RelaunchAsElevatedProcess}" Content="Relaunch"/>
@@ -53,7 +52,7 @@
                     </ResourceDictionary>
                 </controls:SettingsExpander.Resources>
                 <controls:SettingsExpander.Header>
-                    <TextBlock Text="Feature Unavailable" FontSize="16" Foreground="White"/>
+                    <TextBlock Text="Feature Unavailable" Margin="{OnPlatform Default='0,0,0,5', Windows='0'}" FontSize="16" Foreground="White"/>
                 </controls:SettingsExpander.Header>
             </controls:SettingsExpander>
             

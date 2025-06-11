@@ -16,8 +16,11 @@ namespace DragonFruit.OnionFruit
         {
             if (OperatingSystem.IsWindows())
             {
+                Resources["SettingsTabHeaderMargin"] = new Thickness(0);
                 return;
             }
+
+            Resources["SettingsTabHeaderMargin"] = new Thickness(0, 15, 0, 0);
 
             Resources["ButtonPadding"] = new Thickness(12, 13, 12, 8);
             Resources["CheckBoxPadding"] = new Thickness(8, 11, 0, 8);

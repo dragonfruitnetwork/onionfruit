@@ -10,7 +10,7 @@
              x:Class="DragonFruit.OnionFruit.Views.Settings.BridgeSettingsTabView"
              x:DataType="viewModels:BridgeSettingsTabViewModel">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
-        <controls:NavigationViewItemHeader Content="Bridges" VerticalAlignment="Top" FontSize="24" />
+        <controls:NavigationViewItemHeader Content="Bridges"/>
 
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
             <StackPanel.Styles>
