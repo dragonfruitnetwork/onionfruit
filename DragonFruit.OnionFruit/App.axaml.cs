@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -38,7 +39,7 @@ namespace DragonFruit.OnionFruit
         private readonly AsyncManualResetEvent _shutdownSignal = new(true);
         private readonly SemaphoreSlim _shutdownQueue = new(1, 1);
 
-        private IDisposable _startupCallback, _shutdownSignalProcessor;
+        private IDisposable _shutdownSignalProcessor;
         private CancellationTokenSource _shutdownSignalCancellation;
 
         static App()
@@ -51,7 +52,7 @@ namespace DragonFruit.OnionFruit
 #if DEBUG
             Title = "OnionFruit\u2122 Development Edition";
 #else
-        Title = "OnionFruit\u2122";
+            Title = "OnionFruit\u2122";
 #endif
 
             // enable mica effect on Windows 11 and above
@@ -74,7 +75,8 @@ namespace DragonFruit.OnionFruit
             AvaloniaXamlLoader.Load(this);
         }
 
-        public override void OnFrameworkInitializationCompleted()
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Avalonia requires this to be void, but we want to block and throw any exceptions that occur during startup.")]
+        public override async void OnFrameworkInitializationCompleted()
         {
             base.OnFrameworkInitializationCompleted();
 
@@ -89,21 +91,22 @@ namespace DragonFruit.OnionFruit
                 };
             }
 
-            // because background services need to be started, StartAsync blocks until the app closes.
-            // using the IHostApplicationLifetime, we can be notified when the windows are ready to be shown.
-            _startupCallback = hostLifetime.ApplicationStarted.Register(StartAvaloniaApp);
+            // because host.StartAsync() blocks forever, use the IHostApplicationLifetime's ApplicationStarted event to wait for the host to finish starting up
+            // using a TaskCompletionSource allows us to block until we're ready, but also allows for exceptions to be rethrown (as the app has failed to start and otherwise wouldn't crash as expected)
 
-        _ = host.StartAsync();
-    }
-            _ = host.StartAsync();
+            var startupCompletionTask = new TaskCompletionSource();
+            var startupCallback = hostLifetime.ApplicationStarted.Register(() => startupCompletionTask.TrySetResult());
+
+            _ = host.StartAsync().ContinueWith(t => startupCompletionTask.TrySetException(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+
+            await startupCompletionTask.Task;
+            await startupCallback.DisposeAsync();
+
+            StartAvaloniaApp();
         }
 
         private void StartAvaloniaApp()
         {
-            // release callback handler
-            _startupCallback.Dispose();
-            _startupCallback = null;
-
             if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
             {
                 throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
