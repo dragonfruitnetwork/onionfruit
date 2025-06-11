@@ -87,7 +87,7 @@
                         <controls:SwitchingControl.SwitchTrue>
                                <DataTemplate x:DataType="vm:MainWindowViewModel">
                                    <DockPanel>
-                                       <Label DockPanel.Dock="Left" TabIndex="0" Margin="0, 0, 10, 0" Content="Country"/>
+                                       <Label DockPanel.Dock="Left" TabIndex="0" VerticalAlignment="Center" Margin="0, 0, 10, 0" Content="Country"/>
                                        <ComboBox DockPanel.Dock="Left"
                                                  TabIndex="1"
                                                  Margin="10, 0, 0, 0"

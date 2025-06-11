@@ -205,7 +205,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             TorSession.TorSessionState.BlockedProcess => new ToolbarContent(true, true, Brushes.DarkSlateGray, "Tor process failed to start"),
             TorSession.TorSessionState.BlockedProxy => new ToolbarContent(true, false, Brushes.DarkSlateGray, "Failed to change proxy settings"),
 
-            TorSession.TorSessionState.KillSwitchTriggered => new ToolbarContent(true, true, Brushes.DeepPink, "Tor Process Killed (Killswitch enabled)"),
+            TorSession.TorSessionState.KillSwitchTriggered => new ToolbarContent(true, true, Brushes.DeepPink, "Tor Process Killed"),
 
             _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
         };
