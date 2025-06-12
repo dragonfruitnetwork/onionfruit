@@ -155,6 +155,7 @@ public static class Program
 
             // register view models
             services.AddTransient<MainWindowViewModel, Win32MainWindowViewModel>();
+            services.AddTransient<SettingsWindowViewModel>();
         }).Build();
 
     private static void HandleSecondInstance()

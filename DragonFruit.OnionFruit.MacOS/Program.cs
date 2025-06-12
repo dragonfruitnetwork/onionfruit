@@ -139,6 +139,7 @@ namespace DragonFruit.OnionFruit.MacOS
 
                 // register view models
                 services.AddTransient<MainWindowViewModel>();
+                services.AddTransient<SettingsWindowViewModel>();
             }).Build();
 
         private static UpdateOptions GetUpdateOptions(OnionFruitSettingsStore settings)

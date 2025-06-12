@@ -5,6 +5,7 @@ using Avalonia.Interactivity;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.ViewModels.Interfaces;
 using FluentAvalonia.UI.Windowing;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.Views
@@ -26,7 +27,12 @@ namespace DragonFruit.OnionFruit.Views
 
         private async Task OpenSettingsWindow(IInteractionContext<Unit, Unit> ctx)
         {
-            await new SettingsWindow().ShowDialog(this);
+            var window = new SettingsWindow()
+            {
+                DataContext = App.Instance.Services.GetRequiredService<SettingsWindowViewModel>()
+            };
+
+            await window.ShowDialog(this);
             ctx.SetOutput(Unit.Default);
         }
 
