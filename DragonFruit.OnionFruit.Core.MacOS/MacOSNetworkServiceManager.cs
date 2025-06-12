@@ -19,14 +19,10 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         private OnionFruitDaemonConnection _activeServiceConnection;
 
-        public MacOSNetworkServiceManager(string xpcServiceName, string daemonPlistName)
+        public MacOSNetworkServiceManager(string xpcServiceName, AppService daemonAppService)
         {
             _xpcServiceName = xpcServiceName;
-
-            if (!string.IsNullOrEmpty(daemonPlistName))
-            {
-                _appService = AppService.DaemonServiceWithPlistName(daemonPlistName);
-            }
+            _appService = daemonAppService;
         }
 
         public NetworkComponentState DnsState => NetworkComponentState.Unavailable;

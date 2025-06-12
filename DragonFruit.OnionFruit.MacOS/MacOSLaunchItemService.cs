@@ -8,7 +8,7 @@ using DragonFruit.OnionFruit.Services;
 
 namespace DragonFruit.OnionFruit.MacOS
 {
-    public partial class LaunchItemService : IStartupLaunchService
+    public partial class MacOSLaunchItemService : IStartupLaunchService
     {
         public StartupLaunchState CurrentStartupState => AppService.MainAppService.Status == AppServiceStatus.Enabled
             ? StartupLaunchState.Enabled

@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using AppServiceSharp;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
@@ -29,8 +30,8 @@ namespace DragonFruit.OnionFruit.MacOS
     public static class Program
     {
 #if !DEBUG
-    private const string XpcServiceName = "network.dragonfruit.onionfruit.xpc";
-    private const string DaemonPlistName = "network.dragonfruit.onionfruitd.plist";
+        private const string XpcServiceName = "network.dragonfruit.onionfruit.xpc";
+        private const string DaemonPlistName = "network.dragonfruit.onionfruitd.plist";
 #else
         private const string XpcServiceName = "network.dragonfruit.onionfruit.xpc-dev";
         private const string DaemonPlistName = null;
@@ -75,9 +76,9 @@ namespace DragonFruit.OnionFruit.MacOS
 #if DEBUG
                     o.SetBeforeSend(_ => null);
 #else
-                // enable error reporting only in release builds and when the user hasn't opted out.
-                // launch failures are always reported as settings can't be loaded to check if the user has opted out.
-                o.SetBeforeSend(e => App.Instance.Services?.GetService<OnionFruitSettingsStore>()?.GetValue<bool>(OnionFruitSetting.EnableErrorReporting) == false ? null : e);
+                    // enable error reporting only in release builds and when the user hasn't opted out.
+                    // launch failures are always reported as settings can't be loaded to check if the user has opted out.
+                    o.SetBeforeSend(e => App.Instance.Services?.GetService<OnionFruitSettingsStore>()?.GetValue<bool>(OnionFruitSetting.EnableErrorReporting) == false ? null : e);
 #endif
 
                     o.MinimumEventLevel = LogEventLevel.Error;
@@ -106,8 +107,13 @@ namespace DragonFruit.OnionFruit.MacOS
             })
             .ConfigureServices((context, services) =>
             {
-                // register platform-specific services
-                services.AddSingleton<INetworkAdapterManager, MacOSNetworkServiceManager>(_ => new MacOSNetworkServiceManager(XpcServiceName, DaemonPlistName));
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (!string.IsNullOrEmpty(DaemonPlistName))
+                {
+                    services.AddKeyedSingleton("DaemonAppService", (_, _) => AppService.DaemonServiceWithPlistName(DaemonPlistName));
+                }
+
+                services.AddSingleton<INetworkAdapterManager, MacOSNetworkServiceManager>(s => new MacOSNetworkServiceManager(XpcServiceName, s.GetKeyedService<AppService>("DaemonAppService")));
                 services.AddSingleton<ExecutableLocator, MacOSExecutableLocator>();
 
                 // configuration
@@ -119,19 +125,15 @@ namespace DragonFruit.OnionFruit.MacOS
                 services.AddSingleton<TransportManager>();
                 services.AddSingleton<ApiClient, OnionFruitClient>();
 
-                // todo find way to replace this with a permissions-oriented solution
-                // windows relaunches as admin, osx installs the daemon service
-                services.AddSingleton<MacOSAppInstanceManager>();
-
                 services.AddSingleton<IOnionDatabase>(s => s.GetRequiredService<OnionDbService>());
-                services.AddSingleton<IProcessElevator>(s => s.GetRequiredService<MacOSAppInstanceManager>());
                 services.AddSingleton<IOnionFruitUpdater>(s =>
                 {
                     var settings = s.GetRequiredService<OnionFruitSettingsStore>();
                     return ActivatorUtilities.CreateInstance<VelopackUpdater>(s, GetUpdateOptions(settings));
                 });
 
-                services.AddSingleton<IStartupLaunchService, LaunchItemService>();
+                services.AddSingleton<IProcessElevator, MacOSAppInstanceManager>();
+                services.AddSingleton<IStartupLaunchService, MacOSLaunchItemService>();
 
                 services.AddHostedService<DiscordRpcService>();
                 services.AddHostedService<LandingPageLaunchService>();
