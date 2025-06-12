@@ -11,6 +11,7 @@ using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.MacOS;
 using DragonFruit.OnionFruit.Core.Network;
 using DragonFruit.OnionFruit.Database;
+using DragonFruit.OnionFruit.MacOS.ViewModels;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Services;
 using DragonFruit.OnionFruit.Updater;
@@ -139,7 +140,7 @@ namespace DragonFruit.OnionFruit.MacOS
 
                 // register view models
                 services.AddTransient<MainWindowViewModel>();
-                services.AddTransient<SettingsWindowViewModel>();
+                services.AddTransient<SettingsWindowViewModel, MacOSSettingsWindowViewModel>();
             }).Build();
 
         private static UpdateOptions GetUpdateOptions(OnionFruitSettingsStore settings)
