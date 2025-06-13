@@ -10,11 +10,9 @@ namespace DragonFruit.OnionFruit.MacOS
 {
     public partial class MacOSLaunchItemService : IStartupLaunchService
     {
-        public StartupLaunchState CurrentStartupState => AppService.MainAppService.Status == AppServiceStatus.Enabled
-            ? StartupLaunchState.Enabled
-            : StartupLaunchState.Disabled;
+        public StartupLaunchState CurrentStartupState => StartupLaunchState.Blocked;
 
-        public bool InstanceLaunchedByStartupService => NativeMethods.GetParentProcessId() == 1;
+        public bool InstanceLaunchedByStartupService => false;
 
         public StartupLaunchState SetStartupState(bool enabled)
         {
