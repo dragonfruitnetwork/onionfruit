@@ -45,7 +45,7 @@
                     </controls:SettingsExpander.FooterTemplate>
                 </controls:SettingsExpander>
 
-                <controls:SettingsExpander Description="Service Administration" IconSource="{Binding ServiceAdministrationIcon, Mode=OneTime}">
+                <controls:SettingsExpander Description="Service Administration" IconSource="{Binding ServiceAdministrationIcon, Mode=OneTime}" IsVisible="{Binding !ServiceStatusContent.ShowInstallButton}">
                     <controls:SettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="15" Margin="0, 15">
                             <Button Content="Remove Service" Command="{Binding UnregisterService}"/>
