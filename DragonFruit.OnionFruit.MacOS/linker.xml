@@ -3,4 +3,7 @@
     <assembly fullname="DragonFruit.OnionFruit"/>
     <assembly fullname="DragonFruit.OnionFruit.Core"/>
     <assembly fullname="DragonFruit.OnionFruit.Core.MacOS"/>
+    
+    <!-- DragonFruit.OnionFruit.MacOS -->
+    <assembly fullname="onionfruit"/>
 </linker>
