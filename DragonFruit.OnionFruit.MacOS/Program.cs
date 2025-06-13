@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using AppServiceSharp;
 using Avalonia;
 using Avalonia.ReactiveUI;
@@ -31,7 +32,7 @@ namespace DragonFruit.OnionFruit.MacOS
     {
 #if !DEBUG
         private const string XpcServiceName = "network.dragonfruit.onionfruit.xpc";
-        private const string DaemonPlistName = "network.dragonfruit.onionfruitd.plist";
+        private const string DaemonPlistName = "onionfruitd.plist";
 #else
         private const string XpcServiceName = "network.dragonfruit.onionfruit.xpc-dev";
         private const string DaemonPlistName = null;
@@ -149,10 +150,12 @@ namespace DragonFruit.OnionFruit.MacOS
         private static UpdateOptions GetUpdateOptions(OnionFruitSettingsStore settings)
         {
             var targetStream = settings.GetValue<UpdateStream?>(OnionFruitSetting.ExplicitUpdateStream);
+            var channelName = RuntimeInformation.ProcessArchitecture == Architecture.Arm64 ? "mac-arm64" : "mac-x64";
+
             return new UpdateOptions
             {
                 AllowVersionDowngrade = true,
-                ExplicitChannel = VelopackUpdater.UpdateChannelName(null, targetStream)
+                ExplicitChannel = VelopackUpdater.UpdateChannelName(channelName, targetStream)
             };
         }
 
