@@ -110,7 +110,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .DisposeWith(_disposables);
 
             ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
-            OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(Unit.Default), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
+            OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(null), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// <summary>
         /// Interaction between the current window and a request for the settings page to be opened
         /// </summary>
-        public Interaction<Unit, Unit> SettingsWindowInteraction { get; } = new();
+        public Interaction<string, Unit> SettingsWindowInteraction { get; } = new();
 
         /// <summary>
         /// The two-letter country code selected to pass traffic out from

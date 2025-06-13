@@ -9,9 +9,11 @@ namespace DragonFruit.OnionFruit.MacOS.ViewModels
 {
     public class MacOSSettingsWindowViewModel : SettingsWindowViewModel
     {
+        internal const string ServiceManagementTabId = "service-management";
+
         public MacOSSettingsWindowViewModel()
         {
-            FooterTabs.Insert(0, Tab<ServiceManagementTabView, ServiceManagementTabViewModel>("Service Management", LucideIconNames.Cog));
+            FooterTabs.Insert(0, IdentifiableTab<ServiceManagementTabView, ServiceManagementTabViewModel>(ServiceManagementTabId, "Service Management", LucideIconNames.Cog));
         }
     }
 }

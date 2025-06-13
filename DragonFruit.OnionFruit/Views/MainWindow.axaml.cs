@@ -25,12 +25,16 @@ namespace DragonFruit.OnionFruit.Views
             this.WhenActivated(action => action(ViewModel!.SettingsWindowInteraction.RegisterHandler(OpenSettingsWindow)));
         }
 
-        private async Task OpenSettingsWindow(IInteractionContext<Unit, Unit> ctx)
+        private async Task OpenSettingsWindow(IInteractionContext<string, Unit> ctx)
         {
-            var window = new SettingsWindow()
+            var viewModel = App.Instance.Services.GetRequiredService<SettingsWindowViewModel>();
+
+            if (!string.IsNullOrEmpty(ctx.Input))
             {
-                DataContext = App.Instance.Services.GetRequiredService<SettingsWindowViewModel>()
-            };
+                viewModel.SetActiveTab(ctx.Input);
+            }
+
+            var window = new SettingsWindow() {DataContext = viewModel};
 
             await window.ShowDialog(this);
             ctx.SetOutput(Unit.Default);
