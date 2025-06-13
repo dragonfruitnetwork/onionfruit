@@ -12,11 +12,27 @@
             <controls:NavigationViewItemHeader Content="macOS Service Management" />
 
             <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
-                <controls:SettingsExpander Description="Status" IconSource="{Binding ServiceStatusIcon}" Footer="{Binding ServiceStatusContent}">
+                <controls:SettingsExpander IconSource="{Binding ServiceInfoIcon, Mode=OneTime}" Description="OnionFruit™ uses a service on macOS to change system settings. It must be installed and enabled in System Settings to connect.">
+                    <controls:SettingsExpander.Resources>
+                        <ResourceDictionary>
+                            <ResourceDictionary.MergedDictionaries>
+                                <ResourceDictionary>
+                                    <SolidColorBrush x:Key='ExpanderHeaderBackground'>DodgerBlue</SolidColorBrush>
+                                </ResourceDictionary>
+                            </ResourceDictionary.MergedDictionaries>
+                        </ResourceDictionary>
+                    </controls:SettingsExpander.Resources>
+                    <controls:SettingsExpander.Header>
+                        <TextBlock Text="Service Info" Margin="{OnPlatform Default='0,0,0,5', Windows='0'}" FontSize="16" Foreground="White"/>
+                    </controls:SettingsExpander.Header>
+                </controls:SettingsExpander>
+
+                
+                <controls:SettingsExpander Description="Status" IconSource="{Binding ServiceStatusIcon, Mode=OneTime}" Footer="{Binding ServiceStatusContent}">
                     <controls:SettingsExpander.FooterTemplate>
                         <DataTemplate DataType="viewModels:ServiceStatusViewModel">
                             <StackPanel Orientation="Horizontal" Spacing="15" Margin="0, 15">
-                                <Ellipse Fill="{Binding IconColor, Mode=OneWay}" Width="15" Height="15"/>
+                                <Ellipse VerticalAlignment="Center" Fill="{Binding IconColor, Mode=OneWay}" Width="15" Height="15"/>
                                 <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="{Binding StatusText}"/>
 
                                 <Button Margin="10,0,0,0"
@@ -29,7 +45,7 @@
                     </controls:SettingsExpander.FooterTemplate>
                 </controls:SettingsExpander>
 
-                <controls:SettingsExpander Description="Service Administration" IconSource="{Binding ServiceAdministrationIcon}">
+                <controls:SettingsExpander Description="Service Administration" IconSource="{Binding ServiceAdministrationIcon, Mode=OneTime}">
                     <controls:SettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="15" Margin="0, 15">
                             <Button Content="Remove Service" Command="{Binding UnregisterService}"/>

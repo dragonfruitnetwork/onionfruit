@@ -39,6 +39,7 @@ namespace DragonFruit.OnionFruit.MacOS.ViewModels
             ServiceStatus = _daemonService?.Status;
         }
 
+        public IconSource ServiceInfoIcon => App.GetIcon(LucideIconNames.Cog);
         public IconSource ServiceStatusIcon => App.GetIcon(LucideIconNames.Bolt);
         public IconSource ServiceAdministrationIcon => App.GetIcon(LucideIconNames.Wrench);
 

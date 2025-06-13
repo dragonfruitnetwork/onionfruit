@@ -38,7 +38,6 @@
 
             <DockPanel>
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10" IsVisible="{OnPlatform Default=False, Windows=True}">
-                    <!-- <Image Source="avares://DragonFruit.OnionFruit/Assets/icon.ico" Height="16" Width="16" /> -->
                     <TextBlock Text="{Binding WindowTitle}" />
                 </StackPanel>
                 
