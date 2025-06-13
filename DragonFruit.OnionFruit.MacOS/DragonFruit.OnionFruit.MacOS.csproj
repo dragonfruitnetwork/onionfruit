@@ -4,11 +4,13 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <NoWarn>$(NoWarn);CA1416</NoWarn>
         <AssemblyName>onionfruit</AssemblyName>
         <TargetFramework>net9.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CA1416</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -24,6 +26,13 @@
 
     <ItemGroup>
         <TrimmerRootDescriptor Include="linker.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="onionfruitd" Link="onionfruitd" Condition="Exists('onionfruitd')">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        </None>
     </ItemGroup>
 
 </Project>

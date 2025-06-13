@@ -168,7 +168,12 @@ namespace DragonFruit.OnionFruit.MacOS
 
             // create a marker file to indicate that the application crashed
             File.Create(Path.Combine(App.StoragePath, ".app-crash")).Dispose();
-            Log.Logger.Fatal("Unhandled exception: {message}", (eventArgs.ExceptionObject as Exception)?.Message);
+
+            if (eventArgs.ExceptionObject is Exception exception)
+            {
+                Log.Logger.Debug("Unhandled exception stack trace:\n{stack}", exception.StackTrace);
+                Log.Logger.Fatal("{message}", exception.Message);
+            }
 
             MacOSMessageBox.Show(
                 "Application Crash",

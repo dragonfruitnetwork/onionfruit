@@ -398,4 +398,9 @@ FodyWeavers.xsd
 *.sln.iml
 
 # Native Libraries (should be supplied separately)
-libonionfruit.dylib
+DragonFruit.OnionFruit.Core.MacOS/Native/libonionfruit.dylib
+DragonFruit.OnionFruit.MacOS/onionfruitd
+
+# onionfruit-deploy folders
+staging/
+release/
