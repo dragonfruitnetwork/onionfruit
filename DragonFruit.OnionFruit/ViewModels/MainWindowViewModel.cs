@@ -16,6 +16,7 @@ using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Updater;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -35,6 +36,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private readonly TorSession _session;
         private readonly OnionFruitSettingsStore _settings;
+        private readonly IServiceProvider _services;
 
         private readonly ObservableAsPropertyHelper<bool> _countriesDbReady, _allowConfigurationChanges;
         private readonly ObservableAsPropertyHelper<string> _exitNodeCountry, _windowTitle;
@@ -49,10 +51,11 @@ namespace DragonFruit.OnionFruit.ViewModels
             }
         }
 
-        public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings)
+        public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings, IServiceProvider services)
         {
             _session = session;
             _settings = settings;
+            _services = services;
 
             var updaterStatus = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h)
                 .StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status))
@@ -181,6 +184,15 @@ namespace DragonFruit.OnionFruit.ViewModels
             // start session if session is disconnected or null
             if (_session.State is TorSession.TorSessionState.Disconnected)
             {
+                // perform any pre-flight checks requested by the platform (this is mainly used on macOS to check onionfruitd is setup)
+                var preflightCheckRecommendedSettingsTab = _services.GetService<ISessionPreFlightCheck>()?.PerformPreFlightCheck();
+
+                if (!string.IsNullOrEmpty(preflightCheckRecommendedSettingsTab))
+                {
+                    await SettingsWindowInteraction.Handle(preflightCheckRecommendedSettingsTab);
+                    return;
+                }
+
                 await _session.StartSession();
             }
             else

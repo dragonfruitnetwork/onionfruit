@@ -111,6 +111,7 @@ namespace DragonFruit.OnionFruit.MacOS
                 if (!string.IsNullOrEmpty(DaemonPlistName))
                 {
                     services.AddKeyedSingleton("DaemonAppService", (_, _) => AppService.DaemonServiceWithPlistName(DaemonPlistName));
+                    services.AddTransient<ISessionPreFlightCheck, MacOSPreflightCheck>();
                 }
 
                 services.AddSingleton<INetworkAdapterManager, MacOSNetworkServiceManager>(s => new MacOSNetworkServiceManager(XpcServiceName, s.GetKeyedService<AppService>("DaemonAppService")));
