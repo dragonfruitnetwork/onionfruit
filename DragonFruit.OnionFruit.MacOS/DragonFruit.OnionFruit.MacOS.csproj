@@ -5,14 +5,15 @@
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
         <NoWarn>$(NoWarn);CA1416</NoWarn>
+        <AssemblyName>onionfruit</AssemblyName>
         <TargetFramework>net9.0</TargetFramework>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Sentry.Serilog" Version="5.8.1" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
+        <PackageReference Include="Sentry.Serilog" Version="5.10.0" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     </ItemGroup>
