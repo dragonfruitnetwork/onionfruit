@@ -1,36 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    
+    <Import Project="..\DragonFruit.OnionFruit.Application.props" />
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <NeutralLanguage>en-US</NeutralLanguage>
-        <AssemblyTitle>OnionFruit™</AssemblyTitle>
         <TargetFramework>net9.0-windows</TargetFramework>
         <ApplicationManifest>app.manifest</ApplicationManifest>
-        <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
-
-        <Product>OnionFruit™</Product>
-        <Authors>DragonFruit Network</Authors>
-        <Description>Tor access client</Description>
-        <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <PublishTrimmed>true</PublishTrimmed>
-        <PublishReadyToRun>true</PublishReadyToRun>
-        <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>
-
-        <MetricsSupport>false</MetricsSupport>
-        <EventSourceSupport>false</EventSourceSupport>
-        <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
-
-        <EnableUnsafeUTF7Encoding>false</EnableUnsafeUTF7Encoding>
-        <SatelliteResourceLanguages>en-US</SatelliteResourceLanguages>
-        <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
-        
-        <!-- needed for FluentAvalonia to work -->
-        <JsonSerializerIsReflectionEnabledByDefault>true</JsonSerializerIsReflectionEnabledByDefault>
     </PropertyGroup>
 
     <ItemGroup>

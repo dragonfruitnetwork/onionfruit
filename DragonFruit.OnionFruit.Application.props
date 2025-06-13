@@ -12,6 +12,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <UseAppHost>true</UseAppHost>
         <PublishTrimmed>true</PublishTrimmed>
         <PublishReadyToRun>true</PublishReadyToRun>
         <TrimmerRemoveSymbols>true</TrimmerRemoveSymbols>

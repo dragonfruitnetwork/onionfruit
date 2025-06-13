@@ -22,4 +22,8 @@
         <ProjectReference Include="..\DragonFruit.OnionFruit.Core.MacOS\DragonFruit.OnionFruit.Core.MacOS.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <TrimmerRootDescriptor Include="linker.xml" />
+    </ItemGroup>
+
 </Project>
