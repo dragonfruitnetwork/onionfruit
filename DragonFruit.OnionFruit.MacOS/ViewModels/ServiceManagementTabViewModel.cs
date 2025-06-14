@@ -78,8 +78,8 @@ namespace DragonFruit.OnionFruit.MacOS.ViewModels
 
         private static ServiceStatusViewModel UpdateServiceStatus(AppServiceStatus? serviceStatus) => serviceStatus switch
         {
-            AppServiceStatus.Enabled => new ServiceStatusViewModel("Enabled", Brushes.Green, false),
-            AppServiceStatus.NotFound => new ServiceStatusViewModel("Service Not Found", Brushes.DarkRed, false), // not found = SMAppService can't install it
+            AppServiceStatus.Enabled => new ServiceStatusViewModel("Enabled", Brushes.LimeGreen, false),
+            AppServiceStatus.NotFound => new ServiceStatusViewModel("Service Not Found", Brushes.OrangeRed, false), // not found = SMAppService can't install it
             AppServiceStatus.NotRegistered => new ServiceStatusViewModel("Not Registered", Brushes.Red, true),
             AppServiceStatus.RequiresApproval => new ServiceStatusViewModel("Pending User Approval", Brushes.Orange, true, "Continue Installation"),
 
