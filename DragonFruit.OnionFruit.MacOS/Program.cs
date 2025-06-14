@@ -108,14 +108,15 @@ namespace DragonFruit.OnionFruit.MacOS
             })
             .ConfigureServices((context, services) =>
             {
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (!string.IsNullOrEmpty(DaemonPlistName))
                 {
                     services.AddKeyedSingleton("DaemonAppService", (_, _) => AppService.DaemonServiceWithPlistName(DaemonPlistName));
-                    services.AddTransient<ISessionPreFlightCheck, MacOSPreflightCheck>();
                 }
 
-                services.AddSingleton<INetworkAdapterManager, MacOSNetworkServiceManager>(s => new MacOSNetworkServiceManager(XpcServiceName, s.GetKeyedService<AppService>("DaemonAppService")));
+                services.AddSingleton(s => new MacOSNetworkServiceManager(XpcServiceName, s.GetKeyedService<AppService>("DaemonAppService")));
+                services.AddTransient<ISessionPreFlightCheck, MacOSPreflightCheck>();
+
+                services.AddSingleton<INetworkAdapterManager>(s => s.GetRequiredService<MacOSNetworkServiceManager>());
                 services.AddSingleton<ExecutableLocator, MacOSExecutableLocator>();
 
                 // configuration

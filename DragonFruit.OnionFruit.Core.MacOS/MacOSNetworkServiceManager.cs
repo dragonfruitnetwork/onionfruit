@@ -39,6 +39,20 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             }
         }
 
+        public bool CheckDaemonConnection()
+        {
+            try
+            {
+                // creates a connection
+                GetDaemonConnection();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public INetworkAdapter GetAdapter(string id)
         {
             var serviceInfo = MacOSNetworkServiceInfo.GetNetworkServices().FirstOrDefault(x => x.ServiceId == id);

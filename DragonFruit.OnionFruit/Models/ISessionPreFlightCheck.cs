@@ -3,15 +3,17 @@
 
 namespace DragonFruit.OnionFruit.Models
 {
+    public record PreflightCheckFailure(string Message, string? SettingsTabId = null);
+
     /// <summary>
     /// Exposes methods used to perform pre-flight checks to detect any system misconfiguration issues that may prevent the session from starting.
     /// </summary>
     public interface ISessionPreFlightCheck
     {
         /// <summary>
-        /// Perform a pre-flight check, returning the identifier of a settings tab that should be opened if the check fails.
-        /// Null represents a successful check with no issues found.
+        /// Perform a pre-flight check, returning an error message and optional settings tab to open if the check fails.
+        /// Null is returned if there are no issues.
         /// </summary>
-        public string PerformPreFlightCheck();
+        public PreflightCheckFailure PerformPreFlightCheck();
     }
 }

@@ -22,13 +22,16 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         {
             var status = NativeMethods.CreateXpcConnection(machServiceName, out var xpcHandle, out var version);
 
-            if (status != NativeStatus.Ok)
+            if (status == NativeStatus.Ok)
             {
-                throw new InvalidOperationException($"Failed to create XPC connection to '{machServiceName}' ({status})");
+                XpcHandle = xpcHandle;
+                Version = version;
             }
-
-            XpcHandle = xpcHandle;
-            Version = version;
+            else
+            {
+                XpcHandle = null;
+                Version = -1;
+            }
         }
 
         ~OnionFruitDaemonConnection()
@@ -257,7 +260,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         private void ReleaseUnmanagedResources()
         {
-            XpcHandle.Dispose();
+            XpcHandle?.Dispose();
         }
 
         public void Dispose()

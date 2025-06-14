@@ -185,11 +185,17 @@ namespace DragonFruit.OnionFruit.ViewModels
             if (_session.State is TorSession.TorSessionState.Disconnected)
             {
                 // perform any pre-flight checks requested by the platform (this is mainly used on macOS to check onionfruitd is setup)
-                var preflightCheckRecommendedSettingsTab = _services.GetService<ISessionPreFlightCheck>()?.PerformPreFlightCheck();
+                var preFlightCheckResult = _services.GetService<ISessionPreFlightCheck>()?.PerformPreFlightCheck();
 
-                if (!string.IsNullOrEmpty(preflightCheckRecommendedSettingsTab))
+                if (preFlightCheckResult != null)
                 {
-                    await SettingsWindowInteraction.Handle(preflightCheckRecommendedSettingsTab);
+                    // open settings window if a tab is specified
+                    if (preFlightCheckResult.SettingsTabId != null)
+                    {
+                        await SettingsWindowInteraction.Handle(preFlightCheckResult.SettingsTabId);
+                    }
+
+                    // todo log error as warning
                     return;
                 }
 
