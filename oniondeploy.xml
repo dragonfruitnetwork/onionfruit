@@ -6,7 +6,28 @@
         <Repo>onionfruit</Repo>
     </GitHub>
     <Velopack>
+        <Enabled>true</Enabled>
         <PackageId>onionfruit</PackageId>
-        <PackageIcon>DragonFruit.OnionFruit/Assets/icon.ico</PackageIcon>
     </Velopack>
+    <Windows>
+        <!-- <CodeSigningCertificate></CodeSigningCertificate> -->
+        <!-- <CodeSigningPassword></CodeSigningPassword> -->
+        <PackageIcon>DragonFruit.OnionFruit/Assets/icon.ico</PackageIcon>
+    </Windows>
+    <MacOS>
+        <InfoPlist>DragonFruit.OnionFruit.MacOS/Info.plist</InfoPlist>
+        <EntitlementsPlist>DragonFruit.OnionFruit.MacOS/app.entitlements</EntitlementsPlist>
+        <IconsDirectory>DragonFruit.OnionFruit.MacOS/Icons</IconsDirectory>
+
+        <launchd>
+            <!-- nodes accept either a folder or a single file -->
+            <LaunchAgents>DragonFruit.OnionFruit.MacOS/launchd/autostart.plist</LaunchAgents>
+            <LaunchDaemons>DragonFruit.OnionFruit.MacOS/launchd/onionfruitd.plist</LaunchDaemons>
+        </launchd>
+
+        <!-- requires the create-dmg script installed (brew install create-dmg) -->
+        <CreateInstallDMG>true</CreateInstallDMG>
+        <CodeSigningIdentity>-</CodeSigningIdentity>
+        <!-- <NotaryKeychainProfile></NotaryKeychainProfile> -->
+    </MacOS>
 </configuration>

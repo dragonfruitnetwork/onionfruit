@@ -9,7 +9,7 @@
              x:Class="DragonFruit.OnionFruit.Views.Settings.LandingPageSettingsTabView"
              x:DataType="viewModels:LandingPageSettingsTabViewModel">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
-        <controls:NavigationViewItemHeader Content="Landing Pages" VerticalAlignment="Top" FontSize="24" />
+        <controls:NavigationViewItemHeader Content="Landing Pages"/>
 
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
             <StackPanel.Styles>

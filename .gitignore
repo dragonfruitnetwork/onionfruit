@@ -397,9 +397,10 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-## Xcode User settings
-xcuserdata/
+# Native Libraries (should be supplied separately)
+DragonFruit.OnionFruit.Core.MacOS/Native/libonionfruit.dylib
+DragonFruit.OnionFruit.MacOS/onionfruitd
 
-## Xcode 8 and earlier
-*.xcscmblueprint
-*.xccheckout
+# onionfruit-deploy folders
+staging/
+release/

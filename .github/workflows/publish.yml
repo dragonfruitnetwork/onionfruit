@@ -97,8 +97,8 @@ jobs:
         run: dotnet DragonFruit.OnionFruit.Deploy.dll ${{ github.workspace }}\DragonFruit.OnionFruit.Windows\DragonFruit.OnionFruit.Windows.csproj ${{ matrix.rid }} "${{ github.event.inputs.version }}"
         env:
           ONIONDEPLOY_GitHub__Token: ${{ github.token }}
-          ONIONDEPLOY_CodeSign__Password: ${{ secrets.CODESIGN_PASSWORD }}
-          ONIONDEPLOY_CodeSign__Certificate: ${{ steps.import-cert.outputs.certPath }}
+          ONIONDEPLOY_Windows__CodeSigningPassword: ${{ secrets.CODESIGN_PASSWORD }}
+          ONIONDEPLOY_Windows__CodeSigningCertificate: ${{ steps.import-cert.outputs.certPath }}
 
   copy-legacy:
     name: Copy legacy updater files

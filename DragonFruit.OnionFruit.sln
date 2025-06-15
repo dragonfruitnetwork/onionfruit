@@ -10,6 +10,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonFruit.OnionFruit", "D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonFruit.OnionFruit.Windows", "DragonFruit.OnionFruit.Windows\DragonFruit.OnionFruit.Windows.csproj", "{F9691E47-8C5D-4B49-ABE1-DDC2DCB0FDAC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonFruit.OnionFruit.Core.MacOS", "DragonFruit.OnionFruit.Core.MacOS\DragonFruit.OnionFruit.Core.MacOS.csproj", "{D6A9C85B-23F3-4A27-ABC6-DC255EF64CB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DragonFruit.OnionFruit.MacOS", "DragonFruit.OnionFruit.MacOS\DragonFruit.OnionFruit.MacOS.csproj", "{0B39144A-9870-4E9A-BFC4-C120C999A129}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,13 @@ Global
 		{F9691E47-8C5D-4B49-ABE1-DDC2DCB0FDAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F9691E47-8C5D-4B49-ABE1-DDC2DCB0FDAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F9691E47-8C5D-4B49-ABE1-DDC2DCB0FDAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6A9C85B-23F3-4A27-ABC6-DC255EF64CB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6A9C85B-23F3-4A27-ABC6-DC255EF64CB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6A9C85B-23F3-4A27-ABC6-DC255EF64CB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6A9C85B-23F3-4A27-ABC6-DC255EF64CB8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B39144A-9870-4E9A-BFC4-C120C999A129}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B39144A-9870-4E9A-BFC4-C120C999A129}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B39144A-9870-4E9A-BFC4-C120C999A129}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B39144A-9870-4E9A-BFC4-C120C999A129}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

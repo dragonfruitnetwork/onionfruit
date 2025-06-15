@@ -16,6 +16,7 @@ using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Updater;
+using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 
 namespace DragonFruit.OnionFruit.ViewModels
@@ -35,6 +36,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private readonly TorSession _session;
         private readonly OnionFruitSettingsStore _settings;
+        private readonly IServiceProvider _services;
 
         private readonly ObservableAsPropertyHelper<bool> _countriesDbReady, _allowConfigurationChanges;
         private readonly ObservableAsPropertyHelper<string> _exitNodeCountry, _windowTitle;
@@ -49,10 +51,11 @@ namespace DragonFruit.OnionFruit.ViewModels
             }
         }
 
-        public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings)
+        public MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings, IServiceProvider services)
         {
             _session = session;
             _settings = settings;
+            _services = services;
 
             var updaterStatus = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h)
                 .StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status))
@@ -110,7 +113,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .DisposeWith(_disposables);
 
             ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
-            OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(Unit.Default), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
+            OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(null), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
         }
 
         /// <summary>
@@ -151,7 +154,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// <summary>
         /// Interaction between the current window and a request for the settings page to be opened
         /// </summary>
-        public Interaction<Unit, Unit> SettingsWindowInteraction { get; } = new();
+        public Interaction<string, Unit> SettingsWindowInteraction { get; } = new();
 
         /// <summary>
         /// The two-letter country code selected to pass traffic out from
@@ -181,6 +184,21 @@ namespace DragonFruit.OnionFruit.ViewModels
             // start session if session is disconnected or null
             if (_session.State is TorSession.TorSessionState.Disconnected)
             {
+                // perform any pre-flight checks requested by the platform (this is mainly used on macOS to check onionfruitd is setup)
+                var preFlightCheckResult = _services.GetService<ISessionPreFlightCheck>()?.PerformPreFlightCheck();
+
+                if (preFlightCheckResult != null)
+                {
+                    // open settings window if a tab is specified
+                    if (preFlightCheckResult.SettingsTabId != null)
+                    {
+                        await SettingsWindowInteraction.Handle(preFlightCheckResult.SettingsTabId);
+                    }
+
+                    // todo log error as warning
+                    return;
+                }
+
                 await _session.StartSession();
             }
             else
@@ -205,7 +223,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             TorSession.TorSessionState.BlockedProcess => new ToolbarContent(true, true, Brushes.DarkSlateGray, "Tor process failed to start"),
             TorSession.TorSessionState.BlockedProxy => new ToolbarContent(true, false, Brushes.DarkSlateGray, "Failed to change proxy settings"),
 
-            TorSession.TorSessionState.KillSwitchTriggered => new ToolbarContent(true, true, Brushes.DeepPink, "Tor Process Killed (Killswitch enabled)"),
+            TorSession.TorSessionState.KillSwitchTriggered => new ToolbarContent(true, true, Brushes.DeepPink, "Tor Process Killed"),
 
             _ => throw new ArgumentOutOfRangeException(nameof(state), state, null)
         };

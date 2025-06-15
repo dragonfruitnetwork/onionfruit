@@ -11,7 +11,7 @@
              x:DataType="viewModels:ConnectionSettingsTabViewModel"
              x:Class="DragonFruit.OnionFruit.Views.Settings.ConnectionSettingsTabView">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
-        <controls:NavigationViewItemHeader Content="Tor Connection" VerticalAlignment="Top" FontSize="24" />
+        <controls:NavigationViewItemHeader Content="Tor Connection"/>
 
         <Grid ColumnDefinitions="Auto, *, Auto, .75*, Auto, .75*, Auto, *, Auto" RowDefinitions="*, Auto" Margin="15, 20">
             <Grid.Styles>

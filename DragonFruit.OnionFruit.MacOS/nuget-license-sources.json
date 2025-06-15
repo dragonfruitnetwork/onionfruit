@@ -1,0 +1,6 @@
+[
+  "DragonFruit.OnionFruit/DragonFruit.OnionFruit.csproj",
+  "DragonFruit.OnionFruit.Core/DragonFruit.OnionFruit.Core.csproj",
+  "DragonFruit.OnionFruit.Core.MacOS/DragonFruit.OnionFruit.Core.MacOS.csproj",
+  "DragonFruit.OnionFruit.MacOS/DragonFruit.OnionFruit.MacOS.csproj"
+]

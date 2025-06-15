@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reactive;
@@ -29,286 +30,303 @@ using Microsoft.Extensions.Logging;
 using Nito.AsyncEx;
 using ReactiveUI;
 
-namespace DragonFruit.OnionFruit;
-
-public partial class App(IHost host) : Application
+namespace DragonFruit.OnionFruit
 {
-    internal static string StoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit");
-
-    private readonly AsyncManualResetEvent _shutdownSignal = new(true);
-    private readonly SemaphoreSlim _shutdownQueue = new(1, 1);
-
-    private IDisposable _startupCallback, _shutdownSignalProcessor;
-    private CancellationTokenSource _shutdownSignalCancellation;
-
-    static App()
+    public partial class App(IHost host) : Application
     {
-        Directory.CreateDirectory(StoragePath);
+        public static string StoragePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DragonFruit Network", "OnionFruit");
 
-        var assemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
-        Version = assemblyVersion!.ToString(assemblyVersion.Minor > 0 ? 3 : 2);
+        private readonly AsyncManualResetEvent _shutdownSignal = new(true);
+        private readonly SemaphoreSlim _shutdownQueue = new(1, 1);
+
+        private IDisposable _shutdownSignalProcessor;
+        private CancellationTokenSource _shutdownSignalCancellation;
+
+        static App()
+        {
+            Directory.CreateDirectory(StoragePath);
+
+            var assemblyVersion = Assembly.GetEntryAssembly()?.GetName().Version;
+            Version = assemblyVersion!.ToString(assemblyVersion.Minor > 0 ? 3 : 2);
 
 #if DEBUG
-        Title = "OnionFruit\u2122 Development Edition";
+            Title = "OnionFruit\u2122 Development Edition";
 #else
-        Title = "OnionFruit\u2122";
+            Title = "OnionFruit\u2122";
 #endif
 
-        // enable mica effect on Windows 11 and above
-        TransparencyLevels = OperatingSystem.IsWindowsVersionAtLeast(10, 22000) ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
-    }
-
-    public static App Instance => (App)Current;
-    public IServiceProvider Services => host.Services;
-
-    public static string Title { get; }
-    public static string Version { get; }
-
-    /// <summary>
-    /// Transparency level hints passed to windows to enable transparency effects (if supported).
-    /// </summary>
-    public static IReadOnlyList<WindowTransparencyLevel> TransparencyLevels { get; }
-
-    public override void Initialize()
-    {
-        AvaloniaXamlLoader.Load(this);
-    }
-
-    public override void OnFrameworkInitializationCompleted()
-    {
-        base.OnFrameworkInitializationCompleted();
-
-        var hostLifetime = Services.GetRequiredService<IHostApplicationLifetime>();
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            desktop.Exit += (_, _) =>
-            {
-                _shutdownSignalProcessor?.Dispose();
-                host.StopAsync().Wait();
-            };
+            // enable mica effect on Windows 11 and above
+            TransparencyLevels = OperatingSystem.IsWindowsVersionAtLeast(10, 22000) ? [WindowTransparencyLevel.Mica, WindowTransparencyLevel.AcrylicBlur] : [WindowTransparencyLevel.AcrylicBlur];
         }
 
-        // because background services need to be started, StartAsync blocks until the app closes.
-        // using the IHostApplicationLifetime, we can be notified when the windows are ready to be shown.
-        _startupCallback = hostLifetime.ApplicationStarted.Register(StartAvaloniaApp);
+        public static App Instance => (App)Current;
+        public IServiceProvider Services => host.Services;
 
-        _ = host.StartAsync();
-    }
+        public static string Title { get; }
+        public static string Version { get; }
 
-    private void StartAvaloniaApp()
-    {
-        // release callback handler
-        _startupCallback.Dispose();
-        _startupCallback = null;
+        /// <summary>
+        /// Transparency level hints passed to windows to enable transparency effects (if supported).
+        /// </summary>
+        public static IReadOnlyList<WindowTransparencyLevel> TransparencyLevels { get; }
 
-        if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+        public override void Initialize()
         {
-            throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
+            AvaloniaXamlLoader.Load(this);
         }
 
-        var networkManager = Services.GetRequiredService<INetworkAdapterManager>();
-        var settings = Services.GetRequiredService<OnionFruitSettingsStore>();
-        var updater = Services.GetRequiredService<IOnionFruitUpdater>();
-        var session = Services.GetRequiredService<TorSession>();
-
-        // startup any network management components required to use the app
-        networkManager.Init();
-
-        var sessionObservable = Observable.FromEventPattern<TorSession.TorSessionState>(h => session.SessionStateChanged += h, h => session.SessionStateChanged -= h).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State));
-        var updateStateObservable = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h).StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status));
-
-        _shutdownSignalProcessor = sessionObservable.CombineLatest(updateStateObservable).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x =>
+        [SuppressMessage("ReSharper", "AsyncVoidMethod", Justification = "Avalonia requires this to be void, but we want to block and throw any exceptions that occur during startup.")]
+        public override async void OnFrameworkInitializationCompleted()
         {
-            bool blockClose;
+            base.OnFrameworkInitializationCompleted();
 
-            switch (x.First.EventArgs)
+            var hostLifetime = Services.GetRequiredService<IHostApplicationLifetime>();
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                case TorSession.TorSessionState.Disconnected:
-                case TorSession.TorSessionState.BlockedProxy:
-                case TorSession.TorSessionState.BlockedProcess:
-                case TorSession.TorSessionState.KillSwitchTriggered:
+                desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
+                desktop.Exit += (_, _) =>
                 {
-                    blockClose = false;
-                    if (x.First.EventArgs == TorSession.TorSessionState.KillSwitchTriggered)
+                    _shutdownSignalProcessor?.Dispose();
+                    host.StopAsync().Wait();
+                };
+            }
+
+            // because host.StartAsync() blocks forever, use the IHostApplicationLifetime's ApplicationStarted event to wait for the host to finish starting up
+            // using a TaskCompletionSource allows us to block until we're ready, but also allows for exceptions to be rethrown (as the app has failed to start and otherwise wouldn't crash as expected)
+
+            var startupCompletionTask = new TaskCompletionSource();
+            var startupCallback = hostLifetime.ApplicationStarted.Register(() => startupCompletionTask.TrySetResult());
+
+            _ = host.StartAsync().ContinueWith(t => startupCompletionTask.TrySetException(t.Exception), TaskContinuationOptions.OnlyOnFaulted);
+
+            await startupCompletionTask.Task;
+            await startupCallback.DisposeAsync();
+
+            StartAvaloniaApp();
+        }
+
+        private void StartAvaloniaApp()
+        {
+            if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                throw new InvalidOperationException("Cannot start when the application is not running in desktop mode.");
+            }
+
+            // handle (macOS specific) reactivation events
+            if (TryGetFeature(typeof(IActivatableLifetime)) is IActivatableLifetime lifetime)
+            {
+                lifetime.Activated += (_, args) =>
+                {
+                    if (args.Kind == ActivationKind.Reopen)
                     {
                         ActivateApp();
                     }
+                };
+            }
 
-                    break;
+            var networkManager = Services.GetRequiredService<INetworkAdapterManager>();
+            var settings = Services.GetRequiredService<OnionFruitSettingsStore>();
+            var updater = Services.GetRequiredService<IOnionFruitUpdater>();
+            var session = Services.GetRequiredService<TorSession>();
+
+            // startup any network management components required to use the app
+            networkManager.Init();
+
+            var sessionObservable = Observable.FromEventPattern<TorSession.TorSessionState>(h => session.SessionStateChanged += h, h => session.SessionStateChanged -= h).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State));
+            var updateStateObservable = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h).StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status));
+
+            _shutdownSignalProcessor = sessionObservable.CombineLatest(updateStateObservable).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x =>
+            {
+                bool blockClose;
+
+                switch (x.First.EventArgs)
+                {
+                    case TorSession.TorSessionState.Disconnected:
+                    case TorSession.TorSessionState.BlockedProxy:
+                    case TorSession.TorSessionState.BlockedProcess:
+                    case TorSession.TorSessionState.KillSwitchTriggered:
+                    {
+                        blockClose = false;
+                        if (x.First.EventArgs == TorSession.TorSessionState.KillSwitchTriggered)
+                        {
+                            ActivateApp();
+                        }
+
+                        break;
+                    }
+
+                    default:
+                        blockClose = true;
+                        break;
                 }
 
-                default:
-                    blockClose = true;
-                    break;
+                if (blockClose || x.Second.EventArgs == OnionFruitUpdaterStatus.Downloading)
+                {
+                    _shutdownSignal.Reset();
+                }
+                else
+                {
+                    _shutdownSignal.Set();
+                }
+            });
+
+            // relaunch as admin if dns can't run due to permissions
+            var elevator = Services.GetRequiredService<IProcessElevator>();
+            var shouldRelaunch = settings.GetValue<bool>(OnionFruitSetting.DnsProxyingEnabled)
+                                 && networkManager.DnsState == NetworkComponentState.MissingPermissions
+                                 && elevator.CheckElevationStatus() == ElevationStatus.CanElevate;
+
+            if (shouldRelaunch && elevator.RelaunchProcess(true))
+            {
+                return;
             }
 
-            if (blockClose || x.Second.EventArgs == OnionFruitUpdaterStatus.Downloading)
+            // handle start on boot
+            if (Services.GetService<IStartupLaunchService>()?.InstanceLaunchedByStartupService == true)
             {
-                _shutdownSignal.Reset();
+                _ = session.StartSession();
             }
-            else
+
+            desktop.MainWindow = new MainWindow
             {
-                _shutdownSignal.Set();
+                ViewModel = Services.GetRequiredService<MainWindowViewModel>()
+            };
+        }
+
+        public async Task RequestAppShutdown()
+        {
+            // prevent multiple shutdown requests from being queued
+            // this should never fail, but if it does the app will be forced to close
+            using (var queueTimeout = new CancellationTokenSource(250))
+            {
+                await _shutdownQueue.WaitAsync(queueTimeout.Token);
             }
-        });
 
-        // relaunch as admin if dns can't run due to permissions
-        var elevator = Services.GetRequiredService<IProcessElevator>();
-        var shouldRelaunch = settings.GetValue<bool>(OnionFruitSetting.DnsProxyingEnabled)
-                             && networkManager.DnsState == NetworkComponentState.MissingPermissions
-                             && elevator.CheckElevationStatus() == ElevationStatus.CanElevate;
-
-        if (shouldRelaunch && elevator.RelaunchProcess(true))
-        {
-            return;
-        }
-
-        // handle start on boot
-        if (Services.GetService<IStartupLaunchService>()?.InstanceLaunchedByStartupService == true)
-        {
-            _ = session.StartSession();
-        }
-
-        desktop.MainWindow = new MainWindow
-        {
-            ViewModel = Services.GetRequiredService<MainWindowViewModel>()
-        };
-    }
-
-    internal async Task RequestAppShutdown()
-    {
-        // prevent multiple shutdown requests from being queued
-        // this should never fail, but if it does the app will be forced to close
-        using (var queueTimeout = new CancellationTokenSource(250))
-        {
-            await _shutdownQueue.WaitAsync(queueTimeout.Token);
-        }
-
-        if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            throw new InvalidOperationException("Cannot request shutdown when the application is not running in desktop mode.");
-        }
-
-        if (desktop.MainWindow != null)
-        {
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            if (ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime desktop)
             {
-                desktop.MainWindow.ShowInTaskbar = false;
-                desktop.MainWindow.IsVisible = false;
+                throw new InvalidOperationException("Cannot request shutdown when the application is not running in desktop mode.");
+            }
+
+            if (desktop.MainWindow != null)
+            {
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    desktop.MainWindow.ShowInTaskbar = false;
+                    desktop.MainWindow.IsVisible = false;
+                });
+            }
+
+            // Closing should only occur when the user has closed the main window, is not connected and the updater is not running.
+            // If any of these conditions are not satisfied, the main window should be hidden and the app should wait on the signal before closing.
+            // Additionally, the signal should have a cancellation token attached to allow cancellation of the shutdown process.
+
+            _shutdownSignalCancellation?.Dispose();
+            _shutdownSignalCancellation = new CancellationTokenSource();
+
+            try
+            {
+                // show the tray icon if we're 500ms into waiting and nothing has happened
+                var waitTask = _shutdownSignal.WaitAsync(_shutdownSignalCancellation.Token);
+                _ = waitTask.WaitAsync(TimeSpan.FromMilliseconds(500)).ContinueWith(t =>
+                {
+                    if (_shutdownSignalCancellation.IsCancellationRequested || t.Exception?.InnerException?.GetType().IsAssignableTo(typeof(TimeoutException)) != true)
+                    {
+                        return;
+                    }
+
+                    Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
+                        if (trayIcon != null)
+                        {
+                            trayIcon.IsVisible = true;
+                        }
+                    });
+                }, TaskContinuationOptions.OnlyOnFaulted);
+
+                await waitTask.ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                // release the semaphore if the shutdown was cancelled
+                _shutdownQueue.Release();
+                return;
+            }
+
+            desktop.Shutdown();
+        }
+
+        public void ActivateApp()
+        {
+            var window = ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime)!.MainWindow;
+            if (window == null)
+            {
+                return;
+            }
+
+            // cancel any pending shutdowns
+            _shutdownSignalCancellation?.Cancel();
+
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                window.WindowState = WindowState.Normal;
+                window.ShowInTaskbar = true;
+                window.IsVisible = true;
+
+                var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
+                if (trayIcon != null)
+                {
+                    trayIcon.IsVisible = false;
+                }
+
+                window.Activate();
             });
         }
 
-        // Closing should only occur when the user has closed the main window, is not connected and the updater is not running.
-        // If any of these conditions are not satisfied, the main window should be hidden and the app should wait on the signal before closing.
-        // Additionally, the signal should have a cancellation token attached to allow cancellation of the shutdown process.
-
-        _shutdownSignalCancellation?.Dispose();
-        _shutdownSignalCancellation = new CancellationTokenSource();
-
-        try
+        /// <summary>
+        /// Launches a URL in the default browser
+        /// </summary>
+        /// <param name="url">The url to launch</param>
+        /// <returns>Whether the request was completed successfully</returns>
+        public static bool Launch(string url)
         {
-            // show the tray icon if we're 500ms into waiting and nothing has happened
-            var waitTask = _shutdownSignal.WaitAsync(_shutdownSignalCancellation.Token);
-            _ = waitTask.WaitAsync(TimeSpan.FromMilliseconds(500)).ContinueWith(t =>
+            var psi = new ProcessStartInfo
             {
-                if (_shutdownSignalCancellation.IsCancellationRequested || t.Exception?.InnerException?.GetType().IsAssignableTo(typeof(TimeoutException)) != true)
+                Verb = "open",
+                FileName = url,
+                UseShellExecute = true
+            };
+
+            try
+            {
+                return Process.Start(psi) != null;
+            }
+            catch (Exception e)
+            {
+                Instance.Services.GetRequiredService<ILogger<App>>().LogWarning(e, "Failed to launch URL due to an error: {err}", e.Message);
+                return false;
+            }
+        }
+
+        public static IconSource GetIcon(LucideIconNames icon, IImmutableSolidColorBrush brush = null, double thickness = 1.5)
+        {
+            var resource = Instance.Resources.MergedDictionaries.FirstOrDefault() as ResourceDictionary;
+            var drawingImage = resource?[icon.ToString()] as DrawingImage;
+
+            // set the icon color to white
+            foreach (var drawing in (drawingImage?.Drawing as DrawingGroup)?.Children ?? [])
+            {
+                if (drawing is GeometryDrawing {Pen: Pen pen})
                 {
-                    return;
+                    pen.Brush = brush ?? Brushes.White;
+                    pen.Thickness = thickness;
                 }
-
-                Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
-                    if (trayIcon != null)
-                    {
-                        trayIcon.IsVisible = true;
-                    }
-                });
-            }, TaskContinuationOptions.OnlyOnFaulted);
-
-            await waitTask.ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            // release the semaphore if the shutdown was cancelled
-            _shutdownQueue.Release();
-            return;
-        }
-
-        desktop.Shutdown();
-    }
-
-    public void ActivateApp()
-    {
-        var window = ((IClassicDesktopStyleApplicationLifetime)ApplicationLifetime)!.MainWindow;
-        if (window == null)
-        {
-            return;
-        }
-
-        // cancel any pending shutdowns
-        _shutdownSignalCancellation?.Cancel();
-
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            window.WindowState = WindowState.Normal;
-            window.ShowInTaskbar = true;
-            window.IsVisible = true;
-
-            var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
-            if (trayIcon != null)
-            {
-                trayIcon.IsVisible = false;
             }
 
-            window.Activate();
-        });
-    }
-
-    /// <summary>
-    /// Launches a URL in the default browser
-    /// </summary>
-    /// <param name="url">The url to launch</param>
-    /// <returns>Whether the request was completed successfully</returns>
-    public static bool Launch(string url)
-    {
-        var psi = new ProcessStartInfo
-        {
-            Verb = "open",
-            FileName = url,
-            UseShellExecute = true
-        };
-
-        try
-        {
-            return Process.Start(psi) != null;
-        }
-        catch (Exception e)
-        {
-            Instance.Services.GetRequiredService<ILogger<App>>().LogWarning(e, "Failed to launch URL due to an error: {err}", e.Message);
-            return false;
-        }
-    }
-
-    public static IconSource GetIcon(LucideIconNames icon, IImmutableSolidColorBrush brush = null, double thickness = 1.5)
-    {
-        var resource = Instance.Resources.MergedDictionaries.FirstOrDefault() as ResourceDictionary;
-        var drawingImage = resource?[icon.ToString()] as DrawingImage;
-
-        // set the icon color to white
-        foreach (var drawing in (drawingImage?.Drawing as DrawingGroup)?.Children ?? [])
-        {
-            if (drawing is GeometryDrawing {Pen: Pen pen})
+            return new ImageIconSource
             {
-                pen.Brush = brush ?? Brushes.White;
-                pen.Thickness = thickness;
-            }
+                Source = drawingImage
+            };
         }
-
-        return new ImageIconSource
-        {
-            Source = drawingImage
-        };
     }
 }

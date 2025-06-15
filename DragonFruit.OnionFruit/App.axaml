@@ -2,26 +2,51 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="DragonFruit.OnionFruit.App"
              xmlns:styling="clr-namespace:FluentAvalonia.Styling;assembly=FluentAvalonia"
-             xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit" RequestedThemeVariant="Dark">
+             xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
+             xmlns:controls="clr-namespace:FluentAvalonia.UI.Controls;assembly=FluentAvalonia"
+             Name="{Binding Source={x:Static onionFruit:App.Title}}"
+             RequestedThemeVariant="Dark">
     <Application.Styles>
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" CustomAccentColor="#c71585" />
+        <onionFruit:NonWindowsFluentAvaloniaAdjustments />
+        
+        <Style Selector="controls|NavigationViewItemHeader">
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="Margin" Value="{DynamicResource SettingsTabHeaderMargin}"/>
+        </Style>
     </Application.Styles>
+
     <Application.Resources>
         <ResourceDictionary>
-            <FontFamily x:Key="TwemojiFont">avares://DragonFruit.OnionFruit/Assets/Twemoji.Mozilla.ttf#Twemoji Mozilla</FontFamily>
-            <FontFamily x:Key="JetBrainsMono">avares://DragonFruit.OnionFruit/Assets/JetBrainsMono-Regular.ttf#JetBrains Mono</FontFamily>
+            <FontFamily x:Key="TwemojiFont">avares://DragonFruit.OnionFruit/Assets#Twemoji Flags</FontFamily>
+            <FontFamily x:Key="JetBrainsMono">avares://DragonFruit.OnionFruit/Assets#JetBrains Mono</FontFamily>
 
             <ResourceDictionary.MergedDictionaries>
                 <ResourceInclude Source="avares://LucideAvalonia/Lucide/ResourcesIcons.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
-    
+
+    <NativeMenu.Menu>
+        <NativeMenu />
+    </NativeMenu.Menu>
+
     <TrayIcon.Icons>
         <TrayIcons>
-            <TrayIcon Icon="/Assets/icon.ico" IsVisible="False"
+            <TrayIcon IsVisible="False"
+                      Icon="/Assets/icon.ico"
                       ToolTipText="{Binding Source={x:Static onionFruit:App.Title}}"
-                      Command="{Binding ActivateApp, Source={x:Static onionFruit:App.Instance}}"/>
+                      Command="{Binding ActivateApp, Source={x:Static onionFruit:App.Instance}}">
+                <!-- macOS requires a menu as it doesn't trigger the icon Command -->
+                <TrayIcon.Menu>
+                    <NativeMenu>
+                        <NativeMenuItem Header="{Binding Source={x:Static onionFruit:App.Title}}" IsEnabled="False"/>
+                        <NativeMenuItemSeparator/>
+                        <NativeMenuItem Header="Open App" Command="{Binding ActivateApp, Source={x:Static onionFruit:App.Instance}}"/>
+                    </NativeMenu>
+                </TrayIcon.Menu>
+            </TrayIcon>
         </TrayIcons>
     </TrayIcon.Icons>
 </Application>

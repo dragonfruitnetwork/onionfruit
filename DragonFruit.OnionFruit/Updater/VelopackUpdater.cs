@@ -99,7 +99,7 @@ namespace DragonFruit.OnionFruit.Updater
         /// <summary>
         /// Returns the update channel name for the current platform/selected release stream.
         /// </summary>
-        internal static string UpdateChannelName(string prefix, UpdateStream? stream) => stream switch
+        public static string UpdateChannelName(string prefix, UpdateStream? stream) => stream switch
         {
             UpdateStream.Stable => prefix,
             UpdateStream.Beta => $"{prefix}-beta",
