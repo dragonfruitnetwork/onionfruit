@@ -1,0 +1,825 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		211554D42DF87EB00036F7A1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 211554D32DF87EB00036F7A1 /* AppKit.framework */; };
+		2132C9CD2DF0661800F94DBB /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213582602DEC9D4F00521FA5 /* ServiceManagement.framework */; };
+		213D5F582DF0AF400055D89E /* onionfruitd-dev in Copy Files */ = {isa = PBXBuildFile; fileRef = 213A98AA2DF051CB00810FF5 /* onionfruitd-dev */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		217D69BF2DECC28B005C75D7 /* XPCProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 2135825D2DEC9A7D00521FA5 /* XPCProtocol.h */; };
+		21A269DA2DF8381F002B8A28 /* libonionfruit.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 217D69B22DECC273005C75D7 /* libonionfruit.dylib */; };
+		21A269DB2DF8381F002B8A28 /* libonionfruit.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 217D69B22DECC273005C75D7 /* libonionfruit.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		21DBD9FE2DEF534F007B7DBA /* ServiceManagement.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 213582602DEC9D4F00521FA5 /* ServiceManagement.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2132C9CE2DF0662200F94DBB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2135820B2DEC96BB00521FA5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 213A98A92DF051CB00810FF5;
+			remoteInfo = "onionfruitd-dev";
+		};
+		21A269DC2DF8381F002B8A28 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2135820B2DEC96BB00521FA5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 217D69B12DECC273005C75D7;
+			remoteInfo = onionfruit;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2132C9D02DF0662900F94DBB /* Copy Files */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				213D5F582DF0AF400055D89E /* onionfruitd-dev in Copy Files */,
+			);
+			name = "Copy Files";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2132C9D22DF0663400F94DBB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LaunchDaemons;
+			dstSubfolderSpec = 1;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		213A98A82DF051CB00810FF5 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		216E978A2DEDAF6100C6A032 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		21A269DE2DF83820002B8A28 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				21A269DB2DF8381F002B8A28 /* libonionfruit.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21DBDA032DEF5441007B7DBA /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		211554D32DF87EB00036F7A1 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		2132C9BD2DF065EF00F94DBB /* OnionFruit™ ServiceLoader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OnionFruit™ ServiceLoader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2135825D2DEC9A7D00521FA5 /* XPCProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XPCProtocol.h; sourceTree = "<group>"; };
+		213582602DEC9D4F00521FA5 /* ServiceManagement.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServiceManagement.framework; path = System/Library/Frameworks/ServiceManagement.framework; sourceTree = SDKROOT; };
+		213A98AA2DF051CB00810FF5 /* onionfruitd-dev */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "onionfruitd-dev"; sourceTree = BUILT_PRODUCTS_DIR; };
+		216E978C2DEDAF6100C6A032 /* onionfruit-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "onionfruit-test"; sourceTree = BUILT_PRODUCTS_DIR; };
+		217D69B22DECC273005C75D7 /* libonionfruit.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libonionfruit.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		21DBDA052DEF5441007B7DBA /* onionfruitd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = onionfruitd; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		213A98B42DF051E500810FF5 /* Exceptions for "onionfruitd" folder in "onionfruitd-dev" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				main.m,
+				onionfruitd.m,
+			);
+			target = 213A98A92DF051CB00810FF5 /* onionfruitd-dev */;
+		};
+		216E97982DEDAF9D00C6A032 /* Exceptions for "libonionfruit" folder in "onionfruit" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			publicHeaders = (
+				NetworkAdapter.h,
+				XPCBridge.h,
+			);
+			target = 217D69B12DECC273005C75D7 /* onionfruit */;
+		};
+		21DBDA242DEF55E7007B7DBA /* Exceptions for "onionfruitd" folder in "onionfruitd" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				main.m,
+				onionfruitd.m,
+			);
+			target = 21DBDA042DEF5441007B7DBA /* onionfruitd */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		2132C9D62DF068BF00F94DBB /* Exceptions for "daemonloader" folder in "Copy Files" phase from "daemonloader" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			attributesByRelativePath = {
+				"network.dragonfruit.onionfruitd-dev.plist" = (CodeSignOnCopy, );
+			};
+			buildPhase = 2132C9D22DF0663400F94DBB /* CopyFiles */;
+			membershipExceptions = (
+				"network.dragonfruit.onionfruitd-dev.plist",
+			);
+		};
+		213D5F5A2DF0AF440055D89E /* Exceptions for "daemonloader" folder in "Copy Files" phase from "daemonloader" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 2132C9D02DF0662900F94DBB /* Copy Files */;
+			membershipExceptions = (
+				AppIcon.icns,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		2132C9BE2DF065EF00F94DBB /* daemonloader */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				213D5F5A2DF0AF440055D89E /* Exceptions for "daemonloader" folder in "Copy Files" phase from "daemonloader" target */,
+				2132C9D62DF068BF00F94DBB /* Exceptions for "daemonloader" folder in "Copy Files" phase from "daemonloader" target */,
+			);
+			path = daemonloader;
+			sourceTree = "<group>";
+		};
+		2135823F2DEC98D400521FA5 /* onionfruitd */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				21DBDA242DEF55E7007B7DBA /* Exceptions for "onionfruitd" folder in "onionfruitd" target */,
+				213A98B42DF051E500810FF5 /* Exceptions for "onionfruitd" folder in "onionfruitd-dev" target */,
+			);
+			path = onionfruitd;
+			sourceTree = "<group>";
+		};
+		216E978D2DEDAF6100C6A032 /* onionfruit-test */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "onionfruit-test";
+			sourceTree = "<group>";
+		};
+		217D69B32DECC274005C75D7 /* libonionfruit */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				216E97982DEDAF9D00C6A032 /* Exceptions for "libonionfruit" folder in "onionfruit" target */,
+			);
+			path = libonionfruit;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2132C9BA2DF065EF00F94DBB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2132C9CD2DF0661800F94DBB /* ServiceManagement.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		213A98A72DF051CB00810FF5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		216E97892DEDAF6100C6A032 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21A269DA2DF8381F002B8A28 /* libonionfruit.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		217D69B02DECC273005C75D7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21DBD9FE2DEF534F007B7DBA /* ServiceManagement.framework in Frameworks */,
+				211554D42DF87EB00036F7A1 /* AppKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21DBDA022DEF5441007B7DBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2135820A2DEC96BB00521FA5 = {
+			isa = PBXGroup;
+			children = (
+				2135825D2DEC9A7D00521FA5 /* XPCProtocol.h */,
+				2135823F2DEC98D400521FA5 /* onionfruitd */,
+				217D69B32DECC274005C75D7 /* libonionfruit */,
+				216E978D2DEDAF6100C6A032 /* onionfruit-test */,
+				2132C9BE2DF065EF00F94DBB /* daemonloader */,
+				2135825F2DEC9D4F00521FA5 /* Frameworks */,
+				213582142DEC96BB00521FA5 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		213582142DEC96BB00521FA5 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				217D69B22DECC273005C75D7 /* libonionfruit.dylib */,
+				216E978C2DEDAF6100C6A032 /* onionfruit-test */,
+				21DBDA052DEF5441007B7DBA /* onionfruitd */,
+				213A98AA2DF051CB00810FF5 /* onionfruitd-dev */,
+				2132C9BD2DF065EF00F94DBB /* OnionFruit™ ServiceLoader.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2135825F2DEC9D4F00521FA5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				211554D32DF87EB00036F7A1 /* AppKit.framework */,
+				213582602DEC9D4F00521FA5 /* ServiceManagement.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		217D69AE2DECC273005C75D7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				217D69BF2DECC28B005C75D7 /* XPCProtocol.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		2132C9BC2DF065EF00F94DBB /* daemonloader */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2132C9C92DF065F000F94DBB /* Build configuration list for PBXNativeTarget "daemonloader" */;
+			buildPhases = (
+				2132C9B92DF065EF00F94DBB /* Sources */,
+				2132C9BA2DF065EF00F94DBB /* Frameworks */,
+				2132C9D02DF0662900F94DBB /* Copy Files */,
+				2132C9D22DF0663400F94DBB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2132C9CF2DF0662200F94DBB /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2132C9BE2DF065EF00F94DBB /* daemonloader */,
+			);
+			name = daemonloader;
+			packageProductDependencies = (
+			);
+			productName = daemonloader;
+			productReference = 2132C9BD2DF065EF00F94DBB /* OnionFruit™ ServiceLoader.app */;
+			productType = "com.apple.product-type.application";
+		};
+		213A98A92DF051CB00810FF5 /* onionfruitd-dev */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 213A98AE2DF051CB00810FF5 /* Build configuration list for PBXNativeTarget "onionfruitd-dev" */;
+			buildPhases = (
+				213A98A62DF051CB00810FF5 /* Sources */,
+				213A98A72DF051CB00810FF5 /* Frameworks */,
+				213A98A82DF051CB00810FF5 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "onionfruitd-dev";
+			packageProductDependencies = (
+			);
+			productName = "onionfruitd-develop";
+			productReference = 213A98AA2DF051CB00810FF5 /* onionfruitd-dev */;
+			productType = "com.apple.product-type.tool";
+		};
+		216E978B2DEDAF6100C6A032 /* onionfruit-test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 216E97902DEDAF6100C6A032 /* Build configuration list for PBXNativeTarget "onionfruit-test" */;
+			buildPhases = (
+				216E97882DEDAF6100C6A032 /* Sources */,
+				216E97892DEDAF6100C6A032 /* Frameworks */,
+				216E978A2DEDAF6100C6A032 /* CopyFiles */,
+				21A269DE2DF83820002B8A28 /* Embed Libraries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				21A269DD2DF8381F002B8A28 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				216E978D2DEDAF6100C6A032 /* onionfruit-test */,
+			);
+			name = "onionfruit-test";
+			packageProductDependencies = (
+			);
+			productName = "onionfruit-test";
+			productReference = 216E978C2DEDAF6100C6A032 /* onionfruit-test */;
+			productType = "com.apple.product-type.tool";
+		};
+		217D69B12DECC273005C75D7 /* onionfruit */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 217D69B82DECC274005C75D7 /* Build configuration list for PBXNativeTarget "onionfruit" */;
+			buildPhases = (
+				217D69AE2DECC273005C75D7 /* Headers */,
+				217D69AF2DECC273005C75D7 /* Sources */,
+				217D69B02DECC273005C75D7 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				217D69B32DECC274005C75D7 /* libonionfruit */,
+			);
+			name = onionfruit;
+			packageProductDependencies = (
+			);
+			productName = "onionfruit-osx";
+			productReference = 217D69B22DECC273005C75D7 /* libonionfruit.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		21DBDA042DEF5441007B7DBA /* onionfruitd */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 21DBDA092DEF5441007B7DBA /* Build configuration list for PBXNativeTarget "onionfruitd" */;
+			buildPhases = (
+				21DBDA012DEF5441007B7DBA /* Sources */,
+				21DBDA022DEF5441007B7DBA /* Frameworks */,
+				21DBDA032DEF5441007B7DBA /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = onionfruitd;
+			packageProductDependencies = (
+			);
+			productName = onionfruitd;
+			productReference = 21DBDA052DEF5441007B7DBA /* onionfruitd */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2135820B2DEC96BB00521FA5 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1640;
+				TargetAttributes = {
+					2132C9BC2DF065EF00F94DBB = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					213A98A92DF051CB00810FF5 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					216E978B2DEDAF6100C6A032 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					217D69B12DECC273005C75D7 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					21DBDA042DEF5441007B7DBA = {
+						CreatedOnToolsVersion = 16.2;
+					};
+				};
+			};
+			buildConfigurationList = 2135820E2DEC96BB00521FA5 /* Build configuration list for PBXProject "onionfruit-osx" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 2135820A2DEC96BB00521FA5;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 213582142DEC96BB00521FA5 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				217D69B12DECC273005C75D7 /* onionfruit */,
+				21DBDA042DEF5441007B7DBA /* onionfruitd */,
+				213A98A92DF051CB00810FF5 /* onionfruitd-dev */,
+				216E978B2DEDAF6100C6A032 /* onionfruit-test */,
+				2132C9BC2DF065EF00F94DBB /* daemonloader */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2132C9B92DF065EF00F94DBB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		213A98A62DF051CB00810FF5 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		216E97882DEDAF6100C6A032 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		217D69AF2DECC273005C75D7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21DBDA012DEF5441007B7DBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2132C9CF2DF0662200F94DBB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 213A98A92DF051CB00810FF5 /* onionfruitd-dev */;
+			targetProxy = 2132C9CE2DF0662200F94DBB /* PBXContainerItemProxy */;
+		};
+		21A269DD2DF8381F002B8A28 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 217D69B12DECC273005C75D7 /* onionfruit */;
+			targetProxy = 21A269DC2DF8381F002B8A28 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		2132C9CA2DF065F000F94DBB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Q824VHAT9S;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = daemonloader/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 DragonFruit Network";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = network.dragonfruit.onionfruit.daemonloader;
+				PRODUCT_MODULE_NAME = daemonloader;
+				PRODUCT_NAME = "OnionFruit™ ServiceLoader";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		2132C9CB2DF065F000F94DBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = Q824VHAT9S;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = daemonloader/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 DragonFruit Network";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = network.dragonfruit.onionfruit.daemonloader;
+				PRODUCT_MODULE_NAME = daemonloader;
+				PRODUCT_NAME = "OnionFruit™ ServiceLoader";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		213582222DEC96BB00521FA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		213582232DEC96BB00521FA5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		213A98AF2DF051CB00810FF5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					"DEV_MODE=1",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		213A98B02DF051CB00810FF5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "DEV_MODE=1";
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		216E97912DEDAF6100C6A032 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		216E97922DEDAF6100C6A032 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		217D69B92DECC274005C75D7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		217D69BA2DECC274005C75D7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		21DBDA0A2DEF5441007B7DBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		21DBDA0B2DEF5441007B7DBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEAD_CODE_STRIPPING = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2132C9C92DF065F000F94DBB /* Build configuration list for PBXNativeTarget "daemonloader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2132C9CA2DF065F000F94DBB /* Debug */,
+				2132C9CB2DF065F000F94DBB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2135820E2DEC96BB00521FA5 /* Build configuration list for PBXProject "onionfruit-osx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				213582222DEC96BB00521FA5 /* Debug */,
+				213582232DEC96BB00521FA5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		213A98AE2DF051CB00810FF5 /* Build configuration list for PBXNativeTarget "onionfruitd-dev" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				213A98AF2DF051CB00810FF5 /* Debug */,
+				213A98B02DF051CB00810FF5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		216E97902DEDAF6100C6A032 /* Build configuration list for PBXNativeTarget "onionfruit-test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				216E97912DEDAF6100C6A032 /* Debug */,
+				216E97922DEDAF6100C6A032 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		217D69B82DECC274005C75D7 /* Build configuration list for PBXNativeTarget "onionfruit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				217D69B92DECC274005C75D7 /* Debug */,
+				217D69BA2DECC274005C75D7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		21DBDA092DEF5441007B7DBA /* Build configuration list for PBXNativeTarget "onionfruitd" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21DBDA0A2DEF5441007B7DBA /* Debug */,
+				21DBDA0B2DEF5441007B7DBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2135820B2DEC96BB00521FA5 /* Project object */;
+}
