@@ -1,0 +1,12 @@
+﻿{
+  "solution": {
+    "path": "DragonFruit.OnionFruit.sln",
+    "projects": [
+      "DragonFruit.OnionFruit.Core.MacOS\\DragonFruit.OnionFruit.Core.Windows.csproj",
+      "DragonFruit.OnionFruit.Core.MacOS\\DragonFruit.OnionFruit.Core.Windows.Tests.csproj",
+      "DragonFruit.OnionFruit.Core\\DragonFruit.OnionFruit.Core.csproj",
+      "DragonFruit.OnionFruit.MacOS\\DragonFruit.OnionFruit.Windows.csproj",
+      "DragonFruit.OnionFruit\\DragonFruit.OnionFruit.csproj"
+    ]
+  }
+}
