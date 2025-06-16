@@ -13,8 +13,8 @@ using DragonFruit.OnionFruit.ViewModels.Interfaces;
 
 namespace DragonFruit.OnionFruit.Windows.ViewModels
 {
-    public class Win32MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings)
-        : MainWindowViewModel(session, onionDatabase, updater, settings), IHasCustomStartupPosition
+    public class Win32MainWindowViewModel(TorSession session, IOnionDatabase onionDatabase, IOnionFruitUpdater updater, OnionFruitSettingsStore settings, IServiceProvider services)
+        : MainWindowViewModel(session, onionDatabase, updater, settings, services), IHasCustomStartupPosition
     {
         PixelPoint IHasCustomStartupPosition.GetInitialPosition(Screen screen, Size clientSize)
         {
