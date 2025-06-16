@@ -51,26 +51,25 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot access DNS resolvers after the connection has been disposed.");
             }
 
-            if (NativeMethods.GetServiceDnsResolvers(XpcHandle, serviceId, out var resolverList, out var resolverCount) != 0)
+            if (NativeMethods.GetServiceDnsResolvers(XpcHandle, serviceId, out var resolverList, out var resolverCount) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to retrieve DNS resolvers for service '{serviceId}'.");
             }
 
             try
             {
-                var resolvers = new IPAddress[resolverCount];
+                var resolvers = new List<IPAddress>(resolverCount);
                 var current = resolverList;
 
                 for (int i = 0; i < resolverCount; i++)
                 {
                     var ipAddressString = Marshal.PtrToStringUTF8(current);
 
-                    if (string.IsNullOrEmpty(ipAddressString) || !IPAddress.TryParse(ipAddressString, out var ipAddress))
+                    if (IPAddress.TryParse(ipAddressString, out var ipAddress))
                     {
-                        throw new InvalidOperationException($"Invalid IP address '{ipAddressString}' for resolver {i + 1}.");
+                        resolvers.Add(ipAddress);
                     }
 
-                    resolvers[i] = ipAddress;
                     current = IntPtr.Add(current, sizeof(IntPtr));
                 }
 
@@ -110,7 +109,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 }
             }
 
-            if (NativeMethods.SetServiceDnsResolvers(XpcHandle, serviceId, convertedAddresses, convertedAddresses.Length) != 0)
+            if (NativeMethods.SetServiceDnsResolvers(XpcHandle, serviceId, convertedAddresses, convertedAddresses.Length) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to set DNS resolvers for service '{serviceId}'.");
             }
@@ -128,7 +127,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot fetch proxy config after the connection has been disposed.");
             }
 
-            if (NativeMethods.GetServiceProxyConfig(XpcHandle, serviceId, out var proxyConfigPtr) != 0)
+            if (NativeMethods.GetServiceProxyConfig(XpcHandle, serviceId, out var proxyConfigPtr) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to retrieve proxy configuration for service '{serviceId}'.");
             }
@@ -186,7 +185,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
                 try
                 {
-                    if (NativeMethods.GetServiceProxyConfig(XpcHandle, serviceId, out proxyConfigPtr) != 0)
+                    if (NativeMethods.GetServiceProxyConfig(XpcHandle, serviceId, out proxyConfigPtr) != NativeStatus.Ok)
                     {
                         throw new InvalidOperationException($"Failed to retrieve proxy configuration for service '{serviceId}'.");
                     }
@@ -234,7 +233,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 }
             }
 
-            if (NativeMethods.SetServiceProxyConfig(XpcHandle, serviceId, proxyConfig) != 0)
+            if (NativeMethods.SetServiceProxyConfig(XpcHandle, serviceId, proxyConfig) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to set proxy configuration for service '{serviceId}'.");
             }
