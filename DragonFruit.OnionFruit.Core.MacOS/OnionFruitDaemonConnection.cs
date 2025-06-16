@@ -17,27 +17,27 @@ namespace DragonFruit.OnionFruit.Core.MacOS
     /// </summary>
     public class OnionFruitDaemonConnection : IDisposable
     {
+        private readonly XpcConnectionHandle _xpcHandle;
+
         public OnionFruitDaemonConnection(string machServiceName)
         {
             var status = NativeMethods.CreateXpcConnection(machServiceName, out var xpcHandle, out var version);
 
             if (status == NativeStatus.Ok)
             {
-                XpcHandle = xpcHandle;
+                _xpcHandle = xpcHandle;
                 Version = version;
             }
             else
             {
-                XpcHandle = null;
+                _xpcHandle = null;
                 Version = -1;
             }
         }
 
         public int Version { get; }
 
-        internal XpcConnectionHandle XpcHandle { get; private set; }
-
-        public bool IsValid => XpcHandle?.IsClosed == false;
+        public bool IsValid => _xpcHandle?.IsClosed == false;
 
         /// <summary>
         /// Gets the DNS resolvers for a specified network service.
@@ -51,7 +51,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot access DNS resolvers after the connection has been disposed.");
             }
 
-            if (NativeMethods.GetServiceDnsResolvers(XpcHandle, serviceId, out var resolverList, out var resolverCount) != NativeStatus.Ok)
+            if (NativeMethods.GetServiceDnsResolvers(_xpcHandle, serviceId, out var resolverList, out var resolverCount) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to retrieve DNS resolvers for service '{serviceId}'.");
             }
@@ -109,7 +109,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 }
             }
 
-            if (NativeMethods.SetServiceDnsResolvers(XpcHandle, serviceId, convertedAddresses, convertedAddresses.Length) != NativeStatus.Ok)
+            if (NativeMethods.SetServiceDnsResolvers(_xpcHandle, serviceId, convertedAddresses, convertedAddresses.Length) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to set DNS resolvers for service '{serviceId}'.");
             }
@@ -127,7 +127,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 throw new ObjectDisposedException(nameof(OnionFruitDaemonConnection), "Cannot fetch proxy config after the connection has been disposed.");
             }
 
-            if (NativeMethods.GetServiceProxyConfig(XpcHandle, serviceId, out var proxyConfigPtr) != NativeStatus.Ok)
+            if (NativeMethods.GetServiceProxyConfig(_xpcHandle, serviceId, out var proxyConfigPtr) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to retrieve proxy configuration for service '{serviceId}'.");
             }
@@ -185,7 +185,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
                 try
                 {
-                    if (NativeMethods.GetServiceProxyConfig(XpcHandle, serviceId, out proxyConfigPtr) != NativeStatus.Ok)
+                    if (NativeMethods.GetServiceProxyConfig(_xpcHandle, serviceId, out proxyConfigPtr) != NativeStatus.Ok)
                     {
                         throw new InvalidOperationException($"Failed to retrieve proxy configuration for service '{serviceId}'.");
                     }
@@ -233,7 +233,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
                 }
             }
 
-            if (NativeMethods.SetServiceProxyConfig(XpcHandle, serviceId, proxyConfig) != NativeStatus.Ok)
+            if (NativeMethods.SetServiceProxyConfig(_xpcHandle, serviceId, proxyConfig) != NativeStatus.Ok)
             {
                 throw new InvalidOperationException($"Failed to set proxy configuration for service '{serviceId}'.");
             }
@@ -253,7 +253,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
 
         public void Dispose()
         {
-            XpcHandle?.Dispose();
+            _xpcHandle?.Dispose();
         }
     }
 }
