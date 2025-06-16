@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
-using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using DragonFruit.OnionFruit.Core.MacOS.Native;
 using DragonFruit.OnionFruit.Core.Network;
@@ -16,7 +15,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
     /// <summary>
     /// Encapsulates a connection to the "onionfruitd" service, used to delegate network service management tasks.
     /// </summary>
-    public class OnionFruitDaemonConnection : CriticalFinalizerObject, IDisposable
+    public class OnionFruitDaemonConnection : IDisposable
     {
         public OnionFruitDaemonConnection(string machServiceName)
         {
@@ -34,11 +33,6 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             }
         }
 
-        ~OnionFruitDaemonConnection()
-        {
-            ReleaseUnmanagedResources();
-        }
-
         public int Version { get; }
 
         internal XpcConnectionHandle XpcHandle { get; private set; }
@@ -50,7 +44,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         /// </summary>
         /// <param name="serviceId">The network service to retrieve resolvers for</param>
         /// <returns>An array of <see cref="IPAddress"/>es used to resolve DNS queries</returns>
-        public unsafe IPAddress[] GetDnsResolvers(string serviceId)
+        public unsafe IList<IPAddress> GetDnsResolvers(string serviceId)
         {
             if (!IsValid)
             {
@@ -258,15 +252,9 @@ namespace DragonFruit.OnionFruit.Core.MacOS
             return builder.Uri;
         }
 
-        private void ReleaseUnmanagedResources()
-        {
-            XpcHandle?.Dispose();
-        }
-
         public void Dispose()
         {
-            ReleaseUnmanagedResources();
-            GC.SuppressFinalize(this);
+            XpcHandle?.Dispose();
         }
     }
 }
