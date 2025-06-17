@@ -23,4 +23,9 @@
         </None>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- DragonFruit.OnionFruit.MacOS -->
+        <InternalsVisibleTo Include="onionfruit" />
+    </ItemGroup>
+
 </Project>

@@ -1,9 +1,7 @@
 // OnionFruit Copyright DragonFruit Network <inbox@dragonfruit.network>
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
-using DragonFruit.OnionFruit.Core.MacOS.Native;
-
-namespace DragonFruit.OnionFruit.Core.MacOS
+namespace DragonFruit.OnionFruit.MacOS
 {
     public static class MacOSMessageBox
     {

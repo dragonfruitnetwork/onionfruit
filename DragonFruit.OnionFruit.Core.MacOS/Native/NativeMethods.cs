@@ -16,7 +16,7 @@ namespace DragonFruit.OnionFruit.Core.MacOS.Native
 
     internal static partial class NativeMethods
     {
-        private const string LibraryName = "libonionfruit";
+        internal const string LibraryName = "libonionfruit";
 
         [LibraryImport(LibraryName, EntryPoint = "createNetworkServiceList")]
         public static partial IntPtr CreateNetworkServiceList(out int count);
@@ -51,8 +51,5 @@ namespace DragonFruit.OnionFruit.Core.MacOS.Native
 
         [DllImport(LibraryName, EntryPoint = "setServiceProxyConfig", ExactSpelling = true)]
         public static extern NativeStatus SetServiceProxyConfig(XpcConnectionHandle xpcConnection, [In, MarshalAs(UnmanagedType.LPUTF8Str)] string serviceId, [In] ServiceProxyConfig configPtr);
-
-        [LibraryImport(LibraryName, EntryPoint = "showMessageBox", StringMarshalling = StringMarshalling.Utf8)]
-        public static partial void ShowMessageBox(string title, string message, string buttonText);
     }
 }
