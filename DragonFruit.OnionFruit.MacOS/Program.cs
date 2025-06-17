@@ -136,7 +136,7 @@ namespace DragonFruit.OnionFruit.MacOS
                 });
 
                 services.AddSingleton<IProcessElevator, MacOSAppInstanceManager>();
-                services.AddSingleton<IStartupLaunchService, MacOSLaunchAgentService>();
+                services.AddSingleton<IStartupLaunchService, MacOSLoginItemService>();
 
                 services.AddHostedService<DiscordRpcService>();
                 services.AddHostedService<LandingPageLaunchService>();

@@ -7,13 +7,9 @@ using DragonFruit.OnionFruit.Services;
 
 namespace DragonFruit.OnionFruit.MacOS
 {
-    public class MacOSLaunchAgentService : IStartupLaunchService
+    public class MacOSLoginItemService : IStartupLaunchService
     {
-        private readonly AppService _launchAgentManager = AppService.MainAppService;
-
-        private bool? _wasStartedAsLoginItem;
-
-        public StartupLaunchState CurrentStartupState => _launchAgentManager.Status switch
+        public StartupLaunchState CurrentStartupState => AppService.MainAppService.Status switch
         {
             AppServiceStatus.Enabled => StartupLaunchState.Enabled,
             AppServiceStatus.NotFound => StartupLaunchState.Blocked,
@@ -23,18 +19,18 @@ namespace DragonFruit.OnionFruit.MacOS
             _ => StartupLaunchState.Blocked
         };
 
-        public bool InstanceLaunchedByStartupService => _wasStartedAsLoginItem ??= NativeMethods.CurrentProcessLaunchedAsLoginItem();
+        public bool InstanceLaunchedByStartupService => NativeMethods.CurrentProcessLaunchedAsLoginItem();
 
         public StartupLaunchState SetStartupState(bool enabled)
         {
             switch (enabled)
             {
                 case true when AppService.MainAppService.Status != AppServiceStatus.Enabled:
-                    _launchAgentManager.RegisterService();
+                    AppService.MainAppService.RegisterService();
                     break;
 
                 case false when AppService.MainAppService.Status == AppServiceStatus.Enabled:
-                    _launchAgentManager.UnregisterService();
+                    AppService.MainAppService.UnregisterService();
                     break;
             }
 
