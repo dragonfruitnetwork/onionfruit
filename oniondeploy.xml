@@ -21,7 +21,7 @@
 
         <launchd>
             <!-- nodes accept either a folder or a single file -->
-            <LaunchAgents>DragonFruit.OnionFruit.MacOS/launchd/autostart.plist</LaunchAgents>
+            <!-- <LaunchAgents></LaunchAgents> -->
             <LaunchDaemons>DragonFruit.OnionFruit.MacOS/launchd/onionfruitd.plist</LaunchDaemons>
         </launchd>
 
