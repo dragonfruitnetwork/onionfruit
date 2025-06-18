@@ -4,6 +4,7 @@
     <GitHub>
         <User>dragonfruitnetwork</User>
         <Repo>onionfruit</Repo>
+        <!-- <Token></Token>-->
     </GitHub>
     <Velopack>
         <Enabled>true</Enabled>
