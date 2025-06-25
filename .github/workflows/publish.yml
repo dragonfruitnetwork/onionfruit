@@ -10,6 +10,9 @@ on:
 permissions:
   contents: write
 
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
 jobs:
   create-draft-release:
     name: Create Draft Release
@@ -40,7 +43,7 @@ jobs:
 
     strategy:
       matrix:
-        rid: [win-x64, win-arm64]
+        rid: [win-x64]
 
     steps:
       - uses: actions/checkout@v4
@@ -99,6 +102,92 @@ jobs:
           ONIONDEPLOY_GitHub__Token: ${{ github.token }}
           ONIONDEPLOY_Windows__CodeSigningPassword: ${{ secrets.CODESIGN_PASSWORD }}
           ONIONDEPLOY_Windows__CodeSigningCertificate: ${{ steps.import-cert.outputs.certPath }}
+          
+
+  build-macos:
+    name: Build (${{ matrix.rid }})
+    runs-on: macos-latest
+    environment: release
+    
+    strategy:
+      matrix:
+        rid: [osx-arm64, osx-x64]
+    
+    steps:
+      - uses: actions/checkout@v4  
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+  
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            8.0.x
+  
+      - name: Install create-dmg
+        run: NONINTERACTIVE=1 brew install create-dmg
+  
+      - name: Import Signing Certificate
+        uses: apple-actions/import-codesign-certs@65cfbc37e1464d733524cb555b724878f278b8c3
+        with:
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+  
+      - name: Setup Apple Notary Service
+        env:
+          NOTARY_EMAIL: ${{ secrets.APPLE_NOTARY_EMAIL }}
+          NOTARY_PASSWORD: ${{ secrets.APPLE_NOTARY_PASSWORD }}
+          NOTARY_TEAMID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcrun notarytool store-credentials "notarytool" \
+            --apple-id "$NOTARY_EMAIL" \
+            --team-id $NOTARY_TEAMID \
+            --password $NOTARY_PASSWORD
+  
+      - id: deploytool
+        name: Setup Deployment Tool
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zipPath="$RUNNER_TEMP/onionfruit-deploy.zip"
+          deployToolHome="$RUNNER_TEMP/onionfruit-deploy"
+          
+          # download, verify origin, extract deployment tool
+          # curl -L -o "$zipPath" "https://github.com/dragonfruitnetwork/onionfruit-deploy/releases/latest/download/onionfruit-deploy.zip"
+          
+          curl -L -o "$zipPath" "https://github.com/dragonfruitnetwork/onionfruit-deploy/releases/download/1.1.1/onionfruit-deploy.zip"
+          gh attestation verify "$zipPath" --repo dragonfruitnetwork/onionfruit-deploy --deny-self-hosted-runners
+          
+          unzip "$zipPath" -d "$deployToolHome"
+          echo "home=$deployToolHome" >> "$GITHUB_OUTPUT"
+  
+      - name: Restore .NET Packages
+        run: |
+          dotnet tool restore
+          dotnet restore
+  
+      - name: Update nuget-licenses.json
+        run: dotnet tool run nuget-license -o JsonPretty -ji DragonFruit.OnionFruit.MacOS/nuget-license-sources.json > DragonFruit.OnionFruit/Assets/nuget-licenses.json
+        continue-on-error: true
+  
+      - name: Build Native Components
+        working-directory: ${{ github.workspace }}/macos-native
+        run: |
+          for i in "onionfruitd" "onionfruit";
+          do
+            xcodebuild -project onionfruit-osx.xcodeproj -configuration Release -scheme "$i" -sdk macosx ONLY_ACTIVE_ARCH=NO build
+          done
+  
+      - name: Run deployment tool
+        run: dotnet ${{ steps.deploytool.outputs.home }}/DragonFruit.OnionFruit.Deploy.dll ${{ github.workspace }}/DragonFruit.OnionFruit.MacOS/DragonFruit.OnionFruit.MacOS.csproj ${{ matrix.rid }} "${{ github.event.inputs.version }}"
+        env:
+          ONIONDEPLOY_GitHub__User: ${{ github.repository_owner }}
+          ONIONDEPLOY_GitHub__Repo: ${{ github.event.repository.name }}
+          ONIONDEPLOY_GitHub__Token: ${{ github.token }}
+          ONIONDEPLOY_MacOS__CreateInstallDMG: true
+          ONIONDEPLOY_MacOS__CodeSigningIdentity: ${{ secrets.APPLE_CERTIFICATE_IDENTITY }}
+          ONIONDEPLOY_MacOS__NotaryKeychainProfile: notarytool
 
   copy-legacy:
     name: Copy legacy updater files

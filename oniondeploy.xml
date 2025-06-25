@@ -28,7 +28,7 @@
 
         <!-- requires the create-dmg script installed (brew install create-dmg) -->
         <CreateInstallDMG>true</CreateInstallDMG>
-        <CodeSigningIdentity>-</CodeSigningIdentity>
+        <CodeSigningIdentity>Developer ID Application: Albie Spriddell (Q824VHAT9S)</CodeSigningIdentity>
         <!-- <NotaryKeychainProfile></NotaryKeychainProfile> -->
     </MacOS>
 </configuration>
