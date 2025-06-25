@@ -68,41 +68,36 @@ jobs:
       - id: deploytool
         name: Download Deployment Tool
         shell: pwsh
+        env:
+           GH_TOKEN: ${{ github.token }}
         run: |
           $zipPath = [System.IO.Path]::Combine($env:TEMP, 'onionfruit-deploy.zip')
           $deployToolHome = [System.IO.Path]::Combine($env:TEMP, 'onionfruit-deploy')
           
-          Invoke-WebRequest -Uri https://github.com/dragonfruitnetwork/onionfruit-deploy/releases/latest/download/onionfruit-deploy.zip -OutFile $zipPath
-          Expand-Archive -Path $zipPath -DestinationPath $deployToolHome
+          Invoke-WebRequest -Uri https://github.com/dragonfruitnetwork/onionfruit-deploy/releases/download/1.1.1/onionfruit-deploy.zip -OutFile $zipPath
+          gh attestation verify $zipPath --repo dragonfruitnetwork/onionfruit-deploy --deny-self-hosted-runners
           
-          Copy-Item -Path oniondeploy.xml -Destination $deployToolHome
+          Expand-Archive -Path $zipPath -DestinationPath $deployToolHome
 
           echo "home=$deployToolHome" >> $env:GITHUB_OUTPUT
-          
-      - name: Validate Deployment Tool Attestation
-        working-directory: ${{ steps.deploytool.outputs.home }}
-        run: gh attestation verify DragonFruit.OnionFruit.Deploy.dll --repo dragonfruitnetwork/onionfruit-deploy --deny-self-hosted-runners
-        env:
-          GH_TOKEN: ${{ github.token }}
 
-      - name: Restore .NET Tools
-        run: dotnet tool restore
-        
-      - name: Restore NuGet Packages
-        run: dotnet restore
+      - name: Restore .NET Packages
+        run: |
+          dotnet tool restore
+          dotnet restore
 
       - name: Update nuget-licenses.json
         run: dotnet tool run nuget-license -o JsonPretty -ji DragonFruit.OnionFruit.Windows/nuget-license-sources.json | Out-File -FilePath DragonFruit.OnionFruit/Assets/nuget-licenses.json -Encoding utf8
         continue-on-error: true
 
       - name: Run deployment tool
-        working-directory: ${{ steps.deploytool.outputs.home }}
         run: dotnet DragonFruit.OnionFruit.Deploy.dll ${{ github.workspace }}\DragonFruit.OnionFruit.Windows\DragonFruit.OnionFruit.Windows.csproj ${{ matrix.rid }} "${{ github.event.inputs.version }}"
         env:
+          ONIONDEPLOY_GitHub__User: ${{ github.repository_owner }}
+          ONIONDEPLOY_GitHub__Repo: ${{ github.event.repository.name }}
           ONIONDEPLOY_GitHub__Token: ${{ github.token }}
           ONIONDEPLOY_Windows__CodeSigningPassword: ${{ secrets.CODESIGN_PASSWORD }}
           ONIONDEPLOY_Windows__CodeSigningCertificate: ${{ steps.import-cert.outputs.certPath }}
-          
 
   build-macos:
     name: Build (${{ matrix.rid }})
@@ -171,7 +166,6 @@ jobs:
   
       - name: Update nuget-licenses.json
         run: dotnet tool run nuget-license -o JsonPretty -ji DragonFruit.OnionFruit.MacOS/nuget-license-sources.json > DragonFruit.OnionFruit/Assets/nuget-licenses.json
-        continue-on-error: true
   
       - name: Build Native Components
         working-directory: ${{ github.workspace }}/macos-native
