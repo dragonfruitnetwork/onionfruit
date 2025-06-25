@@ -91,7 +91,7 @@ jobs:
         continue-on-error: true
 
       - name: Run deployment tool
-        run: dotnet DragonFruit.OnionFruit.Deploy.dll ${{ github.workspace }}\DragonFruit.OnionFruit.Windows\DragonFruit.OnionFruit.Windows.csproj ${{ matrix.rid }} "${{ github.event.inputs.version }}"
+        run: dotnet ${{ steps.deploytool.outputs.home }}\DragonFruit.OnionFruit.Deploy.dll ${{ github.workspace }}\DragonFruit.OnionFruit.Windows\DragonFruit.OnionFruit.Windows.csproj ${{ matrix.rid }} "${{ github.event.inputs.version }}"
         env:
           ONIONDEPLOY_GitHub__User: ${{ github.repository_owner }}
           ONIONDEPLOY_GitHub__Repo: ${{ github.event.repository.name }}
