@@ -108,11 +108,13 @@ jobs:
     name: Build (${{ matrix.rid }})
     runs-on: macos-latest
     environment: release
-    
+
+    needs: [ create-draft-release ]
+
     strategy:
       matrix:
         rid: [osx-arm64, osx-x64]
-    
+
     steps:
       - uses: actions/checkout@v4  
       - uses: maxim-lobanov/setup-xcode@v1
