@@ -43,9 +43,8 @@ namespace DragonFruit.OnionFruit.Core.MacOS
         {
             try
             {
-                // creates a connection
-                GetDaemonConnection();
-                return true;
+                // creates the connection on first run
+                return GetDaemonConnection().IsValid;
             }
             catch
             {

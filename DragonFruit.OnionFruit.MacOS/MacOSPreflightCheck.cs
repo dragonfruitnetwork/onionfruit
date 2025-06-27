@@ -15,13 +15,14 @@ namespace DragonFruit.OnionFruit.MacOS
             // check service is enabled
             if (networkManager.ProxyState != NetworkComponentState.Available)
             {
-                return new PreflightCheckFailure("The service responsible for changing settings is not enabled. Please enable it in the settings.", MacOSSettingsWindowViewModel.ServiceManagementTabId);
+                MacOSMessageBox.Show("Service Registration", "OnionFruit™ needs to register a helper program with macOS to change system settings. The settings window will be opened to guide you through this process.");
+                return new PreflightCheckFailure("AppService is reporting that onionfruitd is either not registered or not enabled", MacOSSettingsWindowViewModel.ServiceManagementTabId);
             }
 
             // check daemon is contactable
             if (!networkManager.CheckDaemonConnection())
             {
-                MacOSMessageBox.Show("Service Error", "OnionFruit was unable to contact a service used to change settings. Try restarting your computer and try again.\n\nIf the problem persists, please report this issue on GitHub.");
+                MacOSMessageBox.Show("Service Error", "OnionFruit™ was unable to contact a service used to change settings. Try restarting your computer and try again.\n\nIf the problem persists, please report this issue on GitHub.");
                 return new PreflightCheckFailure("The onionfruitd service timed out trying to establish a connection.");
             }
 
