@@ -266,7 +266,7 @@ namespace DragonFruit.OnionFruit.Database
                 State = DatabaseState.Processing;
 
                 _currentDb = OnionDb.Parser.ParseFrom(stream);
-                _logger.LogInformation("onion.db version {v} loaded successfully", DisplayVersion);
+                _logger.LogInformation("onion.db version {v} loaded successfully", _currentDb.DbVersion);
             }
             catch // todo detect if protobuf is corrupt, delete the file and restart the download
             {
