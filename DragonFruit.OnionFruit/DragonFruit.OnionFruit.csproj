@@ -17,9 +17,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.1" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.1" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.1" />
+        <PackageReference Include="Avalonia" Version="11.3.2" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.2" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.2" />
         <PackageReference Include="DragonFruit.Data" Version="4.1.2" />
         <PackageReference Include="DragonFruit.Data.Roslyn" Version="4.1.2" />
         <PackageReference Include="DiscordRichPresence" Version="1.3.0.28" />
@@ -35,8 +35,8 @@
         <PackageReference Include="Velopack" Version="0.0.1298" />
 
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.1" />
-        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.0.10" />
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.2" />
+        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.2" />
     </ItemGroup>
 
     <ItemGroup>
