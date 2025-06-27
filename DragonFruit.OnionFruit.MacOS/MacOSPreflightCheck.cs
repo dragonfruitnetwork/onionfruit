@@ -15,7 +15,7 @@ namespace DragonFruit.OnionFruit.MacOS
             // check service is enabled
             if (networkManager.ProxyState != NetworkComponentState.Available)
             {
-                MacOSMessageBox.Show("Service Registration", "OnionFruit™ needs to register a helper program with macOS to change system settings. The settings window will be opened to guide you through this process.");
+                MacOSMessageBox.Show("Service Registration", "OnionFruit™ needs to register a helper program with macOS to change system settings.\n\nThe service management settings page will be opened to guide you through this process.");
                 return new PreflightCheckFailure("AppService is reporting that onionfruitd is either not registered or not enabled", MacOSSettingsWindowViewModel.ServiceManagementTabId);
             }
 

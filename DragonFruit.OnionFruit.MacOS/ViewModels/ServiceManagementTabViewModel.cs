@@ -61,6 +61,8 @@ namespace DragonFruit.OnionFruit.MacOS.ViewModels
 
             if (result == ServiceUpdateError.LaunchDeniedByUser)
             {
+                MacOSMessageBox.Show("User Approval Required", "User approval is required to finish setting up.\n\nSystem Settings will open to allow you to approve the service.");
+
                 OpenSystemSettings.Execute(null);
                 ServiceStatus = AppServiceStatus.RequiresApproval;
             }

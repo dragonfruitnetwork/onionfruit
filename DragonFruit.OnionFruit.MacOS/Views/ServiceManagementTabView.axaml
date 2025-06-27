@@ -12,7 +12,7 @@
             <controls:NavigationViewItemHeader Content="macOS Service Management" />
 
             <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
-                <controls:SettingsExpander IconSource="{Binding ServiceInfoIcon, Mode=OneTime}" Description="OnionFruit™ uses a service on macOS to change system settings. It must be installed and enabled in System Settings to connect.">
+                <controls:SettingsExpander IconSource="{Binding ServiceInfoIcon, Mode=OneTime}" Description="OnionFruit™ requires a service on macOS to change system settings. Use the options on this page to manage the service installation.">
                     <controls:SettingsExpander.Resources>
                         <ResourceDictionary>
                             <ResourceDictionary.MergedDictionaries>
