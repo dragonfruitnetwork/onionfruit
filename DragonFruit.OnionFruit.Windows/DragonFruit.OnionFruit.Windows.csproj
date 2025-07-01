@@ -14,8 +14,8 @@
         <PackageReference Include="Grpc.Tools" Version="2.72.0" PrivateAssets="All" />
         <PackageReference Include="GrpcDotNetNamedPipes" Version="3.1.0" />
         <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.183" PrivateAssets="all" />
-        <PackageReference Include="Sentry.Serilog" Version="5.8.1" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
+        <PackageReference Include="Sentry.Serilog" Version="5.11.2" />
+        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
         <PackageReference Include="Serilog.Sinks.EventLog" Version="4.0.0"/>
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
