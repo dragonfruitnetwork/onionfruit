@@ -4,6 +4,9 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -11,6 +14,7 @@ using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
 using Avalonia.ReactiveUI;
 using DragonFruit.Data;
+using DragonFruit.Data.Serializers;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Core;
 using DragonFruit.OnionFruit.Core.Network;
@@ -133,7 +137,19 @@ public static class Program
             services.AddSingleton<TorSession>();
             services.AddSingleton<OnionDbService>();
             services.AddSingleton<TransportManager>();
-            services.AddSingleton<ApiClient, OnionFruitClient>();
+            services.AddSingleton<ApiClient>(new ApiClient<ApiJsonSerializer>
+            {
+                UserAgent = $"OnionFruitWin/v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}",
+                Handler = static () => new WinHttpHandler
+                {
+                    AutomaticDecompression = DecompressionMethods.All,
+                    AutomaticRedirection = true,
+                    CookieUsePolicy = CookieUsePolicy.IgnoreCookies,
+                    SendTimeout = TimeSpan.FromSeconds(10),
+                    ReceiveHeadersTimeout = TimeSpan.FromSeconds(15),
+                    WindowsProxyUsePolicy = WindowsProxyUsePolicy.UseWinInetProxy
+                }
+            });
 
             services.AddSingleton(new WindowsAppInstanceManager(args));
 

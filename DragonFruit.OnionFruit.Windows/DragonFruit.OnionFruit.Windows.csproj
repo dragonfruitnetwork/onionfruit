@@ -17,6 +17,7 @@
     <PackageReference Include="Serilog.Sinks.Console" />
     <PackageReference Include="Serilog.Sinks.EventLog" />
     <PackageReference Include="Serilog.Sinks.File" />
+    <PackageReference Include="System.Net.Http.WinHttpHandler" />
   </ItemGroup>
 
   <ItemGroup>
