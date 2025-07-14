@@ -3,12 +3,8 @@
     <PropertyGroup>
         <NeutralLanguage>en-US</NeutralLanguage>
         <AssemblyTitle>OnionFruit™</AssemblyTitle>
+        <Description>Tor Access Client</Description>
         <ApplicationIcon>../DragonFruit.OnionFruit/Assets/icon.ico</ApplicationIcon>
-
-        <Product>OnionFruit™</Product>
-        <Authors>DragonFruit Network</Authors>
-        <Description>Tor access client</Description>
-        <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
     </PropertyGroup>
 
     <PropertyGroup>
