@@ -133,7 +133,7 @@ public static class Program
             services.AddSingleton<TorSession>();
             services.AddSingleton<OnionDbService>();
             services.AddSingleton<TransportManager>();
-            services.AddSingleton<ApiClient, OnionFruitClient>();
+            services.AddSingleton<ApiClient, WindowsApiClient>();
 
             services.AddSingleton(new WindowsAppInstanceManager(args));
 
