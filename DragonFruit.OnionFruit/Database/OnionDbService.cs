@@ -6,6 +6,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -196,7 +197,7 @@ namespace DragonFruit.OnionFruit.Database
             // additional guard to prevent checks running once disposed
             if (_cancellation.IsCancellationRequested && _checkTimer != null)
             {
-                await _checkTimer.DisposeAsync();
+                await _checkTimer.DisposeAsync().ConfigureAwait(false);
                 _checkTimer = null;
             }
 
@@ -213,28 +214,35 @@ namespace DragonFruit.OnionFruit.Database
 
             try
             {
-                using var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan);
-
                 using var timeout = new CancellationTokenSource(TimeSpan.FromMinutes(2));
                 using var linkedCancellation = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _cancellation.Token);
 
-                var downloadRequestStatus = await _client.PerformDownload(new OnionDbDownloadRequest(fileLastModified), databaseStream, null, true, true, linkedCancellation.Token).ConfigureAwait(false);
-
-                switch (downloadRequestStatus)
+                using var downloadResponse = await _client.PerformAsync(new OnionDbDownloadRequest(fileLastModified, true), linkedCancellation.Token).ConfigureAwait(false);
+                if (downloadResponse.StatusCode == HttpStatusCode.NotModified)
                 {
-                    case HttpStatusCode.OK:
-                        databaseStream.Seek(0, SeekOrigin.Begin);
-                        LoadLocalDatabase(databaseStream);
-                        break;
-
-                    case HttpStatusCode.NotModified:
-                        _logger.LogInformation("onion.db is up to date (returned {status})", downloadRequestStatus);
-                        break;
-
-                    default:
-                        _logger.LogWarning("Failed to download onion.db - web request returned {status}", downloadRequestStatus);
-                        break;
+                    _logger.LogInformation("onion.db is up to date (returned {status})", downloadResponse.StatusCode);
+                    return;
                 }
+                else if (downloadResponse.StatusCode != HttpStatusCode.OK)
+                {
+                    _logger.LogWarning("Failed to download onion.db - web request returned {status}", downloadResponse.StatusCode);
+                    return;
+                }
+
+                using var databaseStream = new FileStream(_databasePath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.SequentialScan);
+                using var tempStream = new FileStream(Path.ChangeExtension(_databasePath, ".tmp"), FileMode.Create, FileAccess.ReadWrite, FileShare.None, 8192, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
+
+                using (var networkStream = await downloadResponse.Content.ReadAsStreamAsync(linkedCancellation.Token).ConfigureAwait(false))
+                using (var decompressionStream = new BrotliStream(networkStream, CompressionMode.Decompress))
+                {
+                    await decompressionStream.CopyToAsync(tempStream, linkedCancellation.Token).ConfigureAwait(false);
+                }
+
+                tempStream.Seek(0, SeekOrigin.Begin);
+                databaseStream.Seek(0, SeekOrigin.Begin);
+
+                await tempStream.CopyToAsync(databaseStream, CancellationToken.None);
+                databaseStream.SetLength(tempStream.Length);
             }
             catch (IOException e)
             {
