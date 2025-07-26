@@ -140,7 +140,7 @@ public static class Program
             services.AddSingleton<ApiClient>(new ApiClient<ApiJsonSerializer>
             {
                 UserAgent = $"OnionFruitWin/v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}",
-                Handler = () => new WinHttpHandler
+                Handler = static () => new WinHttpHandler
                 {
                     AutomaticDecompression = DecompressionMethods.All,
                     AutomaticRedirection = true,
