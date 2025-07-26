@@ -4,6 +4,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using DragonFruit.Data;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Velopack;
@@ -23,10 +24,10 @@ namespace DragonFruit.OnionFruit.Updater
         private OnionFruitUpdaterStatus _status;
         private int? _downloadProgress;
 
-        public VelopackUpdater(UpdateOptions options, ILogger<VelopackUpdater> logger)
+        public VelopackUpdater(UpdateOptions options, ApiClient client, ILogger<VelopackUpdater> logger)
         {
             _logger = logger;
-            _updateManager = new UpdateManager(new GithubSource("https://github.com/dragonfruitnetwork/onionfruit", null, true), options);
+            _updateManager = new UpdateManager(new GithubSource("https://github.com/dragonfruitnetwork/onionfruit", null, true, new VelopackFileDownloader(client)), options);
         }
 
         public OnionFruitUpdaterStatus Status

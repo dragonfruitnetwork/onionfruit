@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    
+
     <Import Project="..\DragonFruit.OnionFruit.Application.props" />
 
     <PropertyGroup>
@@ -19,6 +19,7 @@
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
         <PackageReference Include="Serilog.Sinks.EventLog" Version="4.0.0"/>
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="System.Net.Http.WinHttpHandler" Version="9.0.7" />
     </ItemGroup>
 
     <ItemGroup>
@@ -33,7 +34,7 @@
     <ItemGroup>
         <TrimmerRootDescriptor Include="linker.xml" />
     </ItemGroup>
-    
+
     <ItemGroup>
         <None Remove="nuget-license-sources.json"/>
     </ItemGroup>
