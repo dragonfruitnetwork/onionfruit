@@ -1,0 +1,11 @@
+<Project>
+    <PropertyGroup>
+        <Product>OnionFruit™</Product>
+        <Authors>DragonFruit Network</Authors>
+        <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
+</Project>
