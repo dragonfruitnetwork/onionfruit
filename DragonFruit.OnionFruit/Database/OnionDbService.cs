@@ -242,7 +242,12 @@ namespace DragonFruit.OnionFruit.Database
                 databaseStream.Seek(0, SeekOrigin.Begin);
 
                 await tempStream.CopyToAsync(databaseStream, CancellationToken.None);
+
+                // truncate database file, reset position and reload
                 databaseStream.SetLength(tempStream.Length);
+                databaseStream.Seek(0, SeekOrigin.Begin);
+
+                LoadLocalDatabase(databaseStream);
             }
             catch (IOException e)
             {
