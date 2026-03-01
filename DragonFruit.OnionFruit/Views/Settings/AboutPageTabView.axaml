@@ -30,11 +30,11 @@
 
         <controls:SettingsExpander Description="Licenses" IconSource="{Binding LicensesIcon, Mode=OneTime}">
             <StackPanel Orientation="Vertical" Margin="0, 15">
-                <controls:ItemsRepeater ItemsSource="{Binding Packages}">
-                    <controls:ItemsRepeater.Layout>
-                        <controls:StackLayout />
-                    </controls:ItemsRepeater.Layout>
-                    <controls:ItemsRepeater.ItemTemplate>
+                <ItemsRepeater ItemsSource="{Binding Packages}">
+                    <ItemsRepeater.Layout>
+                        <StackLayout/>
+                    </ItemsRepeater.Layout>
+                    <ItemsRepeater.ItemTemplate>
                         <DataTemplate DataType="models:NugetPackageLicenseInfo">
                             <StackPanel Orientation="Vertical">
                                 <DockPanel>
@@ -79,8 +79,8 @@
                                 <Border Height="1" Background="Gray" Margin="0, 15" />
                             </StackPanel>
                         </DataTemplate>
-                    </controls:ItemsRepeater.ItemTemplate>
-                </controls:ItemsRepeater>
+                    </ItemsRepeater.ItemTemplate>
+                </ItemsRepeater>
             </StackPanel>
         </controls:SettingsExpander>
     </StackPanel>
