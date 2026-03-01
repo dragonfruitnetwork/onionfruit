@@ -11,8 +11,13 @@
         <PackageId>onionfruit</PackageId>
     </Velopack>
     <Windows>
-        <!-- <CodeSigningCertificate></CodeSigningCertificate> -->
-        <!-- <CodeSigningPassword></CodeSigningPassword> -->
+        <!--<Certificates>-->
+        <!--   <Cert1>-->
+        <!--       <File></File>-->
+        <!--       <Pass></Pass>-->
+        <!--   </Cert1>-->
+        <!--</Certificates>-->
+        <!--<SigntoolPath>C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe</SigntoolPath>-->
         <PackageIcon>DragonFruit.OnionFruit/Assets/icon.ico</PackageIcon>
     </Windows>
     <MacOS>
