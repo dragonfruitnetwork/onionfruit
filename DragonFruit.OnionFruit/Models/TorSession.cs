@@ -591,7 +591,8 @@ namespace DragonFruit.OnionFruit.Models
             }
             catch
             {
-                // do nothing
+                SessionStateChanged -= Handler;
+                return;
             }
 
             if (State != TorSessionState.Disconnected)
