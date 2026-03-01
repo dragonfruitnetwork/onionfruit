@@ -1,64 +1,60 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    
-    <PropertyGroup>
-        <OutputType>Library</OutputType>
-        <TargetFramework>net9.0</TargetFramework>
-        <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    </PropertyGroup>
-    
-    <PropertyGroup>
-        <AssemblyTitle>OnionFruit™</AssemblyTitle>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
 
-        <Product>OnionFruit™</Product>
-        <Authors>DragonFruit Network</Authors>
-        <Description>Tor access client</Description>
-        <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
-    </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyTitle>OnionFruit™</AssemblyTitle>
+    <Product>OnionFruit™</Product>
+    <Authors>DragonFruit Network</Authors>
+    <Description>Tor access client</Description>
+    <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Avalonia" Version="11.3.7" />
-        <PackageReference Include="Avalonia.Desktop" Version="11.3.7" />
-        <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.7" />
-        <PackageReference Include="DragonFruit.Data" Version="4.1.2" />
-        <PackageReference Include="DragonFruit.Data.Roslyn" Version="4.1.2" />
-        <PackageReference Include="DiscordRichPresence" Version="1.6.1.70" />
-        <PackageReference Include="FluentAvaloniaUI" Version="2.4.0" />
-        <PackageReference Include="Google.Protobuf" Version="3.33.0" />
-        <PackageReference Include="Grpc.Tools" Version="2.72.0" PrivateAssets="all" />
-        <PackageReference Include="LucideAvalonia" Version="1.6.1" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.10" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
-        <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
-        <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.6.2" />
-        <PackageReference Include="System.Text.Json" Version="9.0.10" />
-        <PackageReference Include="Velopack" Version="0.0.1298" />
+  <ItemGroup>
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="Avalonia.ReactiveUI" />
+    <PackageReference Include="DragonFruit.Data" />
+    <PackageReference Include="DragonFruit.Data.Roslyn" />
+    <PackageReference Include="DiscordRichPresence" />
+    <PackageReference Include="FluentAvaloniaUI" />
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Tools" PrivateAssets="all" />
+    <PackageReference Include="LucideAvalonia" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Nito.AsyncEx.Coordination" />
+    <PackageReference Include="Svg.Controls.Skia.Avalonia" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="Velopack" />
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />
+    <PackageReference Include="Xaml.Behaviors.Avalonia" />
+  </ItemGroup>
 
-        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.3.7" />
-        <PackageReference Include="Xaml.Behaviors.Avalonia" Version="11.3.6.5" />
-    </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\*.ico" />
+    <AvaloniaResource Include="Assets\*.svg" />
+    <AvaloniaResource Include="Assets\*.ttf" />
+    <Protobuf Include="Protos\*.proto">
+      <GrpcServices>Both</GrpcServices>
+      <Access>Public</Access>
+    </Protobuf>
+  </ItemGroup>
 
-    <ItemGroup>
-        <AvaloniaResource Include="Assets\*.ico"/>
-        <AvaloniaResource Include="Assets\*.svg"/>
-        <AvaloniaResource Include="Assets\*.ttf"/>
+  <ItemGroup>
+    <None Include="Assets\nuget-licenses.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Always</CopyToPublishDirectory>
+      <Link>nuget-licenses.json</Link>
+    </None>
+  </ItemGroup>
 
-        <Protobuf Include="Protos\*.proto">
-            <GrpcServices>Both</GrpcServices>
-            <Access>Public</Access>
-        </Protobuf>
-    </ItemGroup>
-
-    <ItemGroup>
-        <None Include="Assets\nuget-licenses.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-            <CopyToPublishDirectory>Always</CopyToPublishDirectory>
-            <Link>nuget-licenses.json</Link>
-        </None>
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\DragonFruit.OnionFruit.Core\DragonFruit.OnionFruit.Core.csproj"/>
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DragonFruit.OnionFruit.Core\DragonFruit.OnionFruit.Core.csproj" />
+  </ItemGroup>
 </Project>

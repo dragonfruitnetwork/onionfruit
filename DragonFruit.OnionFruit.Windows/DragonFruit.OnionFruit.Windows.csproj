@@ -1,41 +1,38 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    
-    <Import Project="..\DragonFruit.OnionFruit.Application.props" />
+  <Import Project="..\DragonFruit.OnionFruit.Application.props" />
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <OutputType>WinExe</OutputType>
-        <TargetFramework>net9.0-windows</TargetFramework>
-        <ApplicationManifest>app.manifest</ApplicationManifest>
-    </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" />
+    <PackageReference Include="Grpc.Core.Api" />
+    <PackageReference Include="Grpc.Tools" PrivateAssets="All" />
+    <PackageReference Include="GrpcDotNetNamedPipes" />
+    <PackageReference Include="Microsoft.Windows.CsWin32" PrivateAssets="all" />
+    <PackageReference Include="Sentry.Serilog" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="Serilog.Sinks.Console" />
+    <PackageReference Include="Serilog.Sinks.EventLog" />
+    <PackageReference Include="Serilog.Sinks.File" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Google.Protobuf" Version="3.33.0" />
-        <PackageReference Include="Grpc.Core.Api" Version="2.71.0" />
-        <PackageReference Include="Grpc.Tools" Version="2.72.0" PrivateAssets="All" />
-        <PackageReference Include="GrpcDotNetNamedPipes" Version="3.1.0" />
-        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.217" PrivateAssets="all" />
-        <PackageReference Include="Sentry.Serilog" Version="5.16.1" />
-        <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
-        <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0"/>
-        <PackageReference Include="Serilog.Sinks.EventLog" Version="4.0.0"/>
-        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DragonFruit.OnionFruit.Core.Windows\DragonFruit.OnionFruit.Core.Windows.csproj" />
+    <ProjectReference Include="..\DragonFruit.OnionFruit\DragonFruit.OnionFruit.csproj" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\DragonFruit.OnionFruit.Core.Windows\DragonFruit.OnionFruit.Core.Windows.csproj" />
-        <ProjectReference Include="..\DragonFruit.OnionFruit\DragonFruit.OnionFruit.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="Rpc\onionrpc.proto" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Protobuf Include="Rpc\onionrpc.proto"/>
-    </ItemGroup>
+  <ItemGroup>
+    <TrimmerRootDescriptor Include="linker.xml" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <TrimmerRootDescriptor Include="linker.xml" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <None Remove="nuget-license-sources.json"/>
-    </ItemGroup>
-
+  <ItemGroup>
+    <None Remove="nuget-license-sources.json" />
+  </ItemGroup>
 </Project>
