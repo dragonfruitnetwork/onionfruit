@@ -17,6 +17,7 @@ using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Services;
 using DynamicData;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace DragonFruit.OnionFruit.Models
@@ -24,7 +25,7 @@ namespace DragonFruit.OnionFruit.Models
     /// <summary>
     /// Combines user configuration, control port access and the underlying tor process lifetime management in a single location
     /// </summary>
-    public class TorSession(ExecutableLocator executableLocator, INetworkAdapterManager adapterManager, IOnionDatabase database, TransportManager transportManager, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory)
+    public class TorSession(ExecutableLocator executableLocator, INetworkAdapterManager adapterManager, IOnionDatabase database, TransportManager transportManager, OnionFruitSettingsStore settings, ILoggerFactory loggerFactory) : IHostedService
     {
         private const int DNSPort = 53;
         private const int DefaultSocksPort = 9050;
@@ -567,6 +568,50 @@ namespace DragonFruit.OnionFruit.Models
             /// The session has connected successfully
             /// </summary>
             Connected
+        }
+
+        // IHostedService implementation for making sure the session is stopped on app shutdown
+        Task IHostedService.StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+        async Task IHostedService.StopAsync(CancellationToken cancellationToken)
+        {
+            if (State == TorSessionState.Disconnected)
+            {
+                return;
+            }
+
+            // begin waiting for disconnect
+            var disconnectedTaskAwaiter = new TaskCompletionSource();
+
+            SessionStateChanged += Handler;
+
+            try
+            {
+                await StopSession();
+            }
+            catch
+            {
+                SessionStateChanged -= Handler;
+                return;
+            }
+
+            if (State != TorSessionState.Disconnected)
+            {
+                await disconnectedTaskAwaiter.Task.WaitAsync(cancellationToken);
+            }
+
+            return;
+
+            void Handler(object s, TorSessionState state)
+            {
+                if (state != TorSessionState.Disconnected)
+                {
+                    return;
+                }
+
+                SessionStateChanged -= Handler;
+                disconnectedTaskAwaiter.SetResult();
+            }
         }
     }
 }

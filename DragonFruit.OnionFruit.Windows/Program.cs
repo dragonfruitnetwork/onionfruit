@@ -166,6 +166,7 @@ public static class Program
             services.AddHostedService<OnionRpcServer>();
             services.AddHostedService<DiscordRpcService>();
             services.AddHostedService<LandingPageLaunchService>();
+            services.AddHostedService(s => s.GetRequiredService<TorSession>());
             services.AddHostedService(s => s.GetRequiredService<OnionDbService>());
             services.AddHostedService(s => (VelopackUpdater)s.GetRequiredService<IOnionFruitUpdater>());
 
