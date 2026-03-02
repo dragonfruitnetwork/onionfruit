@@ -29,59 +29,54 @@
         </controls:SettingsExpander>
 
         <controls:SettingsExpander Description="Licenses" IconSource="{Binding LicensesIcon, Mode=OneTime}">
-            <StackPanel Orientation="Vertical" Margin="0, 15">
-                <ItemsRepeater ItemsSource="{Binding Packages}">
-                    <ItemsRepeater.Layout>
-                        <StackLayout/>
-                    </ItemsRepeater.Layout>
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate DataType="models:NugetPackageLicenseInfo">
-                            <StackPanel Orientation="Vertical">
-                                <DockPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="10" DockPanel.Dock="Right">
-                                        <TextBlock TextTrimming="WordEllipsis" VerticalAlignment="Center" Text="{Binding Copyright}" />
-                                        <Border Height="20"
-                                                Width="20"
-                                                Margin="10,0,0,0"
-                                                BorderThickness="0"
-                                                Background="Transparent"
-                                                ToolTip.Tip="{Binding License}"
-                                                ToolTip.HorizontalOffset="-15"
-                                                ToolTip.VerticalOffset="0"
-                                                ToolTip.Placement="Left">
-                                            <lucideAvalonia:Lucide Width="20"
-                                                                   Height="20"
-                                                                   Icon="Scale"
-                                                                   StrokeBrush="LimeGreen"
-                                                                   VerticalAlignment="Center"/>
-                                        </Border>
+            <ItemsControl ItemsSource="{Binding Packages}" Margin="0, 15">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="models:NugetPackageLicenseInfo">
+                        <StackPanel Orientation="Vertical">
+                            <DockPanel>
+                                <StackPanel Orientation="Horizontal" Spacing="10" DockPanel.Dock="Right">
+                                    <TextBlock TextTrimming="WordEllipsis" VerticalAlignment="Center" Text="{Binding Copyright}" />
+                                    <Border Height="20"
+                                            Width="20"
+                                            Margin="10,0,0,0"
+                                            BorderThickness="0"
+                                            Background="Transparent"
+                                            ToolTip.Tip="{Binding License}"
+                                            ToolTip.HorizontalOffset="-15"
+                                            ToolTip.VerticalOffset="0"
+                                            ToolTip.Placement="Left">
+                                        <lucideAvalonia:Lucide Width="20"
+                                                               Height="20"
+                                                               Icon="Scale"
+                                                               StrokeBrush="LimeGreen"
+                                                               VerticalAlignment="Center"/>
+                                    </Border>
 
-                                    </StackPanel>
+                                </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                                        <Label VerticalAlignment="Center" Content="{Binding PackageId}" FontWeight="SemiBold" />
-                                        <Label VerticalAlignment="Center" Content="{Binding PackageVersion, StringFormat='v{0}'}" Foreground="LightGray" />
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                                    <Label VerticalAlignment="Center" Content="{Binding PackageId}" FontWeight="SemiBold" />
+                                    <Label VerticalAlignment="Center" Content="{Binding PackageVersion, StringFormat='v{0}'}" Foreground="LightGray" />
 
-                                        <Button Margin="5,0,0,0"
-                                                VerticalAlignment="Center"
-                                                BorderBrush="{x:Null}"
-                                                Background="{x:Null}" 
-                                                IsVisible="{Binding HasProjectUrl}"
-                                                Command="{Binding OpenProjectWebsite}"
-                                                ToolTip.Tip="Open Project Website"
-                                                ToolTip.Placement="Right"
-                                                ToolTip.VerticalOffset="0"
-                                                ToolTip.HorizontalOffset="5">
-                                            <lucideAvalonia:Lucide Icon="ExternalLink" Height="15" Width="15" StrokeBrush="LightGray"/>
-                                        </Button>
-                                    </StackPanel>
-                                </DockPanel>
-                                <Border Height="1" Background="Gray" Margin="0, 15" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                </ItemsRepeater>
-            </StackPanel>
+                                    <Button Margin="5,0,0,0"
+                                            VerticalAlignment="Center"
+                                            BorderBrush="{x:Null}"
+                                            Background="{x:Null}" 
+                                            IsVisible="{Binding HasProjectUrl}"
+                                            Command="{Binding OpenProjectWebsite}"
+                                            ToolTip.Tip="Open Project Website"
+                                            ToolTip.Placement="Right"
+                                            ToolTip.VerticalOffset="0"
+                                            ToolTip.HorizontalOffset="5">
+                                        <lucideAvalonia:Lucide Icon="ExternalLink" Height="15" Width="15" StrokeBrush="LightGray"/>
+                                    </Button>
+                                </StackPanel>
+                            </DockPanel>
+                            <Border Height="1" Background="Gray" Margin="0, 15" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </controls:SettingsExpander>
     </StackPanel>
 </UserControl>

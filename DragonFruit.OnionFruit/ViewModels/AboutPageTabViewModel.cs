@@ -28,8 +28,6 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private readonly ObservableAsPropertyHelper<string> _updateProgress;
 
-        private IEnumerable<NugetPackageLicenseInfo> _packages;
-
         public AboutPageTabViewModel(IOnionFruitUpdater updater, ILogger<AboutPageTabViewModel> logger)
         {
             _logger = logger;
@@ -68,7 +66,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             ManualUpdateTrigger = ReactiveCommand.Create(updater.TriggerUpdateCheck, canCheckForUpdates).DisposeWith(_disposables);
 
-            _ = ReadPackageLicenseFile();
+            Task.Run(ReadPackageLicenseFile);
         }
 
         public IconSource UpdaterIcon => App.GetIcon(LucideIconNames.RefreshCw);
@@ -78,16 +76,14 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         public IEnumerable<NugetPackageLicenseInfo> Packages
         {
-            get => _packages;
-            set => this.RaiseAndSetIfChanged(ref _packages, value);
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public ICommand ManualUpdateTrigger { get; }
 
         private async Task ReadPackageLicenseFile()
         {
-            await Task.Yield();
-
             var filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location), "nuget-licenses.json");
 
             if (!File.Exists(filePath))

@@ -129,21 +129,23 @@
                 <controls1:SwitchingControl Switch="{Binding ShouldShowFirewallPortList}">
                     <controls1:SwitchingControl.SwitchTrue>
                         <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
-                            <controls:ItemsRepeater DockPanel.Dock="Right" ItemsSource="{Binding AllowedFirewallPorts}" HorizontalAlignment="Right">
-                                <controls:ItemsRepeater.Layout>
-                                    <controls:FlowLayout Orientation="Horizontal" LineAlignment="End" MinColumnSpacing="10" MinRowSpacing="10"/>
-                                </controls:ItemsRepeater.Layout>
-                                <controls:ItemsRepeater.ItemTemplate>
+                            <ItemsControl DockPanel.Dock="Right" ItemsSource="{Binding AllowedFirewallPorts}" HorizontalAlignment="Right">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" HorizontalAlignment="Right"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="system:UInt32">
-                                        <Button MinHeight="35" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:ConnectionSettingsTabViewModel)DataContext).RemoveFirewallPort}" CommandParameter="{Binding}">
+                                        <Button MinHeight="35" Margin="5" Command="{Binding $parent[ItemsControl].((viewModels:ConnectionSettingsTabViewModel)DataContext).RemoveFirewallPort}" CommandParameter="{Binding}">
                                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="10">
                                                 <Label Content="{Binding StringFormat=':{0}'}"/>
                                                 <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="13" Width="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </StackPanel>
                                         </Button>
                                     </DataTemplate>
-                                </controls:ItemsRepeater.ItemTemplate>
-                            </controls:ItemsRepeater>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
                         </DataTemplate>
                     </controls1:SwitchingControl.SwitchTrue>
                     <controls1:SwitchingControl.SwitchFalse>

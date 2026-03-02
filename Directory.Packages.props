@@ -7,7 +7,6 @@
   <ItemGroup>
     <PackageVersion Include="AppServiceSharp" Version="1.0.1" />
     <PackageVersion Include="Avalonia" Version="11.3.12" />
-    <PackageVersion Include="Avalonia.Controls.ItemsRepeater" Version="11.1.5" />
     <PackageVersion Include="Avalonia.Desktop" Version="11.3.12" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.12" />
     <PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.8" />
