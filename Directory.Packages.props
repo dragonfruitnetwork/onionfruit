@@ -16,26 +16,26 @@
     <PackageVersion Include="DragonFruit.Data.Roslyn" Version="4.1.2" />
     <PackageVersion Include="DragonFruit.OnionFruit.Native.osx" Version="14.5.7" />
     <PackageVersion Include="DragonFruit.OnionFruit.Native.win" Version="14.5.7" />
-    <PackageVersion Include="FluentAvaloniaUI" Version="2.4.1" />
+    <PackageVersion Include="FluentAvaloniaUI" Version="2.5.0" />
     <PackageVersion Include="Google.Protobuf" Version="3.34.0" />
     <PackageVersion Include="Grpc.Core.Api" Version="2.76.0" />
     <PackageVersion Include="Grpc.Tools" Version="2.78.0" />
     <PackageVersion Include="GrpcDotNetNamedPipes" Version="3.1.0" />
     <PackageVersion Include="LucideAvalonia" Version="1.6.1" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.13" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.13" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.13" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.269" />
     <PackageVersion Include="Neovolve.Logging.Xunit" Version="6.3.0" />
     <PackageVersion Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
     <PackageVersion Include="Sentry.Serilog" Version="6.1.0" />
-    <PackageVersion Include="Serilog.Extensions.Logging" Version="9.0.2" />
+    <PackageVersion Include="Serilog.Extensions.Logging" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="Serilog.Sinks.EventLog" Version="4.0.0" />
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="Svg.Controls.Skia.Avalonia" Version="11.3.9.2" />
-    <PackageVersion Include="System.Net.Http.WinHttpHandler" Version="9.0.13" />
+    <PackageVersion Include="System.Net.Http.WinHttpHandler" Version="10.0.3" />
     <PackageVersion Include="System.Text.Json" Version="10.0.3" />
     <PackageVersion Include="Velopack" Version="0.0.1298" />
     <PackageVersion Include="WmiLight" Version="7.1.0" />
