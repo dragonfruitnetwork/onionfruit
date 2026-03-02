@@ -63,11 +63,13 @@
                         </TextBlock>
                     </StackPanel>
                     
-                    <controls:ItemsRepeater ItemsSource="{Binding CurrentBridgeLines}">
-                        <controls:ItemsRepeater.Layout>
-                            <controls:StackLayout Spacing="15"/>
-                        </controls:ItemsRepeater.Layout>
-                        <controls:ItemsRepeater.ItemTemplate>
+                    <ItemsControl ItemsSource="{Binding CurrentBridgeLines}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Spacing="15"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="system:String">
                                 <Grid ColumnDefinitions="*, 10, 30" VerticalAlignment="Center">
                                     <TextBlock Grid.Column="0" 
@@ -75,13 +77,13 @@
                                                Text="{Binding}"
                                                VerticalAlignment="Center"
                                                FontFamily="{StaticResource JetBrainsMono}"/>
-                                    <Button Grid.Column="2" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:BridgeSettingsTabViewModel)DataContext).RemoveBridgeLine}" CommandParameter="{Binding}">
+                                    <Button Grid.Column="2" Command="{Binding $parent[ItemsControl].((viewModels:BridgeSettingsTabViewModel)DataContext).RemoveBridgeLine}" CommandParameter="{Binding}">
                                         <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Button>
                                 </Grid>
                             </DataTemplate>
-                        </controls:ItemsRepeater.ItemTemplate>
-                    </controls:ItemsRepeater>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </controls:SettingsExpander>
         </StackPanel>
