@@ -63,7 +63,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Where(x => x != TransportType.None)
                 .Select(x => $"{transports.AvailableTransports[x].Id} 0.0.0.0:12345 AAAAAAABBBBBBBCCCCCCDDDDDDEEEEEEFFFFFF".TrimStart())
                 .ObserveOn(RxSchedulers.MainThreadScheduler)
-                .ToProperty(this, x => x.BridgeLineWatermark)
+                .ToProperty(this, x => x.BridgeLinePlaceholderText)
                 .DisposeWith(_disposables);
 
             settings.GetCollection<string>(OnionFruitSetting.UserDefinedBridges)
@@ -95,7 +95,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// <summary>
         /// The watermark shown in the textbox for adding new bridge lines
         /// </summary>
-        public string BridgeLineWatermark => _bridgeLineWatermark.Value;
+        public string BridgeLinePlaceholderText => _bridgeLineWatermark.Value;
 
         /// <summary>
         /// The bridge lines currently in use for the selected transport, displayed in the UI

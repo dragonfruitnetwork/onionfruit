@@ -25,7 +25,7 @@
                 </controls:FASettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableConnectedPage}">
                     <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding ConnectedPage}" Command="{Binding LaunchUrl}"/>
-                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding ConnectedPage}" Watermark="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
+                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding ConnectedPage}" PlaceholderText="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
                 </DockPanel>
             </controls:FASettingsExpander>
             
@@ -35,7 +35,7 @@
                 </controls:FASettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableDisconnectedPage}">
                     <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding DisconnectedPage}" Command="{Binding LaunchUrl}"/>
-                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding DisconnectedPage}" Watermark="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
+                    <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding DisconnectedPage}" PlaceholderText="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
                 </DockPanel>
             </controls:FASettingsExpander>
 

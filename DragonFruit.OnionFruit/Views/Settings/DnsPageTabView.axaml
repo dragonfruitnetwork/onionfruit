@@ -83,7 +83,7 @@
                             <StackPanel Orientation="Vertical" Spacing="20" Margin="0,10,0,0">
                                 <DockPanel>
                                     <Button Content="Add" Command="{Binding AddDnsServerEntry}" TabIndex="1" DockPanel.Dock="Right"/>
-                                    <TextBox Text="{Binding CustomDnsServerEntryContent}" FontFamily="{StaticResource JetBrainsMono}" Watermark="Enter Server IP (0.0.0.0)" TabIndex="0" DockPanel.Dock="Left">
+                                    <TextBox Text="{Binding CustomDnsServerEntryContent}" FontFamily="{StaticResource JetBrainsMono}" PlaceholderText="Enter Server IP (0.0.0.0)" TabIndex="0" DockPanel.Dock="Left">
                                         <Interaction.Behaviors>
                                             <controls1:EnterKeyBehavior Command="{Binding AddDnsServerEntry}"/>
                                         </Interaction.Behaviors>
