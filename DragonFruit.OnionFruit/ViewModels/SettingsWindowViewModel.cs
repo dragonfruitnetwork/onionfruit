@@ -17,7 +17,7 @@ using ReactiveUI;
 namespace DragonFruit.OnionFruit.ViewModels
 {
     // XAML can't have nested classes
-    public record SettingsTabInfo(string Id, string Name, IconSource Icon, Func<Control> ContentFactory);
+    public record SettingsTabInfo(string Id, string Name, FAIconSource Icon, Func<Control> ContentFactory);
 
     public class SettingsWindowViewModel : ReactiveObject, IDisposable
     {

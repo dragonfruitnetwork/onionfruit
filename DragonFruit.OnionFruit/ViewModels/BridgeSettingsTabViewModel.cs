@@ -82,8 +82,8 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .DisposeWith(_disposables);
         }
 
-        public IconSource BridgeTypeIcon => App.GetIcon(LucideIconNames.ChevronsLeftRightEllipsis);
-        public IconSource BridgeLinesIcon => App.GetIcon(LucideIconNames.ScanText);
+        public FAIconSource BridgeTypeIcon => App.GetIcon(LucideIconNames.ChevronsLeftRightEllipsis);
+        public FAIconSource BridgeLinesIcon => App.GetIcon(LucideIconNames.ScanText);
 
         /// <summary>
         /// <see cref="TransportType"/> collection that can be selected by the user
