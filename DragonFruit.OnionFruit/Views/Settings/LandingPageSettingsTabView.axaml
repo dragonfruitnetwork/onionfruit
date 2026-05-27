@@ -9,7 +9,7 @@
              x:Class="DragonFruit.OnionFruit.Views.Settings.LandingPageSettingsTabView"
              x:DataType="viewModels:LandingPageSettingsTabViewModel">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
-        <controls:NavigationViewItemHeader Content="Landing Pages"/>
+        <controls:FANavigationViewItemHeader Content="Landing Pages"/>
 
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
             <StackPanel.Styles>
@@ -19,25 +19,25 @@
                 </Style>
             </StackPanel.Styles>
 
-            <controls:SettingsExpander Description="Connected Page" IconSource="{Binding ConnectedPageIcon}" IsExpanded="{Binding EnableConnectedPage, Mode=OneWay}" IsClickEnabled="False">
-                <controls:SettingsExpander.Footer>
+            <controls:FASettingsExpander Description="Connected Page" IconSource="{Binding ConnectedPageIcon}" IsExpanded="{Binding EnableConnectedPage, Mode=OneWay}" IsClickEnabled="False">
+                <controls:FASettingsExpander.Footer>
                     <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableConnectedPage}"/>
-                </controls:SettingsExpander.Footer>
+                </controls:FASettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableConnectedPage}">
                     <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding ConnectedPage}" Command="{Binding LaunchUrl}"/>
                     <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding ConnectedPage}" Watermark="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
                 </DockPanel>
-            </controls:SettingsExpander>
+            </controls:FASettingsExpander>
             
-            <controls:SettingsExpander Description="Disconnected Page" IconSource="{Binding DisconnectedPageIcon}" IsExpanded="{Binding EnableDisconnectedPage, Mode=OneWay}" IsClickEnabled="False">
-                <controls:SettingsExpander.Footer>
+            <controls:FASettingsExpander Description="Disconnected Page" IconSource="{Binding DisconnectedPageIcon}" IsExpanded="{Binding EnableDisconnectedPage, Mode=OneWay}" IsClickEnabled="False">
+                <controls:FASettingsExpander.Footer>
                     <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableDisconnectedPage}"/>
-                </controls:SettingsExpander.Footer>
+                </controls:FASettingsExpander.Footer>
                 <DockPanel IsEnabled="{Binding EnableDisconnectedPage}">
                     <Button DockPanel.Dock="Right" Content="Open" CommandParameter="{Binding DisconnectedPage}" Command="{Binding LaunchUrl}"/>
                     <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding DisconnectedPage}" Watermark="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
                 </DockPanel>
-            </controls:SettingsExpander>
+            </controls:FASettingsExpander>
 
             <TextBlock TextWrapping="WrapWithOverflow" FontSize="13" HorizontalAlignment="Right" Margin="0, 10, 0, 0">
                 Landing Pages will be opened by the default system browser.

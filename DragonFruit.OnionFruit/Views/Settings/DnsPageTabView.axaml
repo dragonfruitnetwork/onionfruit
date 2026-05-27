@@ -11,7 +11,7 @@
              x:Class="DragonFruit.OnionFruit.Views.Settings.DnsPageTabView"
              x:DataType="viewModels:DnsPageTabViewModel">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
-        <controls:NavigationViewItemHeader Content="DNS" />
+        <controls:FANavigationViewItemHeader Content="DNS" />
         
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
             <StackPanel.Styles>
@@ -22,8 +22,8 @@
             </StackPanel.Styles>
 
             <!-- process elevation required alert -->
-            <controls:SettingsExpander IsVisible="{Binding ShowMissingPermissionsNotice}" IconSource="{Binding ShieldIcon}" Description="OnionFruit™ needs to be run as an administrator to use DNS features.">
-                <controls:SettingsExpander.Resources>
+            <controls:FASettingsExpander IsVisible="{Binding ShowMissingPermissionsNotice}" IconSource="{Binding ShieldIcon}" Description="OnionFruit™ needs to be run as an administrator to use DNS features.">
+                <controls:FASettingsExpander.Resources>
                     <ResourceDictionary>
                         <ResourceDictionary.MergedDictionaries>
                             <ResourceDictionary>
@@ -31,18 +31,18 @@
                             </ResourceDictionary>
                         </ResourceDictionary.MergedDictionaries>
                     </ResourceDictionary>
-                </controls:SettingsExpander.Resources>
-                <controls:SettingsExpander.Header>
+                </controls:FASettingsExpander.Resources>
+                <controls:FASettingsExpander.Header>
                     <TextBlock Text="Relaunch Required" Margin="{OnPlatform Default='0,0,0,5', Windows='0'}" FontSize="16" Foreground="White"/>
-                </controls:SettingsExpander.Header>
-                <controls:SettingsExpander.Footer>
+                </controls:FASettingsExpander.Header>
+                <controls:FASettingsExpander.Footer>
                     <Button Command="{Binding RelaunchAsElevatedProcess}" Content="Relaunch"/>
-                </controls:SettingsExpander.Footer>
-            </controls:SettingsExpander>
+                </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
             
             <!-- service not available alert -->
-            <controls:SettingsExpander IsVisible="{Binding ShowNotAvailableNotice}" IconSource="{Binding ShieldIcon}" Description="DNS proxying is not available on this operating system.">
-                <controls:SettingsExpander.Resources>
+            <controls:FASettingsExpander IsVisible="{Binding ShowNotAvailableNotice}" IconSource="{Binding ShieldIcon}" Description="DNS proxying is not available on this operating system.">
+                <controls:FASettingsExpander.Resources>
                     <ResourceDictionary>
                         <ResourceDictionary.MergedDictionaries>
                             <ResourceDictionary>
@@ -50,22 +50,22 @@
                             </ResourceDictionary>
                         </ResourceDictionary.MergedDictionaries>
                     </ResourceDictionary>
-                </controls:SettingsExpander.Resources>
-                <controls:SettingsExpander.Header>
+                </controls:FASettingsExpander.Resources>
+                <controls:FASettingsExpander.Header>
                     <TextBlock Text="Feature Unavailable" Margin="{OnPlatform Default='0,0,0,5', Windows='0'}" FontSize="16" Foreground="White"/>
-                </controls:SettingsExpander.Header>
-            </controls:SettingsExpander>
+                </controls:FASettingsExpander.Header>
+            </controls:FASettingsExpander>
             
-            <controls:SettingsExpander Description="DNS Proxying" IconSource="{Binding DnsProxyingIcon}">
-                <controls:SettingsExpander.Footer>
+            <controls:FASettingsExpander Description="DNS Proxying" IconSource="{Binding DnsProxyingIcon}">
+                <controls:FASettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding DnsProxyEnabled}" IsEnabled="{Binding CanToggleDns}" OnContent="Enabled" OffContent="Disabled"/>
-                </controls:SettingsExpander.Footer>
-            </controls:SettingsExpander>
+                </controls:FASettingsExpander.Footer>
+            </controls:FASettingsExpander>
 
-            <controls:SettingsExpander Description="Alternative Servers" IconSource="{Binding AlternativeServersIcon}" IsVisible="{Binding !ShowNotAvailableNotice}" IsExpanded="{Binding IsCustomAlternativeDnsServerSelected}">
-                <controls:SettingsExpander.Footer>
+            <controls:FASettingsExpander Description="Alternative Servers" IconSource="{Binding AlternativeServersIcon}" IsVisible="{Binding !ShowNotAvailableNotice}" IsExpanded="{Binding IsCustomAlternativeDnsServerSelected}">
+                <controls:FASettingsExpander.Footer>
                     <ComboBox MinWidth="200" SelectedItem="{Binding SelectedAlternativeDnsServerPreset}" ItemsSource="{Binding AlternativeDnsPresets}"/>
-                </controls:SettingsExpander.Footer>
+                </controls:FASettingsExpander.Footer>
 
                 <controls1:SwitchingControl Switch="{Binding IsCustomAlternativeDnsServerSelected}">
                     <controls1:SwitchingControl.SwitchFalse>
@@ -99,11 +99,11 @@
                                     </TextBlock>
                                 </StackPanel>
 
-                                <controls:ItemsRepeater ItemsSource="{Binding AlternativeDnsServers}">
-                                    <controls:ItemsRepeater.Layout>
-                                        <controls:StackLayout Spacing="15"/>
-                                    </controls:ItemsRepeater.Layout>
-                                    <controls:ItemsRepeater.ItemTemplate>
+                                <controls:FAItemsRepeater ItemsSource="{Binding AlternativeDnsServers}">
+                                    <controls:FAItemsRepeater.Layout>
+                                        <controls:FAStackLayout Spacing="15"/>
+                                    </controls:FAItemsRepeater.Layout>
+                                    <controls:FAItemsRepeater.ItemTemplate>
                                         <DataTemplate DataType="system:String">
                                             <Grid ColumnDefinitions="*, 10, 30" VerticalAlignment="Center">
                                                 <TextBlock Grid.Column="0" 
@@ -111,18 +111,18 @@
                                                            Text="{Binding}"
                                                            VerticalAlignment="Center"
                                                            FontFamily="{StaticResource JetBrainsMono}"/>
-                                                <Button Grid.Column="2" Command="{Binding $parent[controls:ItemsRepeater].((viewModels:DnsPageTabViewModel)DataContext).RemoveDnsServerEntry}" CommandParameter="{Binding}">
+                                                <Button Grid.Column="2" Command="{Binding $parent[controls:FAItemsRepeater].((viewModels:DnsPageTabViewModel)DataContext).RemoveDnsServerEntry}" CommandParameter="{Binding}">
                                                     <lucideAvalonia:Lucide Icon="Trash" StrokeBrush="OrangeRed" Height="15" Width="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Button>
                                             </Grid>
                                         </DataTemplate>
-                                    </controls:ItemsRepeater.ItemTemplate>
-                                </controls:ItemsRepeater>
+                                    </controls:FAItemsRepeater.ItemTemplate>
+                                </controls:FAItemsRepeater>
                             </StackPanel>
                         </DataTemplate>
                     </controls1:SwitchingControl.SwitchTrue>
                 </controls1:SwitchingControl>
-            </controls:SettingsExpander>
+            </controls:FASettingsExpander>
         </StackPanel>
     </StackPanel>
 </UserControl>
