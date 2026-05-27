@@ -11,16 +11,14 @@ using FluentAvalonia.UI.Windowing;
 
 namespace DragonFruit.OnionFruit.Views
 {
-    public partial class SettingsWindow : AppWindow
+    public partial class SettingsWindow : FAAppWindow
     {
         public SettingsWindow()
         {
             InitializeComponent();
 
             TransparencyLevelHint = App.TransparencyLevels;
-
             TitleBar.ExtendsContentIntoTitleBar = true;
-            TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
         }
 
         protected override void OnUnloaded(RoutedEventArgs e)
