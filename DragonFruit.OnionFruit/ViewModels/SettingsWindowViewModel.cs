@@ -21,8 +21,6 @@ namespace DragonFruit.OnionFruit.ViewModels
 
     public class SettingsWindowViewModel : ReactiveObject, IDisposable
     {
-        private SettingsTabInfo _selectedTab;
-
         internal const string AboutTabId = "about";
 
         public SettingsWindowViewModel()
@@ -41,8 +39,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         public SettingsTabInfo SelectedTab
         {
-            get => _selectedTab ??= Tabs.FirstOrDefault();
-            set => this.RaiseAndSetIfChanged(ref _selectedTab, value);
+            get => field ??= Tabs.FirstOrDefault();
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public IDataTemplate TabTemplate { get; } = new SettingTabViewTemplate();
