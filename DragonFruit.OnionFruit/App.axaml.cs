@@ -234,14 +234,7 @@ namespace DragonFruit.OnionFruit
                         return;
                     }
 
-                    Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
-                        if (trayIcon != null)
-                        {
-                            trayIcon.IsVisible = true;
-                        }
-                    });
+                    Dispatcher.UIThread.InvokeAsync(() => TrayIcon.GetIcons(this)?.SingleOrDefault()?.IsVisible = true);
                 }, TaskContinuationOptions.OnlyOnFaulted);
 
                 await waitTask.ConfigureAwait(false);
@@ -273,11 +266,7 @@ namespace DragonFruit.OnionFruit
                 window.ShowInTaskbar = true;
                 window.IsVisible = true;
 
-                var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
-                if (trayIcon != null)
-                {
-                    trayIcon.IsVisible = false;
-                }
+                TrayIcon.GetIcons(this)?.SingleOrDefault()?.IsVisible = false;
 
                 window.Activate();
             });
