@@ -29,7 +29,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Nito.AsyncEx.Coordination" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" />
-    <PackageReference Include="System.Text.Json" />
     <PackageReference Include="Velopack" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" />

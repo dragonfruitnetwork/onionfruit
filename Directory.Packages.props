@@ -36,7 +36,6 @@
     <PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageVersion Include="Svg.Controls.Skia.Avalonia" Version="11.3.9.2" />
     <PackageVersion Include="System.Net.Http.WinHttpHandler" Version="10.0.3" />
-    <PackageVersion Include="System.Text.Json" Version="10.0.3" />
     <PackageVersion Include="Velopack" Version="0.0.1298" />
     <PackageVersion Include="WmiLight" Version="7.1.0" />
     <PackageVersion Include="Xaml.Behaviors.Avalonia" Version="11.3.9.5" />
