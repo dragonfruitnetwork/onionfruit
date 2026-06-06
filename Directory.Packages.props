@@ -6,9 +6,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AppServiceSharp" Version="1.0.1" />
-    <PackageVersion Include="Avalonia" Version="11.3.12" />
-    <PackageVersion Include="Avalonia.Desktop" Version="11.3.12" />
-    <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.12" />
+    <PackageVersion Include="Avalonia" Version="11.3.17" />
+    <PackageVersion Include="Avalonia.Desktop" Version="11.3.17" />
+    <PackageVersion Include="Avalonia.Diagnostics" Version="11.3.17" />
     <PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.8" />
     <PackageVersion Include="coverlet.collector" Version="8.0.0" />
     <PackageVersion Include="DiscordRichPresence" Version="1.6.1.70" />
