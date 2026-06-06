@@ -37,9 +37,6 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private readonly ReadOnlyObservableCollection<string> _activeTransportBridgeLines;
 
-        private string _newBridgeLines;
-        private bool _showEmptyBridgeListMessage, _showDefaultsPresetMessage;
-
         public BridgeSettingsTabViewModel(OnionFruitSettingsStore settings, TransportManager transports)
         {
             _settings = settings;
@@ -66,7 +63,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Where(x => x != TransportType.None)
                 .Select(x => $"{transports.AvailableTransports[x].Id} 0.0.0.0:12345 AAAAAAABBBBBBBCCCCCCDDDDDDEEEEEEFFFFFF".TrimStart())
                 .ObserveOn(RxSchedulers.MainThreadScheduler)
-                .ToProperty(this, x => x.BridgeLineWatermark)
+                .ToProperty(this, x => x.BridgeLinePlaceholderText)
                 .DisposeWith(_disposables);
 
             settings.GetCollection<string>(OnionFruitSetting.UserDefinedBridges)
@@ -82,8 +79,8 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .DisposeWith(_disposables);
         }
 
-        public IconSource BridgeTypeIcon => App.GetIcon(LucideIconNames.ChevronsLeftRightEllipsis);
-        public IconSource BridgeLinesIcon => App.GetIcon(LucideIconNames.ScanText);
+        public FAIconSource BridgeTypeIcon => App.GetIcon(LucideIconNames.ChevronsLeftRightEllipsis);
+        public FAIconSource BridgeLinesIcon => App.GetIcon(LucideIconNames.ScanText);
 
         /// <summary>
         /// <see cref="TransportType"/> collection that can be selected by the user
@@ -98,7 +95,7 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// <summary>
         /// The watermark shown in the textbox for adding new bridge lines
         /// </summary>
-        public string BridgeLineWatermark => _bridgeLineWatermark.Value;
+        public string BridgeLinePlaceholderText => _bridgeLineWatermark.Value;
 
         /// <summary>
         /// The bridge lines currently in use for the selected transport, displayed in the UI
@@ -121,8 +118,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public string NewBridgeLines
         {
-            get => _newBridgeLines;
-            set => this.RaiseAndSetIfChanged(ref _newBridgeLines, value);
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         /// <summary>
@@ -130,8 +127,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public bool ShowEmptyBridgeListMessage
         {
-            get => _showEmptyBridgeListMessage;
-            private set => this.RaiseAndSetIfChanged(ref _showEmptyBridgeListMessage, value);
+            get;
+            private set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         /// <summary>
@@ -139,8 +136,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public bool ShowDefaultsPresetMessage
         {
-            get => _showDefaultsPresetMessage;
-            private set => this.RaiseAndSetIfChanged(ref _showDefaultsPresetMessage, value);
+            get;
+            private set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public void AddBridgeLines()

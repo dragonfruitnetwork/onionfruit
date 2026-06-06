@@ -19,16 +19,16 @@
             </StackPanel>
         </StackPanel>
 
-        <controls:SettingsExpander Description="Updates" IconSource="{Binding UpdaterIcon, Mode=OneTime}">
-            <controls:SettingsExpander.Footer>
+        <controls:FASettingsExpander Description="Updates" IconSource="{Binding UpdaterIcon, Mode=OneTime}">
+            <controls:FASettingsExpander.Footer>
                 <StackPanel Orientation="Horizontal" Spacing="15">
                     <Label VerticalAlignment="Center" Content="{Binding CurrentUpdaterProgress}"/>
                     <Button VerticalAlignment="Center" Command="{Binding ManualUpdateTrigger}" Content="Check for updates"/>
                 </StackPanel>
-            </controls:SettingsExpander.Footer>
-        </controls:SettingsExpander>
+            </controls:FASettingsExpander.Footer>
+        </controls:FASettingsExpander>
 
-        <controls:SettingsExpander Description="Licenses" IconSource="{Binding LicensesIcon, Mode=OneTime}">
+        <controls:FASettingsExpander Description="Licenses" IconSource="{Binding LicensesIcon, Mode=OneTime}">
             <ItemsControl ItemsSource="{Binding Packages}" Margin="0, 15">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="models:NugetPackageLicenseInfo">
@@ -77,6 +77,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </controls:SettingsExpander>
+        </controls:FASettingsExpander>
     </StackPanel>
 </UserControl>

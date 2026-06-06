@@ -11,7 +11,7 @@
              x:DataType="viewModels:ConnectionSettingsTabViewModel"
              x:Class="DragonFruit.OnionFruit.Views.Settings.ConnectionSettingsTabView">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
-        <controls:NavigationViewItemHeader Content="Tor Connection"/>
+        <controls:FANavigationViewItemHeader Content="Tor Connection"/>
 
         <Grid ColumnDefinitions="Auto, *, Auto, .75*, Auto, .75*, Auto, *, Auto" RowDefinitions="*, Auto" Margin="15, 20">
             <Grid.Styles>
@@ -56,11 +56,11 @@
             <lucideAvalonia:Lucide Grid.Row="0" Grid.Column="8" Icon="Earth" />
             <Label Grid.Row="1" Grid.Column="8" Content="Internet" />
         </Grid>
-        
-        <controls:SettingsExpander IconSource="{Binding DatabaseStateIcon}" Description="Database Status">
-            <controls:SettingsExpander.Footer>
+
+        <controls:FASettingsExpander IconSource="{Binding DatabaseStateIcon}" Description="Database Status">
+            <controls:FASettingsExpander.Footer>
                 <Label Content="{Binding DatabaseState}"/>
-            </controls:SettingsExpander.Footer>
+            </controls:FASettingsExpander.Footer>
             <Grid ColumnDefinitions="Auto, *" RowDefinitions="*, 10, *" IsVisible="{Binding DatabaseLoaded}">
                 <Label Grid.Row="0" Grid.Column="0">Database Version</Label>
                 <Label Grid.Row="0" Grid.Column="1" Margin="10,0,0,0" Content="{Binding DatabaseVersion, Mode=OneTime}"/>
@@ -70,14 +70,14 @@
                     <TextBlock TextWrapping="WrapWithOverflow" Text="{Binding DatabaseLicense, Mode=OneTime}"/>
                 </Label>
             </Grid>
-        </controls:SettingsExpander>
-        
+        </controls:FASettingsExpander>
+
         <controls1:SwitchingControl Switch="{Binding DatabaseLoaded}">
             <controls1:SwitchingControl.SwitchTrue>
                 <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
                     <StackPanel Orientation="Vertical" Spacing="10">
-                        <controls:SettingsExpander IconSource="{Binding EntryLocationIcon}" Description="Entry Location">
-                            <controls:SettingsExpander.Footer>
+                        <controls:FASettingsExpander IconSource="{Binding EntryLocationIcon}" Description="Entry Location">
+                            <controls:FASettingsExpander.Footer>
                                 <StackPanel Spacing="20" Orientation="Horizontal">
                                     <lucideAvalonia:Lucide Icon="TriangleAlert" StrokeBrush="Orange"
                                                            Height="20" Width="20" IsVisible="{Binding !CanSelectEntryCountry}"
@@ -93,39 +93,39 @@
                                               ItemsSource="{Binding EntryCountries}"
                                               DisplayMemberBinding="{Binding CountryName}" />
                                 </StackPanel>
-                            </controls:SettingsExpander.Footer>
-                        </controls:SettingsExpander>
-        
-                        <controls:SettingsExpander IconSource="{Binding ExitLocationIcon}" Description="Exit Location">
-                            <controls:SettingsExpander.Footer>
+                            </controls:FASettingsExpander.Footer>
+                        </controls:FASettingsExpander>
+
+                        <controls:FASettingsExpander IconSource="{Binding ExitLocationIcon}" Description="Exit Location">
+                            <controls:FASettingsExpander.Footer>
                                 <ComboBox MinWidth="200"
                                           SelectedItem="{Binding SelectedExitCountry}"
                                           ItemsSource="{Binding ExitCountries}"
                                           DisplayMemberBinding="{Binding CountryName}"/>
-                            </controls:SettingsExpander.Footer>
-                        </controls:SettingsExpander>
+                            </controls:FASettingsExpander.Footer>
+                        </controls:FASettingsExpander>
                     </StackPanel>
                 </DataTemplate>
             </controls1:SwitchingControl.SwitchTrue>
         </controls1:SwitchingControl>
-        
-        <controls:SettingsExpander Description="Restricted Firewall Mode" IconSource="{Binding FirewallIcon}" IsExpanded="{Binding EnableRestrictedFirewallMode, Mode=OneWay}">
-            <controls:SettingsExpander.Footer>
+
+        <controls:FASettingsExpander Description="Restricted Firewall Mode" IconSource="{Binding FirewallIcon}" IsExpanded="{Binding EnableRestrictedFirewallMode, Mode=OneWay}">
+            <controls:FASettingsExpander.Footer>
                 <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableRestrictedFirewallMode}"/>
-            </controls:SettingsExpander.Footer>
+            </controls:FASettingsExpander.Footer>
 
             <DockPanel HorizontalAlignment="Right">
                 <NumericUpDown DockPanel.Dock="Right"
                                MinHeight="35" Width="250"
                                Margin="15,0,0,0"
                                Minimum="1" Maximum="65535" FormatString="0"
-                               Watermark="Allowed Port (1-65535)" VerticalAlignment="Top"
+                               PlaceholderText="Allowed Port (1-65535)" VerticalAlignment="Top"
                                Value="{Binding FirewallPort}">
                     <Interaction.Behaviors>
                         <controls1:EnterKeyBehavior Command="{Binding AddFirewallPort}"/>
                     </Interaction.Behaviors>
                 </NumericUpDown>
-                
+
                 <controls1:SwitchingControl Switch="{Binding ShouldShowFirewallPortList}">
                     <controls1:SwitchingControl.SwitchTrue>
                         <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
@@ -155,10 +155,10 @@
                     </controls1:SwitchingControl.SwitchFalse>
                 </controls1:SwitchingControl>
             </DockPanel>
-        </controls:SettingsExpander>
-        
-        <controls:SettingsExpander IconSource="{Binding KillswitchIcon}" Description="Auto-disconnect if Tor is closed externally">
-            <controls:SettingsExpander.Footer>
+        </controls:FASettingsExpander>
+
+        <controls:FASettingsExpander IconSource="{Binding KillswitchIcon}" Description="Auto-disconnect if Tor is closed externally">
+            <controls:FASettingsExpander.Footer>
                 <StackPanel Orientation="Horizontal" Spacing="20">
                     <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue"
                                            IsVisible="{Binding DisconnectOnTorFailure}"
@@ -169,13 +169,13 @@
                                            ToolTip.Placement="Left"/>
                     <ToggleSwitch IsChecked="{Binding DisconnectOnTorFailure}" OnContent="Enabled" OffContent="Disabled" VerticalAlignment="Center"/>
                 </StackPanel>
-            </controls:SettingsExpander.Footer>
-        </controls:SettingsExpander>
-        
-        <controls:SettingsExpander IconSource="{Binding CircuitLifetimeIcon}" Description="Max circuit inactivity (minutes)">
-            <controls:SettingsExpander.Footer>
+            </controls:FASettingsExpander.Footer>
+        </controls:FASettingsExpander>
+
+        <controls:FASettingsExpander IconSource="{Binding CircuitLifetimeIcon}" Description="Max circuit inactivity (minutes)">
+            <controls:FASettingsExpander.Footer>
                 <NumericUpDown Minimum="5" Maximum="120" Width="200" FormatString="0" Value="{Binding MaxCircuitIdleTime}"/>
-            </controls:SettingsExpander.Footer>
-        </controls:SettingsExpander>
+            </controls:FASettingsExpander.Footer>
+        </controls:FASettingsExpander>
     </StackPanel>
 </UserControl>

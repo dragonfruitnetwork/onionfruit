@@ -1,23 +1,23 @@
-<windowing:AppWindow xmlns="https://github.com/avaloniaui"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:vm="using:DragonFruit.OnionFruit.ViewModels"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
-                     xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
-                     xmlns:controls="clr-namespace:DragonFruit.OnionFruit.Controls"
-                     xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
-                     mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
-                     x:Class="DragonFruit.OnionFruit.Views.MainWindow"
-                     x:DataType="vm:MainWindowViewModel"
-                     Background="{x:Null}" Icon="/Assets/icon.ico"
-                     Width="600" Height="175" CanResize="False" Closing="HandleCloseRequest"
-                     TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
-                     Title="{Binding Source={x:Static onionFruit:App.Title}}">
+<windowing:FAAppWindow xmlns="https://github.com/avaloniaui"
+                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                       xmlns:vm="using:DragonFruit.OnionFruit.ViewModels"
+                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                       xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+                       xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
+                       xmlns:controls="clr-namespace:DragonFruit.OnionFruit.Controls"
+                       xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
+                       mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+                       x:Class="DragonFruit.OnionFruit.Views.MainWindow"
+                       x:DataType="vm:MainWindowViewModel"
+                       Background="{x:Null}" Icon="/Assets/icon.ico"
+                       Width="600" Height="200" CanResize="False" Closing="HandleCloseRequest"
+                       TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
+                       Title="{Binding Source={x:Static onionFruit:App.Title}}">
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
-    
+
     <Window.Styles>
         <Style Selector="Button#MaxRestoreButton">
             <Setter Property="IsVisible" Value="False" />
@@ -40,30 +40,30 @@
                 <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10" IsVisible="{OnPlatform Default=False, Windows=True}">
                     <TextBlock Text="{Binding WindowTitle}" />
                 </StackPanel>
-                
+
                 <Panel Background="{Binding RibbonContent.Background}" VerticalAlignment="Top" DockPanel.Dock="Top">
                     <DockPanel Margin="20, 10">
                         <ToggleSwitch DockPanel.Dock="Right"
                                       TabIndex="1"
-                                      OnContent="" 
+                                      OnContent=""
                                       OffContent=""
                                       VerticalAlignment="Center"
                                       Command="{Binding ToggleConnection}"
                                       IsChecked="{Binding RibbonContent.ToggleChecked, Mode=OneWay}" />
-                        
+
                         <TextBlock DockPanel.Dock="Left"
                                    TabIndex="0"
                                    FontSize="20"
                                    FontWeight="SemiBold"
                                    VerticalAlignment="Center"
-                                   Text="{Binding RibbonContent.Text}"/>
+                                   Text="{Binding RibbonContent.Text}" />
                     </DockPanel>
                 </Panel>
-                
+
                 <DockPanel DockPanel.Dock="Top">
                     <DockPanel.Styles>
                         <Style Selector="Control">
-                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="VerticalAlignment" Value="Center" />
                         </Style>
                     </DockPanel.Styles>
 
@@ -71,37 +71,41 @@
                             Padding="30, 0" CornerRadius="0"
                             Background="Transparent" BorderBrush="Transparent"
                             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                            Command="{Binding OpenSettingsWindow}"/>
+                            Command="{Binding OpenSettingsWindow}" />
 
                     <!-- Country switch, last item fills remaining space -->
-                    <controls:SwitchingControl DockPanel.Dock="Left" Switch="{Binding CountriesDatabaseReady}" Margin="15, 0" VerticalAlignment="Center">
+                    <controls:SwitchingControl DockPanel.Dock="Left"
+                                               Switch="{Binding CountriesDatabaseReady}"
+                                               Margin="15, 0" VerticalAlignment="Center">
                         <controls:SwitchingControl.SwitchFalse>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Spacing="5">
-                                    <lucideAvalonia:Lucide Icon="LoaderPinwheel" StrokeBrush="White" StrokeThickness="2" Width="16" Height="16"/>
+                                    <lucideAvalonia:Lucide Icon="LoaderPinwheel" StrokeBrush="White"
+                                                           StrokeThickness="2" Width="16" Height="16" />
                                     <Label VerticalAlignment="Center">Loading GeoDB...</Label>
                                 </StackPanel>
                             </DataTemplate>
                         </controls:SwitchingControl.SwitchFalse>
                         <controls:SwitchingControl.SwitchTrue>
-                               <DataTemplate x:DataType="vm:MainWindowViewModel">
-                                   <DockPanel>
-                                       <Label DockPanel.Dock="Left" TabIndex="0" VerticalAlignment="Center" Margin="0, 0, 10, 0" Content="Country"/>
-                                       <ComboBox DockPanel.Dock="Left"
-                                                 TabIndex="1"
-                                                 Margin="10, 0, 0, 0"
-                                                 HorizontalAlignment="Stretch"
-                                                 ItemsSource="{Binding ExitCountries}"
-                                                 SelectedValueBinding="{Binding CountryCode}"
-                                                 DisplayMemberBinding="{Binding CountryName}"
-                                                 SelectedValue="{Binding SelectedCountryCode}"
-                                                 IsEnabled="{Binding AllowConfigurationChanges}"/>
-                                   </DockPanel>
-                               </DataTemplate>
+                            <DataTemplate x:DataType="vm:MainWindowViewModel">
+                                <DockPanel>
+                                    <Label DockPanel.Dock="Left" TabIndex="0" VerticalAlignment="Center"
+                                           Margin="0, 0, 10, 0" Content="Country" />
+                                    <ComboBox DockPanel.Dock="Left"
+                                              TabIndex="1"
+                                              Margin="10, 0, 0, 0"
+                                              HorizontalAlignment="Stretch"
+                                              ItemsSource="{Binding ExitCountries}"
+                                              SelectedValueBinding="{Binding CountryCode}"
+                                              DisplayMemberBinding="{Binding CountryName}"
+                                              SelectedValue="{Binding SelectedCountryCode}"
+                                              IsEnabled="{Binding AllowConfigurationChanges}" />
+                                </DockPanel>
+                            </DataTemplate>
                         </controls:SwitchingControl.SwitchTrue>
                     </controls:SwitchingControl>
-                  </DockPanel>
+                </DockPanel>
             </DockPanel>
         </Panel>
     </Window.Content>
-</windowing:AppWindow>
+</windowing:FAAppWindow>

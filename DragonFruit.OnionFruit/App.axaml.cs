@@ -234,14 +234,7 @@ namespace DragonFruit.OnionFruit
                         return;
                     }
 
-                    Dispatcher.UIThread.InvokeAsync(() =>
-                    {
-                        var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
-                        if (trayIcon != null)
-                        {
-                            trayIcon.IsVisible = true;
-                        }
-                    });
+                    Dispatcher.UIThread.InvokeAsync(() => TrayIcon.GetIcons(this)?.SingleOrDefault()?.IsVisible = true);
                 }, TaskContinuationOptions.OnlyOnFaulted);
 
                 await waitTask.ConfigureAwait(false);
@@ -273,11 +266,7 @@ namespace DragonFruit.OnionFruit
                 window.ShowInTaskbar = true;
                 window.IsVisible = true;
 
-                var trayIcon = TrayIcon.GetIcons(this)?.SingleOrDefault();
-                if (trayIcon != null)
-                {
-                    trayIcon.IsVisible = false;
-                }
+                TrayIcon.GetIcons(this)?.SingleOrDefault()?.IsVisible = false;
 
                 window.Activate();
             });
@@ -308,7 +297,7 @@ namespace DragonFruit.OnionFruit
             }
         }
 
-        public static IconSource GetIcon(LucideIconNames icon, IImmutableSolidColorBrush brush = null, double thickness = 1.5)
+        public static FAIconSource GetIcon(LucideIconNames icon, IImmutableSolidColorBrush brush = null, double thickness = 1.5)
         {
             var resource = Instance.Resources.MergedDictionaries.FirstOrDefault() as ResourceDictionary;
             var drawingImage = resource?[icon.ToString()] as DrawingImage;
@@ -323,7 +312,7 @@ namespace DragonFruit.OnionFruit
                 }
             }
 
-            return new ImageIconSource
+            return new FAImageIconSource
             {
                 Source = drawingImage
             };

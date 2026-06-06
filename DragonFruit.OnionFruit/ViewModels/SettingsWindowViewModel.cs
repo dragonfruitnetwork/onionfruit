@@ -17,12 +17,10 @@ using ReactiveUI;
 namespace DragonFruit.OnionFruit.ViewModels
 {
     // XAML can't have nested classes
-    public record SettingsTabInfo(string Id, string Name, IconSource Icon, Func<Control> ContentFactory);
+    public record SettingsTabInfo(string Id, string Name, FAIconSource Icon, Func<Control> ContentFactory);
 
     public class SettingsWindowViewModel : ReactiveObject, IDisposable
     {
-        private SettingsTabInfo _selectedTab;
-
         internal const string AboutTabId = "about";
 
         public SettingsWindowViewModel()
@@ -32,7 +30,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 Tab<ConnectionSettingsTabView, ConnectionSettingsTabViewModel>("Connection", LucideIconNames.EthernetPort),
                 Tab<BridgeSettingsTabView, BridgeSettingsTabViewModel>("Bridges", LucideIconNames.Castle),
                 Tab<DnsPageTabView, DnsPageTabViewModel>("DNS", LucideIconNames.Signpost),
-                Tab<LandingPageSettingsTabView, LandingPageSettingsTabViewModel>("Landing Pages", LucideIconNames.Chrome),
+                Tab<LandingPageSettingsTabView, LandingPageSettingsTabViewModel>("Landing Pages", LucideIconNames.PanelTop),
                 Tab<ExternalConnectionsSettingsTabView, ExternalConnectionsSettingsTabViewModel>("External Connections", LucideIconNames.Sparkles)
             ]);
 
@@ -41,8 +39,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         public SettingsTabInfo SelectedTab
         {
-            get => _selectedTab ??= Tabs.FirstOrDefault();
-            set => this.RaiseAndSetIfChanged(ref _selectedTab, value);
+            get => field ??= Tabs.FirstOrDefault();
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public IDataTemplate TabTemplate { get; } = new SettingTabViewTemplate();

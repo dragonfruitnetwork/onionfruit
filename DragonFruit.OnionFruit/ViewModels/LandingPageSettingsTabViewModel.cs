@@ -34,8 +34,8 @@ namespace DragonFruit.OnionFruit.ViewModels
             LaunchUrl = ReactiveCommand.Create<string>(url => App.Launch(string.IsNullOrWhiteSpace(url) ? LandingPageLaunchService.DefaultConnectionPage : url), outputScheduler: RxSchedulers.TaskpoolScheduler);
         }
 
-        public IconSource ConnectedPageIcon => App.GetIcon(LucideIconNames.ShieldCheck);
-        public IconSource DisconnectedPageIcon => App.GetIcon(LucideIconNames.ShieldBan);
+        public FAIconSource ConnectedPageIcon => App.GetIcon(LucideIconNames.ShieldCheck);
+        public FAIconSource DisconnectedPageIcon => App.GetIcon(LucideIconNames.ShieldBan);
 
         public bool EnableConnectedPage
         {
