@@ -14,9 +14,9 @@
     <PackageVersion Include="DiscordRichPresence" Version="1.6.1.70" />
     <PackageVersion Include="DragonFruit.Data" Version="4.1.2" />
     <PackageVersion Include="DragonFruit.Data.Roslyn" Version="4.1.2" />
-    <PackageVersion Include="DragonFruit.OnionFruit.Native.osx" Version="14.5.7" />
-    <PackageVersion Include="DragonFruit.OnionFruit.Native.win" Version="14.5.7" />
-    <PackageVersion Include="FluentAvaloniaUI" Version="2.5.0" />
+    <PackageVersion Include="DragonFruit.OnionFruit.Native.osx" Version="15.0.15" />
+    <PackageVersion Include="DragonFruit.OnionFruit.Native.win" Version="15.0.15" />
+    <PackageVersion Include="FluentAvaloniaUI" Version="2.5.1" />
     <PackageVersion Include="Google.Protobuf" Version="3.34.0" />
     <PackageVersion Include="Grpc.Core.Api" Version="2.76.0" />
     <PackageVersion Include="Grpc.Tools" Version="2.78.0" />
