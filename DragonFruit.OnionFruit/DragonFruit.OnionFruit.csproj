@@ -14,7 +14,6 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />
-    <PackageReference Include="Avalonia.ReactiveUI" />
     <PackageReference Include="DragonFruit.Data" />
     <PackageReference Include="DragonFruit.Data.Roslyn" />
     <PackageReference Include="DiscordRichPresence" />
@@ -25,6 +24,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Nito.AsyncEx.Coordination" />
+    <PackageReference Include="ReactiveUI.Avalonia" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" />
     <PackageReference Include="Velopack" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
