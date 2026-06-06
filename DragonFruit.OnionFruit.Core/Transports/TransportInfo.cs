@@ -2,7 +2,8 @@
 // Licensed under LGPL-3.0. Refer to the LICENCE file for more info
 
 using System;
-using System.Diagnostics.CodeAnalysis;
+
+#nullable enable
 
 namespace DragonFruit.OnionFruit.Core.Transports
 {
@@ -26,7 +27,6 @@ namespace DragonFruit.OnionFruit.Core.Transports
         public string Id { get; }
         public string TransportEngine { get; }
 
-        [MaybeNull]
-        public string DefaultBridgeKey { get; set; }
+        public string? DefaultBridgeKey { get; set; }
     }
 }
