@@ -12,7 +12,7 @@ namespace DragonFruit.OnionFruit.Core.Transports
         [TransportInfo("")]
         Plain = 1,
 
-        [TransportInfo("meek_lite", "lyrebird", DefaultBridgeKey = "meek-azure")]
+        [TransportInfo("meek_lite", "lyrebird", DefaultBridgeKey = "meek")]
         meek = 2,
 
         [TransportInfo("obfs4", "lyrebird", DefaultBridgeKey = "obfs4")]
