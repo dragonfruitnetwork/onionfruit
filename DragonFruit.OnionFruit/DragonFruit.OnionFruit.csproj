@@ -14,13 +14,13 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />
+    <PackageReference Include="DiscordRichPresence" />
     <PackageReference Include="DragonFruit.Data" />
     <PackageReference Include="DragonFruit.Data.Roslyn" />
-    <PackageReference Include="DiscordRichPresence" />
+    <PackageReference Include="DragonFruit.LucideAvalonia" />
     <PackageReference Include="FluentAvaloniaUI" />
     <PackageReference Include="Google.Protobuf" />
     <PackageReference Include="Grpc.Tools" PrivateAssets="all" />
-    <PackageReference Include="LucideAvalonia" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Nito.AsyncEx.Coordination" />

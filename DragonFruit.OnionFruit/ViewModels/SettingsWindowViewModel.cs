@@ -30,7 +30,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 Tab<ConnectionSettingsTabView, ConnectionSettingsTabViewModel>("Connection", LucideIconNames.EthernetPort),
                 Tab<BridgeSettingsTabView, BridgeSettingsTabViewModel>("Bridges", LucideIconNames.Castle),
                 Tab<DnsPageTabView, DnsPageTabViewModel>("DNS", LucideIconNames.Signpost),
-                Tab<LandingPageSettingsTabView, LandingPageSettingsTabViewModel>("Landing Pages", LucideIconNames.Chrome),
+                Tab<LandingPageSettingsTabView, LandingPageSettingsTabViewModel>("Landing Pages", LucideIconNames.PanelTop),
                 Tab<ExternalConnectionsSettingsTabView, ExternalConnectionsSettingsTabViewModel>("External Connections", LucideIconNames.Sparkles)
             ]);
 
