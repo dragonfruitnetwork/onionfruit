@@ -8,10 +8,7 @@
 
   <PropertyGroup>
     <AssemblyTitle>OnionFruit™</AssemblyTitle>
-    <Product>OnionFruit™</Product>
-    <Authors>DragonFruit Network</Authors>
     <Description>Tor access client</Description>
-    <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

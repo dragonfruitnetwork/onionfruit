@@ -2,7 +2,7 @@
     <PropertyGroup>
         <Product>OnionFruit™</Product>
         <Authors>DragonFruit Network</Authors>
-        <Copyright>Copyright 2025 (c) DragonFruit Network</Copyright>
+        <Copyright>Copyright 2016-2026 (c) DragonFruit Network</Copyright>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
