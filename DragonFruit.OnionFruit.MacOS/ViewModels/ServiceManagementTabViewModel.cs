@@ -29,7 +29,7 @@ namespace DragonFruit.OnionFruit.MacOS.ViewModels
 
             this.WhenAnyValue(x => x.ServiceStatus)
                 .Select(UpdateServiceStatus)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.ServiceStatusContent, out _serviceStatusContent);
 
             RegisterService = ReactiveCommand.Create(TryRegisterService, this.WhenAnyValue(x => x.ServiceStatus).Select(x => x is not AppServiceStatus.Enabled and not AppServiceStatus.Unknown and not null));

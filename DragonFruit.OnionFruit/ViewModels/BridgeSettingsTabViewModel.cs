@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -58,13 +59,13 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             var selectedTransport = settings.GetObservableValue<TransportType>(OnionFruitSetting.SelectedTransportType);
 
-            _selectedTransport = selectedTransport.ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.SelectedTransport).DisposeWith(_disposables);
-            _canAddBridgeLines = selectedTransport.Select(x => x != TransportType.None).ObserveOn(RxApp.MainThreadScheduler).ToProperty(this, x => x.CanAddBridgeLines).DisposeWith(_disposables);
+            _selectedTransport = selectedTransport.ObserveOn(RxSchedulers.MainThreadScheduler).ToProperty(this, x => x.SelectedTransport).DisposeWith(_disposables);
+            _canAddBridgeLines = selectedTransport.Select(x => x != TransportType.None).ObserveOn(RxSchedulers.MainThreadScheduler).ToProperty(this, x => x.CanAddBridgeLines).DisposeWith(_disposables);
 
             _bridgeLineWatermark = selectedTransport
                 .Where(x => x != TransportType.None)
                 .Select(x => $"{transports.AvailableTransports[x].Id} 0.0.0.0:12345 AAAAAAABBBBBBBCCCCCCDDDDDDEEEEEEFFFFFF".TrimStart())
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.BridgeLineWatermark)
                 .DisposeWith(_disposables);
 

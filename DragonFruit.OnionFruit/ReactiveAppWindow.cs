@@ -5,9 +5,9 @@
 
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.ReactiveUI;
 using FluentAvalonia.UI.Windowing;
 using ReactiveUI;
+using ReactiveUI.Avalonia;
 
 namespace DragonFruit.OnionFruit
 {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -41,10 +42,10 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Select(x => x.EventArgs);
 
             var canCheckForUpdates = updaterStatus.Select(x => x is not (OnionFruitUpdaterStatus.Checking or OnionFruitUpdaterStatus.Downloading or OnionFruitUpdaterStatus.Disabled))
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             updaterStatus.CombineLatest(updaterProgress)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Select(x => x.First switch
                 {
                     OnionFruitUpdaterStatus.Checking => "Checking for updates...",
