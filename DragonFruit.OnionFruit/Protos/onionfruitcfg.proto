@@ -6,22 +6,22 @@ message OnionFruitConfigFile {
 
   string entryCountryCode = 3;
   string exitCountryCode = 4;
-  
+
   bool enableWebsiteLaunchOnConnect = 5;
   bool enableWebsiteLaunchOnDisconnect = 6;
-  
+
   optional string launchWebsiteOnConnect = 7;
   optional string launchWebsiteOnDisconnect = 8;
-  
+
   // indicates the user is behind a firewall that only allows connections on specific ports
   bool limitOutboundConnectionPorts = 9;
-  
+
   // list of ports the user can connect to, used in conjunction with limitOutboundConnectionPorts
   repeated uint32 allowedFirewallPorts = 10;
-  
+
   TRANSPORT_TYPES SelectedTransportType = 11;
   repeated string UserDefinedBridges = 12;
-  
+
   // aka the "killswitch" feature
   bool disconnectOnProxyFailure = 13;
   bool enableErrorReporting = 14;
@@ -30,10 +30,10 @@ message OnionFruitConfigFile {
   optional UPDATE_STREAM clientUpdateStream = 16;
 
   optional int32 maxCircuitIdleTime = 17;
-  
+
   // Whether DNS proxying should be enabled.
   bool enableDnsProxying = 18;
-  
+
   // What pre-defined fallback DNS servers to use.
   FALLBACK_DNS_SERVER_PRESET fallbackDnsServerPreset = 20;
 
