@@ -12,7 +12,7 @@
              x:DataType="viewModels:DnsPageTabViewModel">
     <StackPanel Orientation="Vertical" MaxWidth="1400" Spacing="10">
         <controls:FANavigationViewItemHeader Content="DNS" />
-        
+
         <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
             <StackPanel.Styles>
                 <Style Selector="TextBox">
@@ -39,7 +39,7 @@
                     <Button Command="{Binding RelaunchAsElevatedProcess}" Content="Relaunch"/>
                 </controls:FASettingsExpander.Footer>
             </controls:FASettingsExpander>
-            
+
             <!-- service not available alert -->
             <controls:FASettingsExpander IsVisible="{Binding ShowNotAvailableNotice}" IconSource="{Binding ShieldIcon}" Description="DNS proxying is not available on this operating system.">
                 <controls:FASettingsExpander.Resources>
@@ -55,7 +55,7 @@
                     <TextBlock Text="Feature Unavailable" Margin="{OnPlatform Default='0,0,0,5', Windows='0'}" FontSize="16" Foreground="White"/>
                 </controls:FASettingsExpander.Header>
             </controls:FASettingsExpander>
-            
+
             <controls:FASettingsExpander Description="DNS Proxying" IconSource="{Binding DnsProxyingIcon}">
                 <controls:FASettingsExpander.Footer>
                     <ToggleSwitch IsChecked="{Binding DnsProxyEnabled}" IsEnabled="{Binding CanToggleDns}" OnContent="Enabled" OffContent="Disabled"/>

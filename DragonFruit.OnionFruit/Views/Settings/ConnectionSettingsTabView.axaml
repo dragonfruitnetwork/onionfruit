@@ -56,7 +56,7 @@
             <lucideAvalonia:Lucide Grid.Row="0" Grid.Column="8" Icon="Earth" />
             <Label Grid.Row="1" Grid.Column="8" Content="Internet" />
         </Grid>
-        
+
         <controls:FASettingsExpander IconSource="{Binding DatabaseStateIcon}" Description="Database Status">
             <controls:FASettingsExpander.Footer>
                 <Label Content="{Binding DatabaseState}"/>
@@ -71,7 +71,7 @@
                 </Label>
             </Grid>
         </controls:FASettingsExpander>
-        
+
         <controls1:SwitchingControl Switch="{Binding DatabaseLoaded}">
             <controls1:SwitchingControl.SwitchTrue>
                 <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
@@ -95,7 +95,7 @@
                                 </StackPanel>
                             </controls:FASettingsExpander.Footer>
                         </controls:FASettingsExpander>
-        
+
                         <controls:FASettingsExpander IconSource="{Binding ExitLocationIcon}" Description="Exit Location">
                             <controls:FASettingsExpander.Footer>
                                 <ComboBox MinWidth="200"
@@ -108,7 +108,7 @@
                 </DataTemplate>
             </controls1:SwitchingControl.SwitchTrue>
         </controls1:SwitchingControl>
-        
+
         <controls:FASettingsExpander Description="Restricted Firewall Mode" IconSource="{Binding FirewallIcon}" IsExpanded="{Binding EnableRestrictedFirewallMode, Mode=OneWay}">
             <controls:FASettingsExpander.Footer>
                 <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableRestrictedFirewallMode}"/>
@@ -125,7 +125,7 @@
                         <controls1:EnterKeyBehavior Command="{Binding AddFirewallPort}"/>
                     </Interaction.Behaviors>
                 </NumericUpDown>
-                
+
                 <controls1:SwitchingControl Switch="{Binding ShouldShowFirewallPortList}">
                     <controls1:SwitchingControl.SwitchTrue>
                         <DataTemplate DataType="viewModels:ConnectionSettingsTabViewModel">
@@ -156,7 +156,7 @@
                 </controls1:SwitchingControl>
             </DockPanel>
         </controls:FASettingsExpander>
-        
+
         <controls:FASettingsExpander IconSource="{Binding KillswitchIcon}" Description="Auto-disconnect if Tor is closed externally">
             <controls:FASettingsExpander.Footer>
                 <StackPanel Orientation="Horizontal" Spacing="20">
@@ -171,7 +171,7 @@
                 </StackPanel>
             </controls:FASettingsExpander.Footer>
         </controls:FASettingsExpander>
-        
+
         <controls:FASettingsExpander IconSource="{Binding CircuitLifetimeIcon}" Description="Max circuit inactivity (minutes)">
             <controls:FASettingsExpander.Footer>
                 <NumericUpDown Minimum="5" Maximum="120" Width="200" FormatString="0" Value="{Binding MaxCircuitIdleTime}"/>

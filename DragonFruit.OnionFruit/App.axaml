@@ -9,7 +9,7 @@
     <Application.Styles>
         <styling:FluentAvaloniaTheme UseSystemFontOnWindows="True" CustomAccentColor="#c71585" />
         <onionFruit:NonWindowsFluentAvaloniaAdjustments />
-        
+
         <Style Selector="controls|FANavigationViewItemHeader">
             <Setter Property="VerticalAlignment" Value="Top"/>
             <Setter Property="FontSize" Value="24"/>
