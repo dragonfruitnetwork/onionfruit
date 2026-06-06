@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
@@ -51,7 +52,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             var databaseState = Observable.FromEventPattern<EventHandler<DatabaseState>, DatabaseState>(handler => database.StateChanged += handler, handler => database.StateChanged -= handler)
                 .StartWith(new EventPattern<DatabaseState>(this, database.State))
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             var countries = Observable.FromEventPattern<EventHandler<IReadOnlyCollection<TorNodeCountry>>, IReadOnlyCollection<TorNodeCountry>>(handler => database.CountriesChanged += handler, handler => database.CountriesChanged -= handler)
                 .StartWith(new EventPattern<IReadOnlyCollection<TorNodeCountry>>(this, database.Countries ?? []))
@@ -82,7 +83,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
                     return (entryCountries, exitCountries);
                 })
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             _entryCountries = countries.Select(x => x.entryCountries).ToProperty(this, x => x.EntryCountries).DisposeWith(_disposables);
             _exitCountries = countries.Select(x => x.exitCountries).ToProperty(this, x => x.ExitCountries).DisposeWith(_disposables);
@@ -95,19 +96,19 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .Where(x => x != null)
                 .CombineLatest(settings.GetObservableValue<string>(OnionFruitSetting.TorEntryCountryCode))
                 .Select(x => x.First?.SingleOrDefault(y => y.CountryCode == x.Second))
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             var exitCountry = this.WhenAnyValue(x => x.ExitCountries)
                 .Where(x => x != null)
                 .CombineLatest(settings.GetObservableValue<string>(OnionFruitSetting.TorExitCountryCode))
                 .Select(x => x.First?.SingleOrDefault(y => y.CountryCode == x.Second))
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             var firewallPorts = settings.GetCollection<uint>(OnionFruitSetting.AllowedFirewallPorts);
 
             settings.GetObservableValue<TransportType>(OnionFruitSetting.SelectedTransportType)
                 .Select(x => x == TransportType.None)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.CanSelectEntryCountry, out _canSelectEntryCountry)
                 .DisposeWith(_disposables);
 
@@ -124,24 +125,24 @@ namespace DragonFruit.OnionFruit.ViewModels
             }).DisposeWith(_disposables);
 
             firewallPorts.CountChanged.Select(x => x > 0)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.ShouldShowFirewallPortList, out _showFirewallPortsList)
                 .DisposeWith(_disposables);
 
             firewallPorts.Connect()
                 .Sort(Comparer<uint>.Default)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Bind(out _allowedFirewallPorts)
                 .Subscribe()
                 .DisposeWith(_disposables);
 
             settings.GetObservableValue<bool>(OnionFruitSetting.EnableFirewallPortRestrictions)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.EnableRestrictedFirewallMode, out _enableFirewallRestrictions)
                 .DisposeWith(_disposables);
 
             settings.GetObservableValue<bool>(OnionFruitSetting.DisconnectOnTorFailure)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.DisconnectOnTorFailure, out _disconnectOnTorFailure)
                 .DisposeWith(_disposables);
 
@@ -153,7 +154,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             settings.GetObservableValue<int?>(OnionFruitSetting.MaxCircuitIdleTime)
                 .Select(x => (decimal?)x)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.MaxCircuitIdleTime, out _maxCircuitIdleTime)
                 .DisposeWith(_disposables);
 

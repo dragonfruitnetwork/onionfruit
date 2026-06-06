@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -68,21 +69,21 @@ namespace DragonFruit.OnionFruit.ViewModels
             // configure event-driven observables, ensuring correct disposal of subscriptions
             var sessionState = Observable.FromEventPattern<EventHandler<TorSession.TorSessionState>, TorSession.TorSessionState>(handler => session.SessionStateChanged += handler, handler => session.SessionStateChanged -= handler)
                 .StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State))
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             var connectionProgress = Observable.FromEventPattern<EventHandler<int>, int>(handler => session.BootstrapProgressChanged += handler, handler => session.BootstrapProgressChanged -= handler)
                 .StartWith(new EventPattern<int>(this, 0))
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             var databaseReady = Observable.FromEventPattern<EventHandler<DatabaseState>, DatabaseState>(handler => onionDatabase.StateChanged += handler, handler => onionDatabase.StateChanged -= handler)
                 .StartWith(new EventPattern<DatabaseState>(this, onionDatabase.State))
                 .Select(x => x.EventArgs == DatabaseState.Ready)
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             var databaseCountries = Observable.FromEventPattern<EventHandler<IReadOnlyCollection<TorNodeCountry>>, IReadOnlyCollection<TorNodeCountry>>(handler => onionDatabase.CountriesChanged += handler, handler => onionDatabase.CountriesChanged -= handler)
                 .StartWith(new EventPattern<IReadOnlyCollection<TorNodeCountry>>(this, onionDatabase.Countries))
                 .Select(ProcessCountries)
-                .ObserveOn(RxApp.MainThreadScheduler);
+                .ObserveOn(RxSchedulers.MainThreadScheduler);
 
             databaseReady.ToProperty(this, x => x.CountriesDatabaseReady, out _countriesDbReady).DisposeWith(_disposables);
             databaseCountries.ToProperty(this, x => x.ExitCountries, out _onionDbExitCountries).DisposeWith(_disposables);
@@ -94,7 +95,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             sessionState
                 .CombineLatest(connectionProgress)
                 .Select(x => GetRibbonContent(x.First.EventArgs, x.Second.EventArgs))
-                .ToProperty(this, x => x.RibbonContent, out _ribbonContent, scheduler: RxApp.MainThreadScheduler)
+                .ToProperty(this, x => x.RibbonContent, out _ribbonContent, scheduler: RxSchedulers.MainThreadScheduler)
                 .DisposeWith(_disposables);
 
             // don't publish the settings value if the database isn't ready
@@ -102,18 +103,18 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .CombineLatest(databaseReady)
                 .Where(x => x.Second)
                 .Select(x => x.First)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.SelectedCountryCode, out _exitNodeCountry)
                 .DisposeWith(_disposables);
 
             updaterStatus.CombineLatest(updaterProgress)
                 .Select(GetWindowTitle)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.WindowTitle, out _windowTitle)
                 .DisposeWith(_disposables);
 
-            ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
-            OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(null), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxApp.MainThreadScheduler)).DisposeWith(_disposables);
+            ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxSchedulers.MainThreadScheduler)).DisposeWith(_disposables);
+            OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(null), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxSchedulers.MainThreadScheduler)).DisposeWith(_disposables);
         }
 
         /// <summary>

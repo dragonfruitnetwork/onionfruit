@@ -3,6 +3,7 @@
 
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
@@ -34,28 +35,28 @@ namespace DragonFruit.OnionFruit.ViewModels
             _currentStartupState = _startupLaunchService?.CurrentStartupState ?? StartupLaunchState.Blocked;
 
             settings.GetObservableValue<bool>(OnionFruitSetting.EnableDiscordRpc)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.EnableDiscordRpc, out _enableDiscordRpc)
                 .DisposeWith(_disposables);
 
             settings.GetObservableValue<bool>(OnionFruitSetting.EnableErrorReporting)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.EnableErrorReporting, out _enableCrashReporting)
                 .DisposeWith(_disposables);
 
             this.WhenAnyValue(x => x.CurrentStartupState)
                 .Select(x => x == StartupLaunchState.Blocked)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.IsStartupBlocked, out _startupBlocked);
 
             this.WhenAnyValue(x => x.CurrentStartupState)
                 .Select(x => x == StartupLaunchState.Enabled)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.IsStartupEnabled, out _startupEnabled);
 
             this.WhenAnyValue(x => x.CurrentStartupState)
                 .Select(x => x == StartupLaunchState.EnabledInvalid)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.ForceStartupRepair, out _forceStartupRepair);
 
             RepairStartup = ReactiveCommand.CreateRunInBackground(() => SetStartupStateImpl(true));

@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using DragonFruit.OnionFruit.Core.Transports;
 using DragonFruit.OnionFruit.Database;
@@ -219,7 +219,7 @@ namespace DragonFruit.OnionFruit.Configuration
             };
 
             _storeEntries[key] = new SettingsStoreEntry(o => o.SetValue(key, defaultValue), setFromConfigAction);
-            observable.ObserveOn(RxApp.TaskpoolScheduler)
+            observable.ObserveOn(RxSchedulers.TaskpoolScheduler)
                 .Subscribe(value =>
                 {
                     if (value == null && accessorClearMethod != null)
@@ -250,7 +250,7 @@ namespace DragonFruit.OnionFruit.Configuration
             var observable = RegisterOption(key, defaultValue, out var subject);
 
             _storeEntries[key] = new SettingsStoreEntry(o => o.SetValue(key, defaultValue), c => subject.OnNext(getter.Invoke(c)));
-            observable.ObserveOn(RxApp.TaskpoolScheduler)
+            observable.ObserveOn(RxSchedulers.TaskpoolScheduler)
                 .Subscribe(value =>
                 {
                     _logger.LogInformation("Configuration value {key} set to '{val}'", key, value);
@@ -282,7 +282,7 @@ namespace DragonFruit.OnionFruit.Configuration
                 observer = observer.SkipInitial();
             }
 
-            observer.ObserveOn(RxApp.TaskpoolScheduler).Subscribe(cs =>
+            observer.ObserveOn(RxSchedulers.TaskpoolScheduler).Subscribe(cs =>
                 {
                     var collection = rfAccessor.Invoke(_configFile);
 

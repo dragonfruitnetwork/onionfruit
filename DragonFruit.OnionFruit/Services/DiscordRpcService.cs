@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -141,12 +142,12 @@ namespace DragonFruit.OnionFruit.Services
                 .StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State));
 
             // setup observable subscriptions
-            rpcEnabled.ObserveOn(RxApp.TaskpoolScheduler)
+            rpcEnabled.ObserveOn(RxSchedulers.TaskpoolScheduler)
                 .Subscribe(HandleRpcStateChange)
                 .DisposeWith(_observables);
 
             sessionState.CombineLatest(currentExitCountry, rpcEnabled)
-                .ObserveOn(RxApp.TaskpoolScheduler)
+                .ObserveOn(RxSchedulers.TaskpoolScheduler)
                 .Where(x => x.Third) // only generate the presence if the rpc is enabled
                 .Select(x => CreatePresence(x.First.EventArgs, x.Second)) // generate the presence
                 .Where(x => x != null) // filter out null presences

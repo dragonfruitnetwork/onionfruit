@@ -3,6 +3,7 @@
 
 using System;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Services;
@@ -30,7 +31,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             _connectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchConnect).ToProperty(this, x => x.EnableConnectedPage).DisposeWith(_disposables);
             _disconnectedPageEnabled = settings.GetObservableValue<bool>(OnionFruitSetting.EnableWebsiteLaunchDisconnect).ToProperty(this, x => x.EnableDisconnectedPage).DisposeWith(_disposables);
 
-            LaunchUrl = ReactiveCommand.Create<string>(url => App.Launch(string.IsNullOrWhiteSpace(url) ? LandingPageLaunchService.DefaultConnectionPage : url), outputScheduler: RxApp.TaskpoolScheduler);
+            LaunchUrl = ReactiveCommand.Create<string>(url => App.Launch(string.IsNullOrWhiteSpace(url) ? LandingPageLaunchService.DefaultConnectionPage : url), outputScheduler: RxSchedulers.TaskpoolScheduler);
         }
 
         public IconSource ConnectedPageIcon => App.GetIcon(LucideIconNames.ShieldCheck);

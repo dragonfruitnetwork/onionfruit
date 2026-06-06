@@ -135,7 +135,7 @@ namespace DragonFruit.OnionFruit
             var sessionObservable = Observable.FromEventPattern<TorSession.TorSessionState>(h => session.SessionStateChanged += h, h => session.SessionStateChanged -= h).StartWith(new EventPattern<TorSession.TorSessionState>(this, session.State));
             var updateStateObservable = Observable.FromEventPattern<OnionFruitUpdaterStatus>(h => updater.StatusChanged += h, h => updater.StatusChanged -= h).StartWith(new EventPattern<OnionFruitUpdaterStatus>(this, updater.Status));
 
-            _shutdownSignalProcessor = sessionObservable.CombineLatest(updateStateObservable).ObserveOn(RxApp.TaskpoolScheduler).Subscribe(x =>
+            _shutdownSignalProcessor = sessionObservable.CombineLatest(updateStateObservable).ObserveOn(RxSchedulers.TaskpoolScheduler).Subscribe(x =>
             {
                 bool blockClose;
 

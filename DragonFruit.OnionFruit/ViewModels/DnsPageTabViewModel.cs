@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Windows.Input;
 using DragonFruit.OnionFruit.Configuration;
@@ -44,14 +45,14 @@ namespace DragonFruit.OnionFruit.ViewModels
             _processElevator = processElevator;
 
             settings.GetObservableValue<bool>(OnionFruitSetting.DnsProxyingEnabled)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 // disable switch if not running as an admin (even though it is technically on)
                 .Select(x => adapterManager.DnsState == NetworkComponentState.Available && x)
                 .ToProperty(this, x => x.DnsProxyEnabled, out _dnsProxyEnabled)
                 .DisposeWith(_disposables);
 
             settings.GetObservableValue<FALLBACK_DNS_SERVER_PRESET>(OnionFruitSetting.DnsFallbackServerPreset)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.SelectedAlternativeDnsServerPreset, out _dnsFallbackServerPreset)
                 .DisposeWith(_disposables);
 
@@ -69,12 +70,12 @@ namespace DragonFruit.OnionFruit.ViewModels
             // allow toggling if already enabled, otherwise only allow if dns is available
             this.WhenAnyValue(x => x.DnsProxyEnabled)
                 .Select(x => x || adapterManager.DnsState == NetworkComponentState.Available)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.CanToggleDns, out _canToggleDns);
 
             this.WhenAnyValue(x => x.SelectedAlternativeDnsServerPreset)
                 .Select(x => x == FALLBACK_DNS_SERVER_PRESET.Custom)
-                .ObserveOn(RxApp.MainThreadScheduler)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .ToProperty(this, x => x.IsCustomAlternativeDnsServerSelected, out _isCustomAlternativeDnsServerSelected);
 
             RelaunchAsElevatedProcess = ReactiveCommand.Create(() => processElevator.RelaunchProcess(true));

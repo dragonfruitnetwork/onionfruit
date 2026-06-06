@@ -12,6 +12,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 using System.Reactive.Disposables;
+using System.Reactive.Disposables.Fluent;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,7 +56,7 @@ namespace DragonFruit.OnionFruit.Database
 
             // create ready state observable, run config checks when database state changes or country-related settings are updated
             var databaseReadyObservable = Observable.FromEventPattern<EventHandler<DatabaseState>, DatabaseState>(h => StateChanged += h, h => StateChanged -= h)
-                .ObserveOn(RxApp.TaskpoolScheduler)
+                .ObserveOn(RxSchedulers.TaskpoolScheduler)
                 .Select(x => x.EventArgs == DatabaseState.Ready);
 
             foreach (var key in new[] {OnionFruitSetting.TorEntryCountryCode, OnionFruitSetting.TorExitCountryCode})

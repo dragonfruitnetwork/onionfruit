@@ -12,7 +12,6 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
 using Avalonia;
-using Avalonia.ReactiveUI;
 using DragonFruit.Data;
 using DragonFruit.Data.Serializers;
 using DragonFruit.OnionFruit.Configuration;
@@ -34,6 +33,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32.SafeHandles;
+using ReactiveUI.Avalonia;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -116,7 +116,7 @@ public static class Program
     // Avalonia configuration, don't remove; also used by visual designer.
     public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost([])))
         .UsePlatformDetect()
-        .UseReactiveUI();
+        .UseReactiveUI(_ => { });
 
     private static IHost BuildHost(string[] args) => Host.CreateDefaultBuilder()
         .ConfigureLogging(logging =>

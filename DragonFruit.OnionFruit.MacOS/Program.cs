@@ -6,7 +6,6 @@ using System.IO;
 using System.Runtime.InteropServices;
 using AppServiceSharp;
 using Avalonia;
-using Avalonia.ReactiveUI;
 using DragonFruit.Data;
 using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Core;
@@ -21,6 +20,7 @@ using DragonFruit.OnionFruit.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ReactiveUI.Avalonia;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -98,7 +98,7 @@ namespace DragonFruit.OnionFruit.MacOS
         // Avalonia configuration, don't remove; also used by visual designer.
         public static AppBuilder BuildAvaloniaApp() => AppBuilder.Configure(() => new App(_host ?? BuildHost([])))
             .UsePlatformDetect()
-            .UseReactiveUI();
+            .UseReactiveUI(_ => { });
 
         private static IHost BuildHost(string[] args) => Host.CreateDefaultBuilder()
             .ConfigureLogging(logging =>
@@ -108,6 +108,7 @@ namespace DragonFruit.OnionFruit.MacOS
             })
             .ConfigureServices((context, services) =>
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (!string.IsNullOrEmpty(DaemonPlistName))
                 {
                     services.AddKeyedSingleton("DaemonAppService", (_, _) => AppService.DaemonServiceWithPlistName(DaemonPlistName));
