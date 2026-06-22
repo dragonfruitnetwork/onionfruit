@@ -21,13 +21,13 @@ namespace DragonFruit.OnionFruit.Controls
         protected override void OnAttached()
         {
             base.OnAttached();
-            AssociatedObject.KeyDown += OnKeyDown;
+            AssociatedObject?.KeyDown += OnKeyDown;
         }
 
         protected override void OnDetaching()
         {
             base.OnDetaching();
-            AssociatedObject.KeyDown -= OnKeyDown;
+            AssociatedObject?.KeyDown -= OnKeyDown;
         }
 
         private void OnKeyDown(object sender, KeyEventArgs e)
