@@ -162,12 +162,12 @@ namespace DragonFruit.OnionFruit.ViewModels
             RemoveFirewallPort = ReactiveCommand.Create<uint>(RemoveFirewallPortImpl);
         }
 
-        public IconSource DatabaseStateIcon => App.GetIcon(LucideIconNames.DatabaseZap);
-        public IconSource EntryLocationIcon => App.GetIcon(LucideIconNames.LandPlot);
-        public IconSource ExitLocationIcon => App.GetIcon(LucideIconNames.Earth);
-        public IconSource FirewallIcon => App.GetIcon(LucideIconNames.Construction);
-        public IconSource KillswitchIcon => App.GetIcon(LucideIconNames.Unplug);
-        public IconSource CircuitLifetimeIcon => App.GetIcon(LucideIconNames.ClockAlert);
+        public FAIconSource DatabaseStateIcon => App.GetIcon(LucideIconNames.DatabaseZap);
+        public FAIconSource EntryLocationIcon => App.GetIcon(LucideIconNames.LandPlot);
+        public FAIconSource ExitLocationIcon => App.GetIcon(LucideIconNames.Earth);
+        public FAIconSource FirewallIcon => App.GetIcon(LucideIconNames.Construction);
+        public FAIconSource KillswitchIcon => App.GetIcon(LucideIconNames.Unplug);
+        public FAIconSource CircuitLifetimeIcon => App.GetIcon(LucideIconNames.ClockAlert);
 
         /// <summary>
         /// Gets whether the countries database has been loaded and <see cref="TorNodeCountry"/> items have been created.

@@ -81,9 +81,9 @@ namespace DragonFruit.OnionFruit.ViewModels
             RelaunchAsElevatedProcess = ReactiveCommand.Create(() => processElevator.RelaunchProcess(true));
         }
 
-        public IconSource ShieldIcon => App.GetIcon(LucideIconNames.ShieldHalf);
-        public IconSource DnsProxyingIcon => App.GetIcon(LucideIconNames.Waypoints);
-        public IconSource AlternativeServersIcon => App.GetIcon(LucideIconNames.BookDashed);
+        public FAIconSource ShieldIcon => App.GetIcon(LucideIconNames.ShieldHalf);
+        public FAIconSource DnsProxyingIcon => App.GetIcon(LucideIconNames.Waypoints);
+        public FAIconSource AlternativeServersIcon => App.GetIcon(LucideIconNames.BookDashed);
 
         public FALLBACK_DNS_SERVER_PRESET[] AlternativeDnsPresets { get; } = Enum.GetValues<FALLBACK_DNS_SERVER_PRESET>();
 

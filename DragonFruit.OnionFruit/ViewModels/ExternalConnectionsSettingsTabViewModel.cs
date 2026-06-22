@@ -63,9 +63,9 @@ namespace DragonFruit.OnionFruit.ViewModels
             SetStartupState = ReactiveCommand.CreateRunInBackground<bool>(SetStartupStateImpl);
         }
 
-        public IconSource DiscordIcon => App.GetIcon(LucideIconNames.Gamepad);
-        public IconSource ErrorIcon => App.GetIcon(LucideIconNames.Bug);
-        public IconSource StartupIcon => App.GetIcon(LucideIconNames.Power);
+        public FAIconSource DiscordIcon => App.GetIcon(LucideIconNames.Gamepad);
+        public FAIconSource ErrorIcon => App.GetIcon(LucideIconNames.Bug);
+        public FAIconSource StartupIcon => App.GetIcon(LucideIconNames.Power);
 
         public bool EnableDiscordRpc
         {
