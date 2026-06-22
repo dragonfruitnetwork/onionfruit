@@ -19,7 +19,7 @@
                     <Setter Property="Margin" Value="0, 0, 15 ,0"/>
                 </Style>
             </StackPanel.Styles>
-            
+
             <controls:FASettingsExpander Description="Bridge Type" IconSource="{Binding BridgeTypeIcon}">
                 <controls:FASettingsExpander.Footer>
                     <ComboBox MinWidth="150"
@@ -46,23 +46,23 @@
                                  TabIndex="0"
                                  DockPanel.Dock="Left"/>
                     </DockPanel>
-                    
+
                     <Border Background="Gray" Height="1" />
-                    
+
                     <StackPanel Orientation="Horizontal" Spacing="15" IsVisible="{Binding ShowEmptyBridgeListMessage}">
                         <lucideAvalonia:Lucide Icon="Info" StrokeBrush="DodgerBlue" Height="20" Width="20"/>
                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
                             No bridge lines have been added yet.
                         </TextBlock>
                     </StackPanel>
-                    
+
                     <StackPanel Orientation="Horizontal" Spacing="15" IsVisible="{Binding ShowDefaultsPresetMessage}">
                         <lucideAvalonia:Lucide Icon="CircleCheck" StrokeBrush="LimeGreen" Height="20" Width="20"/>
                         <TextBlock VerticalAlignment="Center" TextWrapping="Wrap">
                             One or more default entries are automatically provided.
                         </TextBlock>
                     </StackPanel>
-                    
+
                     <ItemsControl ItemsSource="{Binding CurrentBridgeLines}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>

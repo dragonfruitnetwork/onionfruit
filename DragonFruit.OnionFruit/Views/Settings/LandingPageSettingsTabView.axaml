@@ -28,7 +28,7 @@
                     <TextBox DockPanel.Dock="Left" MinWidth="300" Text="{Binding ConnectedPage}" PlaceholderText="{Binding Source={x:Static services:LandingPageLaunchService.DefaultConnectionPage}}"/>
                 </DockPanel>
             </controls:FASettingsExpander>
-            
+
             <controls:FASettingsExpander Description="Disconnected Page" IconSource="{Binding DisconnectedPageIcon}" IsExpanded="{Binding EnableDisconnectedPage, Mode=OneWay}" IsClickEnabled="False">
                 <controls:FASettingsExpander.Footer>
                     <ToggleSwitch OnContent="Enabled" OffContent="Disabled" IsChecked="{Binding EnableDisconnectedPage}"/>

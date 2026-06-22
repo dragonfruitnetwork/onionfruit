@@ -27,7 +27,6 @@
                     </controls:FASettingsExpander.Header>
                 </controls:FASettingsExpander>
 
-                
                 <controls:FASettingsExpander Description="Status" IconSource="{Binding ServiceStatusIcon, Mode=OneTime}" Footer="{Binding ServiceStatusContent}">
                     <controls:FASettingsExpander.FooterTemplate>
                         <DataTemplate DataType="viewModels:ServiceStatusViewModel">
