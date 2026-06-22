@@ -119,7 +119,7 @@
                                MinHeight="35" Width="250"
                                Margin="15,0,0,0"
                                Minimum="1" Maximum="65535" FormatString="0"
-                               PlaceholderText="Allowed Port (1-65535)" VerticalAlignment="Top"
+                               PlaceholderText="Allowed Port (1-65535)" VerticalAlignment="Center"
                                Value="{Binding FirewallPort}">
                     <Interaction.Behaviors>
                         <controls1:EnterKeyBehavior Command="{Binding AddFirewallPort}"/>
