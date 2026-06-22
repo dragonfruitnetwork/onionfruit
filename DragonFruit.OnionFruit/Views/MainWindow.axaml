@@ -1,19 +1,19 @@
-<windowing:AppWindow xmlns="https://github.com/avaloniaui"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:vm="using:DragonFruit.OnionFruit.ViewModels"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
-                     xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
-                     xmlns:controls="clr-namespace:DragonFruit.OnionFruit.Controls"
-                     xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
-                     mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
-                     x:Class="DragonFruit.OnionFruit.Views.MainWindow"
-                     x:DataType="vm:MainWindowViewModel"
-                     Background="{x:Null}" Icon="/Assets/icon.ico"
-                     Width="600" Height="175" CanResize="False" Closing="HandleCloseRequest"
-                     TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
-                     Title="{Binding Source={x:Static onionFruit:App.Title}}">
+<windowing:FAAppWindow xmlns="https://github.com/avaloniaui"
+                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                       xmlns:vm="using:DragonFruit.OnionFruit.ViewModels"
+                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                       xmlns:windowing="clr-namespace:FluentAvalonia.UI.Windowing;assembly=FluentAvalonia"
+                       xmlns:onionFruit="clr-namespace:DragonFruit.OnionFruit"
+                       xmlns:controls="clr-namespace:DragonFruit.OnionFruit.Controls"
+                       xmlns:lucideAvalonia="clr-namespace:LucideAvalonia;assembly=LucideAvalonia"
+                       mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+                       x:Class="DragonFruit.OnionFruit.Views.MainWindow"
+                       x:DataType="vm:MainWindowViewModel"
+                       Background="{x:Null}" Icon="/Assets/icon.ico"
+                       Width="600" Height="175" CanResize="False" Closing="HandleCloseRequest"
+                       TransparencyLevelHint="{x:Static onionFruit:App.TransparencyLevels}"
+                       Title="{Binding Source={x:Static onionFruit:App.Title}}">
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
@@ -104,4 +104,4 @@
             </DockPanel>
         </Panel>
     </Window.Content>
-</windowing:AppWindow>
+</windowing:FAAppWindow>
