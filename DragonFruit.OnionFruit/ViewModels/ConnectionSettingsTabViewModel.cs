@@ -26,8 +26,6 @@ namespace DragonFruit.OnionFruit.ViewModels
         private readonly OnionDbService _database;
         private readonly OnionFruitSettingsStore _settings;
 
-        private ushort? _firewallPortValue;
-
         private readonly CompositeDisposable _disposables = new();
 
         private readonly ObservableAsPropertyHelper<bool> _databaseLoaded;
@@ -212,8 +210,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         public ushort? FirewallPort
         {
-            get => _firewallPortValue;
-            set => this.RaiseAndSetIfChanged(ref _firewallPortValue, value);
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public bool EnableRestrictedFirewallMode

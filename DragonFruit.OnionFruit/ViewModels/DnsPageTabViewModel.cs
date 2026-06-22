@@ -36,8 +36,6 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private readonly CompositeDisposable _disposables = new();
 
-        private string _customDnsServerEntryContent;
-
         public DnsPageTabViewModel(OnionFruitSettingsStore settings, INetworkAdapterManager adapterManager, IProcessElevator processElevator)
         {
             _settings = settings;
@@ -118,8 +116,8 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         public string CustomDnsServerEntryContent
         {
-            get => _customDnsServerEntryContent;
-            set => this.RaiseAndSetIfChanged(ref _customDnsServerEntryContent, value);
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public ICommand RelaunchAsElevatedProcess { get; }

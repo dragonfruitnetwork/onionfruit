@@ -37,9 +37,6 @@ namespace DragonFruit.OnionFruit.ViewModels
 
         private readonly ReadOnlyObservableCollection<string> _activeTransportBridgeLines;
 
-        private string _newBridgeLines;
-        private bool _showEmptyBridgeListMessage, _showDefaultsPresetMessage;
-
         public BridgeSettingsTabViewModel(OnionFruitSettingsStore settings, TransportManager transports)
         {
             _settings = settings;
@@ -121,8 +118,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public string NewBridgeLines
         {
-            get => _newBridgeLines;
-            set => this.RaiseAndSetIfChanged(ref _newBridgeLines, value);
+            get;
+            set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         /// <summary>
@@ -130,8 +127,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public bool ShowEmptyBridgeListMessage
         {
-            get => _showEmptyBridgeListMessage;
-            private set => this.RaiseAndSetIfChanged(ref _showEmptyBridgeListMessage, value);
+            get;
+            private set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         /// <summary>
@@ -139,8 +136,8 @@ namespace DragonFruit.OnionFruit.ViewModels
         /// </summary>
         public bool ShowDefaultsPresetMessage
         {
-            get => _showDefaultsPresetMessage;
-            private set => this.RaiseAndSetIfChanged(ref _showDefaultsPresetMessage, value);
+            get;
+            private set => this.RaiseAndSetIfChanged(ref field, value);
         }
 
         public void AddBridgeLines()
