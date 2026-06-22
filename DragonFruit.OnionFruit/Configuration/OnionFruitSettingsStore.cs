@@ -269,7 +269,11 @@ namespace DragonFruit.OnionFruit.Configuration
         private void RegisterCollection<T, TStored>(OnionFruitSetting key, IEnumerable<T> defaultValue, Func<OnionFruitConfigFile, RepeatedField<TStored>> rfAccessor, Func<TStored, T> rfConversion, Func<T, TStored> rfConversionRev)
         {
             var observer = RegisterCollection<T>(key, out var list);
-            _storeCollections[key] = new SettingsCollectionEntry(c => list.AddRange(rfAccessor.Invoke(c).Select(rfConversion)), c =>
+            _storeCollections[key] = new SettingsCollectionEntry(c => list.Edit(inner =>
+            {
+                inner.Clear();
+                inner.AddRange(rfAccessor.Invoke(c).Select(rfConversion));
+            }), c =>
             {
                 var collection = rfAccessor.Invoke(c);
 
@@ -277,10 +281,6 @@ namespace DragonFruit.OnionFruit.Configuration
                 collection.AddRange(defaultValue.Select(rfConversionRev));
             });
 
-            if (defaultValue.Any())
-            {
-                observer = observer.SkipInitial();
-            }
 
             observer.ObserveOn(RxSchedulers.TaskpoolScheduler).Subscribe(cs =>
                 {
