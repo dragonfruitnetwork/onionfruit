@@ -38,7 +38,7 @@
                     <DockPanel>
                         <Button Content="Add" Command="{Binding AddBridgeLines}" TabIndex="1" DockPanel.Dock="Right"/>
                         <TextBox Text="{Binding NewBridgeLines}"
-                                 Watermark="{Binding BridgeLineWatermark}"
+                                 PlaceholderText="{Binding BridgeLinePlaceholderText}"
                                  FontFamily="{StaticResource JetBrainsMono}"
                                  TextWrapping="NoWrap"
                                  AcceptsReturn="True"
