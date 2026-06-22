@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.ViewModels.Interfaces;
-using FluentAvalonia.UI.Windowing;
 using Microsoft.Extensions.DependencyInjection;
 using ReactiveUI;
 
@@ -18,8 +17,6 @@ namespace DragonFruit.OnionFruit.Views
 
             // set titlebar options
             TitleBar.ExtendsContentIntoTitleBar = true;
-            TitleBar.TitleBarHitTestType = TitleBarHitTestType.Complex;
-
             TransparencyLevelHint = App.TransparencyLevels;
 
             this.WhenActivated(action => action(ViewModel!.SettingsWindowInteraction.RegisterHandler(OpenSettingsWindow)));
@@ -34,7 +31,10 @@ namespace DragonFruit.OnionFruit.Views
                 viewModel.SetActiveTab(ctx.Input);
             }
 
-            var window = new SettingsWindow() {DataContext = viewModel};
+            var window = new SettingsWindow
+            {
+                DataContext = viewModel
+            };
 
             await window.ShowDialog(this);
             ctx.SetOutput(Unit.Default);

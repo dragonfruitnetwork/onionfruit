@@ -20,9 +20,6 @@ namespace DragonFruit.OnionFruit.Updater
         private Timer _checkTimer;
         private Task _updateTask;
 
-        private OnionFruitUpdaterStatus _status;
-        private int? _downloadProgress;
-
         public VelopackUpdater(UpdateOptions options, ILogger<VelopackUpdater> logger)
         {
             _logger = logger;
@@ -31,10 +28,10 @@ namespace DragonFruit.OnionFruit.Updater
 
         public OnionFruitUpdaterStatus Status
         {
-            get => _status;
+            get;
             private set
             {
-                _status = value;
+                field = value;
                 StatusChanged?.Invoke(this, value);
             }
         }
@@ -43,10 +40,10 @@ namespace DragonFruit.OnionFruit.Updater
 
         public int? DownloadProgress
         {
-            get => _downloadProgress;
+            get;
             private set
             {
-                _downloadProgress = value;
+                field = value;
                 DownloadProgressChanged?.Invoke(this, value);
             }
         }

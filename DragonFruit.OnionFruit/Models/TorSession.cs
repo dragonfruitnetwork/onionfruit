@@ -33,7 +33,6 @@ namespace DragonFruit.OnionFruit.Models
 
         private bool _bootstrapped;
         private TorProcess _process;
-        private TorSessionState _state = TorSessionState.Disconnected;
 
         private IPAddress[] _activeDnsServers;
         private NetworkProxy[] _activeProxies;
@@ -48,15 +47,15 @@ namespace DragonFruit.OnionFruit.Models
         /// </summary>
         public TorSessionState State
         {
-            get => _state;
+            get;
             private set
             {
-                if (_state == value) return;
+                if (field == value) return;
 
-                _state = value;
+                field = value;
                 SessionStateChanged?.Invoke(this, value);
             }
-        }
+        } = TorSessionState.Disconnected;
 
         /// <summary>
         /// Event fired when the underlying tor process' bootstrap progress changes

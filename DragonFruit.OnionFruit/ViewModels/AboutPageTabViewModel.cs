@@ -70,8 +70,8 @@ namespace DragonFruit.OnionFruit.ViewModels
             Task.Run(ReadPackageLicenseFile);
         }
 
-        public IconSource UpdaterIcon => App.GetIcon(LucideIconNames.RefreshCw);
-        public IconSource LicensesIcon => App.GetIcon(LucideIconNames.Scale);
+        public FAIconSource UpdaterIcon => App.GetIcon(LucideIconNames.RefreshCw);
+        public FAIconSource LicensesIcon => App.GetIcon(LucideIconNames.Scale);
 
         public string CurrentUpdaterProgress => _updateProgress.Value;
 

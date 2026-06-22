@@ -40,8 +40,6 @@ namespace DragonFruit.OnionFruit.Database
         private CancellationTokenSource _cancellation;
 
         private OnionDb _currentDb;
-        private DatabaseState _state;
-        private IReadOnlyCollection<TorNodeCountry> _countries;
 
         private readonly ApiClient _client;
         private readonly ILogger<OnionDbService> _logger;
@@ -74,22 +72,22 @@ namespace DragonFruit.OnionFruit.Database
 
         public DatabaseState State
         {
-            get => _state;
+            get;
             private set
             {
-                if (_state == value) return;
+                if (field == value) return;
 
-                _state = value;
+                field = value;
                 StateChanged?.Invoke(this, value);
             }
         }
 
         public IReadOnlyCollection<TorNodeCountry> Countries
         {
-            get => _countries;
+            get;
             private set
             {
-                _countries = value;
+                field = value;
                 CountriesChanged?.Invoke(this, value);
             }
         }

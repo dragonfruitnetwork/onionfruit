@@ -269,7 +269,11 @@ namespace DragonFruit.OnionFruit.Configuration
         private void RegisterCollection<T, TStored>(OnionFruitSetting key, IEnumerable<T> defaultValue, Func<OnionFruitConfigFile, RepeatedField<TStored>> rfAccessor, Func<TStored, T> rfConversion, Func<T, TStored> rfConversionRev)
         {
             var observer = RegisterCollection<T>(key, out var list);
-            _storeCollections[key] = new SettingsCollectionEntry(c => list.AddRange(rfAccessor.Invoke(c).Select(rfConversion)), c =>
+            _storeCollections[key] = new SettingsCollectionEntry(c => list.Edit(inner =>
+            {
+                inner.Clear();
+                inner.AddRange(rfAccessor.Invoke(c).Select(rfConversion));
+            }), c =>
             {
                 var collection = rfAccessor.Invoke(c);
 
@@ -277,10 +281,6 @@ namespace DragonFruit.OnionFruit.Configuration
                 collection.AddRange(defaultValue.Select(rfConversionRev));
             });
 
-            if (defaultValue.Any())
-            {
-                observer = observer.SkipInitial();
-            }
 
             observer.ObserveOn(RxSchedulers.TaskpoolScheduler).Subscribe(cs =>
                 {
@@ -288,8 +288,15 @@ namespace DragonFruit.OnionFruit.Configuration
 
                     using (list.Connect().Bind(out var clonedList).Subscribe())
                     {
+                        var newValues = clonedList.Select(rfConversionRev).ToArray();
+
+                        if (collection.SequenceEqual(newValues))
+                        {
+                            return;
+                        }
+
                         collection.Clear();
-                        collection.AddRange(clonedList.Select(rfConversionRev).ToList());
+                        collection.AddRange(newValues);
 
                         _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", clonedList.AsEnumerable()));
                     }

@@ -11,7 +11,7 @@ service OnionRpc {
 message SecondInstanceLaunchedResponse {
   // whether the receiver of this message should close
   bool shouldClose = 1;
-  
+
   // optional PID to wait for before continuing
   optional int32 waitForPidExit = 2; 
 }
