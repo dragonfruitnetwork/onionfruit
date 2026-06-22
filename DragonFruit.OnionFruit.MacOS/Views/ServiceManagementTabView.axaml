@@ -9,11 +9,11 @@
              x:DataType="viewModels:ServiceManagementTabViewModel"
              x:Class="DragonFruit.OnionFruit.MacOS.Views.ServiceManagementTabView">
         <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" MaxWidth="1400" Spacing="10">
-            <controls:NavigationViewItemHeader Content="macOS Service Management" />
+            <controls:FANavigationViewItemHeader Content="macOS Service Management" />
 
             <StackPanel Orientation="Vertical" Spacing="10" Margin="15, 20">
-                <controls:SettingsExpander IconSource="{Binding ServiceInfoIcon, Mode=OneTime}" Description="OnionFruit™ requires a service on macOS to change system settings. Use the options on this page to manage the service installation.">
-                    <controls:SettingsExpander.Resources>
+                <controls:FASettingsExpander IconSource="{Binding ServiceInfoIcon, Mode=OneTime}" Description="OnionFruit™ requires a service on macOS to change system settings. Use the options on this page to manage the service installation.">
+                    <controls:FASettingsExpander.Resources>
                         <ResourceDictionary>
                             <ResourceDictionary.MergedDictionaries>
                                 <ResourceDictionary>
@@ -21,15 +21,15 @@
                                 </ResourceDictionary>
                             </ResourceDictionary.MergedDictionaries>
                         </ResourceDictionary>
-                    </controls:SettingsExpander.Resources>
-                    <controls:SettingsExpander.Header>
+                    </controls:FASettingsExpander.Resources>
+                    <controls:FASettingsExpander.Header>
                         <TextBlock Text="Service Info" Margin="{OnPlatform Default='0,0,0,5', Windows='0'}" FontSize="16" Foreground="White"/>
-                    </controls:SettingsExpander.Header>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Header>
+                </controls:FASettingsExpander>
 
                 
-                <controls:SettingsExpander Description="Status" IconSource="{Binding ServiceStatusIcon, Mode=OneTime}" Footer="{Binding ServiceStatusContent}">
-                    <controls:SettingsExpander.FooterTemplate>
+                <controls:FASettingsExpander Description="Status" IconSource="{Binding ServiceStatusIcon, Mode=OneTime}" Footer="{Binding ServiceStatusContent}">
+                    <controls:FASettingsExpander.FooterTemplate>
                         <DataTemplate DataType="viewModels:ServiceStatusViewModel">
                             <StackPanel Orientation="Horizontal" Spacing="15" Margin="0, 15">
                                 <Ellipse VerticalAlignment="Center" Fill="{Binding IconColor, Mode=OneWay}" Width="15" Height="15"/>
@@ -42,17 +42,17 @@
                                         Command="{Binding  $parent[UserControl].((viewModels:ServiceManagementTabViewModel)DataContext).RegisterService}"/>
                             </StackPanel>
                         </DataTemplate>
-                    </controls:SettingsExpander.FooterTemplate>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.FooterTemplate>
+                </controls:FASettingsExpander>
 
-                <controls:SettingsExpander Description="Service Administration" IconSource="{Binding ServiceAdministrationIcon, Mode=OneTime}" IsVisible="{Binding !ServiceStatusContent.ShowInstallButton}">
-                    <controls:SettingsExpander.Footer>
+                <controls:FASettingsExpander Description="Service Administration" IconSource="{Binding ServiceAdministrationIcon, Mode=OneTime}" IsVisible="{Binding !ServiceStatusContent.ShowInstallButton}">
+                    <controls:FASettingsExpander.Footer>
                         <StackPanel Orientation="Horizontal" Spacing="15" Margin="0, 15">
                             <Button Content="Remove Service" Command="{Binding UnregisterService}"/>
                             <Button Content="Open System Settings" Command="{Binding OpenSystemSettings}"/>
                         </StackPanel>
-                    </controls:SettingsExpander.Footer>
-                </controls:SettingsExpander>
+                    </controls:FASettingsExpander.Footer>
+                </controls:FASettingsExpander>
             </StackPanel>
         </StackPanel>
 </UserControl>

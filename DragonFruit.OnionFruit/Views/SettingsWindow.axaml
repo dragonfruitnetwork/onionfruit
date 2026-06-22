@@ -25,25 +25,26 @@
             </ExperimentalAcrylicBorder>
 
             <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10" IsVisible="{OnPlatform Default=False, Windows=True}">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10"
+                            IsVisible="{OnPlatform Default=False, Windows=True}">
                     <TextBlock Text="OnionFruit™ Settings" />
                 </StackPanel>
 
-                <controls:NavigationView ContentTemplate="{Binding TabTemplate}"
-                                         MenuItemsSource="{Binding Tabs}"
-                                         FooterMenuItemsSource="{Binding FooterTabs}"
-                                         SelectedItem="{Binding SelectedTab}"
-                                         Content="{Binding SelectedTab}"
-                                         PaneDisplayMode="Auto"
-                                         IsBackButtonVisible="False"
-                                         IsSettingsVisible="False"
-                                         OpenPaneLength="225">
-                    <controls:NavigationView.MenuItemTemplate>
+                <controls:FANavigationView ContentTemplate="{Binding TabTemplate}"
+                                           MenuItemsSource="{Binding Tabs}"
+                                           FooterMenuItemsSource="{Binding FooterTabs}"
+                                           SelectedItem="{Binding SelectedTab}"
+                                           Content="{Binding SelectedTab}"
+                                           PaneDisplayMode="Auto"
+                                           IsBackButtonVisible="False"
+                                           IsSettingsVisible="False"
+                                           OpenPaneLength="225">
+                    <controls:FANavigationView.MenuItemTemplate>
                         <DataTemplate DataType="{x:Type viewModels:SettingsTabInfo}">
-                            <controls:NavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}" />
+                            <controls:FANavigationViewItem Content="{Binding Name}" IconSource="{Binding Icon}" />
                         </DataTemplate>
-                    </controls:NavigationView.MenuItemTemplate>
-                </controls:NavigationView>
+                    </controls:FANavigationView.MenuItemTemplate>
+                </controls:FANavigationView>
             </DockPanel>
         </Panel>
     </Window.Content>
