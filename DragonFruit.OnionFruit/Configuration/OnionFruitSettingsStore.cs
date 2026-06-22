@@ -288,8 +288,15 @@ namespace DragonFruit.OnionFruit.Configuration
 
                     using (list.Connect().Bind(out var clonedList).Subscribe())
                     {
+                        var newValues = clonedList.Select(rfConversionRev).ToArray();
+
+                        if (collection.SequenceEqual(newValues))
+                        {
+                            return;
+                        }
+
                         collection.Clear();
-                        collection.AddRange(clonedList.Select(rfConversionRev).ToList());
+                        collection.AddRange(newValues);
 
                         _logger.LogInformation("Configuration collection {key} updated ({newVals})", key, string.Join(", ", clonedList.AsEnumerable()));
                     }
