@@ -18,13 +18,14 @@
     <PackageReference Include="DragonFruit.Data" />
     <PackageReference Include="DragonFruit.Data.Roslyn" />
     <PackageReference Include="DragonFruit.LucideAvalonia" />
+    <PackageReference Include="DynamicData" />
     <PackageReference Include="FluentAvaloniaUI" />
     <PackageReference Include="Google.Protobuf" />
     <PackageReference Include="Grpc.Tools" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Nito.AsyncEx.Coordination" />
-    <PackageReference Include="ReactiveUI.Avalonia" />
+    <PackageReference Include="ReactiveUI.Avalonia.Reactive" />
     <PackageReference Include="Svg.Controls.Skia.Avalonia" />
     <PackageReference Include="Velopack" />
     <PackageReference Include="Xaml.Behaviors.Avalonia" />
