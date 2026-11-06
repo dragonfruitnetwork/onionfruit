@@ -20,7 +20,7 @@ using DragonFruit.OnionFruit.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ReactiveUI.Avalonia;
+using ReactiveUI.Avalonia.Reactive;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
