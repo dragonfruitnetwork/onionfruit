@@ -141,7 +141,7 @@ namespace DragonFruit.OnionFruit.Updater
 
             if (_updateManager.UpdatePendingRestart != null)
             {
-                await _updateManager.WaitExitThenApplyUpdatesAsync(_updateManager.UpdatePendingRestart, true, false);
+                _updateManager.WaitExitThenApplyUpdates(_updateManager.UpdatePendingRestart, true, false);
             }
         }
 
