@@ -13,8 +13,8 @@
     <PackageVersion Include="DragonFruit.Data" Version="4.1.2" />
     <PackageVersion Include="DragonFruit.Data.Roslyn" Version="4.1.2" />
     <PackageVersion Include="DragonFruit.LucideAvalonia" Version="2.0.0-beta" />
-    <PackageVersion Include="DragonFruit.OnionFruit.Native.osx" Version="15.0.15" />
-    <PackageVersion Include="DragonFruit.OnionFruit.Native.win" Version="15.0.15" />
+    <PackageVersion Include="DragonFruit.OnionFruit.Native.osx" Version="15.0.26" />
+    <PackageVersion Include="DragonFruit.OnionFruit.Native.win" Version="15.0.26" />
     <PackageVersion Include="FluentAvaloniaUI" Version="3.0.0" />
     <PackageVersion Include="Google.Protobuf" Version="3.35.1" />
     <PackageVersion Include="Grpc.Core.Api" Version="2.80.0" />
