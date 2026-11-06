@@ -94,6 +94,7 @@ namespace DragonFruit.OnionFruit.ViewModels
 
             sessionState
                 .CombineLatest(connectionProgress)
+                .ObserveOn(RxSchedulers.MainThreadScheduler)
                 .Select(x => GetRibbonContent(x.First.EventArgs, x.Second.EventArgs))
                 .ToProperty(this, x => x.RibbonContent, out _ribbonContent)
                 .DisposeWith(_disposables);
