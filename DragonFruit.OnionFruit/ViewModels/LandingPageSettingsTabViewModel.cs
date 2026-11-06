@@ -9,7 +9,7 @@ using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Services;
 using FluentAvalonia.UI.Controls;
 using LucideAvalonia.Enum;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {

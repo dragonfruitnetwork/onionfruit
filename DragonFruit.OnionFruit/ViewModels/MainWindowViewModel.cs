@@ -18,7 +18,7 @@ using DragonFruit.OnionFruit.Database;
 using DragonFruit.OnionFruit.Models;
 using DragonFruit.OnionFruit.Updater;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {
@@ -95,7 +95,7 @@ namespace DragonFruit.OnionFruit.ViewModels
             sessionState
                 .CombineLatest(connectionProgress)
                 .Select(x => GetRibbonContent(x.First.EventArgs, x.Second.EventArgs))
-                .ToProperty(this, x => x.RibbonContent, out _ribbonContent, scheduler: RxSchedulers.MainThreadScheduler)
+                .ToProperty(this, x => x.RibbonContent, out _ribbonContent)
                 .DisposeWith(_disposables);
 
             // don't publish the settings value if the database isn't ready
@@ -113,7 +113,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .ToProperty(this, x => x.WindowTitle, out _windowTitle)
                 .DisposeWith(_disposables);
 
-            ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x.AllowToggling).ObserveOn(RxSchedulers.MainThreadScheduler)).DisposeWith(_disposables);
+            ToggleConnection = ReactiveCommand.CreateFromTask(ToggleSession, this.WhenAnyValue(x => x.RibbonContent).Select(x => x?.AllowToggling ?? false).ObserveOn(RxSchedulers.MainThreadScheduler)).DisposeWith(_disposables);
             OpenSettingsWindow = ReactiveCommand.CreateFromTask(async () => await SettingsWindowInteraction.Handle(null), sessionState.Select(x => x.EventArgs == TorSession.TorSessionState.Disconnected).ObserveOn(RxSchedulers.MainThreadScheduler)).DisposeWith(_disposables);
         }
 

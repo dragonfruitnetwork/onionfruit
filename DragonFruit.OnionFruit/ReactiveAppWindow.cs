@@ -3,11 +3,12 @@
 
 #nullable enable
 
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using FluentAvalonia.UI.Windowing;
-using ReactiveUI;
-using ReactiveUI.Avalonia;
+using ReactiveUI.Avalonia.Reactive;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit
 {
@@ -34,7 +35,7 @@ namespace DragonFruit.OnionFruit
         {
             // This WhenActivated block calls ViewModel's WhenActivated
             // block if the ViewModel implements IActivatableViewModel.
-            this.WhenActivated(disposables => { });
+            this.WhenActivated((Action<IDisposable> register) => { });
         }
 
         /// <summary>

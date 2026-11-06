@@ -18,7 +18,7 @@ using DragonFruit.OnionFruit.Updater;
 using FluentAvalonia.UI.Controls;
 using LucideAvalonia.Enum;
 using Microsoft.Extensions.Logging;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {

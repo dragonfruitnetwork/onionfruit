@@ -18,7 +18,7 @@ using DynamicData;
 using DynamicData.Kernel;
 using FluentAvalonia.UI.Controls;
 using LucideAvalonia.Enum;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {
@@ -74,7 +74,7 @@ namespace DragonFruit.OnionFruit.ViewModels
                 .DisposeWith(_disposables);
 
             this.WhenAnyValue(x => x.CurrentBridgeLineCount, x => x.SelectedTransport)
-                .Where(x => x.Item2 != TransportType.None)
+                .Where(x => x.Property2 != TransportType.None)
                 .Subscribe(_ => UpdateListMessageVisibility())
                 .DisposeWith(_disposables);
         }

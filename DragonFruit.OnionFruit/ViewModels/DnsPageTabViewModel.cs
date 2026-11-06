@@ -17,7 +17,7 @@ using DragonFruit.OnionFruit.Services;
 using DynamicData;
 using FluentAvalonia.UI.Controls;
 using LucideAvalonia.Enum;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {

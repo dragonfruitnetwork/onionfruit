@@ -12,7 +12,7 @@ using DynamicData.Binding;
 using FluentAvalonia.UI.Controls;
 using LucideAvalonia.Enum;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.ViewModels
 {

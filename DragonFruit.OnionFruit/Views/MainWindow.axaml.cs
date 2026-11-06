@@ -5,7 +5,7 @@ using Avalonia.Interactivity;
 using DragonFruit.OnionFruit.ViewModels;
 using DragonFruit.OnionFruit.ViewModels.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.Views
 {

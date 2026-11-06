@@ -17,7 +17,7 @@ using DynamicData;
 using Google.Protobuf;
 using Google.Protobuf.Collections;
 using Microsoft.Extensions.Logging;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 using CodedOutputStream = Google.Protobuf.CodedOutputStream;
 
 namespace DragonFruit.OnionFruit.Configuration

@@ -21,7 +21,7 @@ using DragonFruit.OnionFruit.Configuration;
 using DragonFruit.OnionFruit.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ReactiveUI;
+using ReactiveUI.Reactive;
 
 namespace DragonFruit.OnionFruit.Database
 {
